@@ -1,0 +1,80 @@
+<UserControl
+    x:Class="AniDesk.App.Views.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Background="#0E121A" Padding="32,24">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+            <!-- Title -->
+            <TextBlock Text="Settings" FontSize="20" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,4" />
+            <TextBlock Text="Customize your wallpaper experience and content preferences." FontSize="12.5" Foreground="#9DA6B8" Margin="0,0,0,24" />
+
+            <!-- Group 1: Content Safety -->
+            <TextBlock Text="CONTENT SAFETY" FontSize="11" FontWeight="Bold" Foreground="#656E82" Margin="0,0,0,8" />
+            <Border Background="#161B27" BorderBrush="#222838" BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,0,0,20">
+                <DockPanel LastChildFill="False">
+                    <StackPanel DockPanel.Dock="Left">
+                        <TextBlock Text="SFW Shield Protection" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                        <TextBlock Text="Enforces safe content filtering (rating:s) on all queries." FontSize="11.5" Foreground="#9DA6B8" />
+                    </StackPanel>
+
+                    <ui:ToggleSwitch
+                        x:Name="SfwSwitch"
+                        DockPanel.Dock="Right"
+                        IsChecked="True"
+                        Click="OnSfwToggled" />
+                </DockPanel>
+            </Border>
+
+            <!-- Group 2: Downloads Directory -->
+            <TextBlock Text="DOWNLOADS" FontSize="11" FontWeight="Bold" Foreground="#656E82" Margin="0,0,0,8" />
+            <Border Background="#161B27" BorderBrush="#222838" BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Download Location" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,2" />
+                    <TextBlock Text="Full-resolution wallpapers will be saved in this directory." FontSize="11.5" Foreground="#9DA6B8" Margin="0,0,0,8" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox x:Name="DownloadPathBox" IsReadOnly="True" Height="34" />
+                        <Button Grid.Column="2" Content="Browse..." Height="34" Click="OnBrowseClicked" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Group 3: Storage & Cache -->
+            <TextBlock Text="STORAGE &amp; CACHE" FontSize="11" FontWeight="Bold" Foreground="#656E82" Margin="0,0,0,8" />
+            <Border Background="#161B27" BorderBrush="#222838" BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,0,0,20">
+                <DockPanel LastChildFill="False">
+                    <StackPanel DockPanel.Dock="Left">
+                        <TextBlock Text="Thumbnail Disk Cache" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                        <TextBlock x:Name="CacheSizeText" Text="Calculating cache size..." FontSize="11.5" Foreground="#9DA6B8" />
+                    </StackPanel>
+
+                    <Button
+                        DockPanel.Dock="Right"
+                        Content="Clear Cache"
+                        Height="32"
+                        Click="OnClearCacheClicked" />
+                </DockPanel>
+            </Border>
+
+            <!-- Group 4: About -->
+            <TextBlock Text="ABOUT ANIDESK" FontSize="11" FontWeight="Bold" Foreground="#656E82" Margin="0,0,0,8" />
+            <Border Background="#161B27" BorderBrush="#222838" BorderThickness="1" CornerRadius="8" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="AniDesk v1.0.0" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                    <TextBlock Text="A modern Windows 11 Fluent Design wallpaper explorer powered by Moebooru API (yande.re &amp; konachan)." FontSize="11.5" Foreground="#9DA6B8" Margin="0,2,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

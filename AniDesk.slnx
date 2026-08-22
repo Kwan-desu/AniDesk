@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AniDesk.App/AniDesk.App.csproj" />
+    <Project Path="src/AniDesk.Core/AniDesk.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AniDesk.Tests/AniDesk.Tests.csproj" />
+  </Folder>
+</Solution>

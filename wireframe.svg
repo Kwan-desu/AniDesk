@@ -1,0 +1,334 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 820" width="100%" height="100%" style="background:#0D0F15; font-family:'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;">
+  <defs>
+    <!-- Background and Surface Gradients -->
+    <linearGradient id="micaBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#141720"/>
+      <stop offset="100%" stop-color="#0B0D13"/>
+    </linearGradient>
+
+    <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0078D4"/>
+      <stop offset="100%" stop-color="#1E90FF"/>
+    </linearGradient>
+
+    <!-- Fluent Elevation Shadows -->
+    <filter id="fluentElevation" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="hoverGlow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#0078D4" flood-opacity="0.35"/>
+    </filter>
+
+    <!-- Clip Paths for Clean Rounded Image Cards -->
+    <clipPath id="cardClip">
+      <rect width="216" height="135" rx="8"/>
+    </clipPath>
+  </defs>
+
+  <!-- App Window Container (Windows 11 Mica Surface) -->
+  <rect x="0" y="0" width="1280" height="820" rx="10" fill="url(#micaBg)" stroke="#222735" stroke-width="1.2"/>
+
+  <!-- ========================================== -->
+  <!-- 1. CLEAN STANDARD WINDOWS TITLE BAR        -->
+  <!-- ========================================== -->
+  <g id="StandardTitleBar">
+    <rect x="0" y="0" width="1280" height="36" rx="10" fill="#10131B" opacity="0.98"/>
+    
+    <!-- App Logo & Standard Title -->
+    <rect x="16" y="10" width="16" height="16" rx="4" fill="#0078D4"/>
+    <path d="M19 21 L23 14 L26 18 L30 12" stroke="#FFFFFF" stroke-width="1.4" fill="none"/>
+    <text x="40" y="22" fill="#C8CDD8" font-size="12" font-weight="500">AniDesk — Wallpaper Explorer</text>
+
+    <!-- Caption Buttons -->
+    <g transform="translate(1185, 11)">
+      <line x1="0" y1="7" x2="10" y2="7" stroke="#8F96A3" stroke-width="1.2"/>
+      <rect x="24" y="2" width="10" height="10" stroke="#8F96A3" stroke-width="1.2" fill="none"/>
+      <path d="M48 2 L58 12 M58 2 L48 12" stroke="#8F96A3" stroke-width="1.2"/>
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 2. NAVIGATION SIDEBAR                      -->
+  <!-- ========================================== -->
+  <g id="Sidebar" transform="translate(0, 36)">
+    <rect x="0" y="0" width="204" height="784" fill="#11141D" opacity="0.85"/>
+    <line x1="204" y1="0" x2="204" y2="784" stroke="#1E2330" stroke-width="1"/>
+
+    <!-- Nav Items -->
+    <g transform="translate(10, 16)">
+      <rect x="0" y="0" width="184" height="36" rx="6" fill="#1F2535"/>
+      <rect x="0" y="8" width="3.5" height="20" rx="1.75" fill="#0078D4"/>
+      <rect x="16" y="10" width="16" height="16" rx="2" stroke="#0078D4" stroke-width="1.5" fill="none"/>
+      <text x="44" y="23" fill="#FFFFFF" font-size="13" font-weight="600">Explore</text>
+    </g>
+
+    <g transform="translate(10, 58)">
+      <rect x="0" y="0" width="184" height="36" rx="6" fill="transparent"/>
+      <path d="M22 24 L25 17 L28 20 L32 13" stroke="#808899" stroke-width="1.5" fill="none"/>
+      <text x="44" y="23" fill="#9DA4B4" font-size="13">Popular</text>
+    </g>
+
+    <g transform="translate(10, 100)">
+      <rect x="0" y="0" width="184" height="36" rx="6" fill="transparent"/>
+      <polygon points="24,11 26,17 32,17 27,21 29,27 24,23 19,27 21,21 16,17 22,17" stroke="#808899" stroke-width="1.2" fill="none"/>
+      <text x="44" y="23" fill="#9DA4B4" font-size="13">Favorites</text>
+      <rect x="148" y="10" width="22" height="16" rx="8" fill="#222837"/>
+      <text x="155" y="22" fill="#808899" font-size="10">24</text>
+    </g>
+
+    <g transform="translate(10, 142)">
+      <rect x="0" y="0" width="184" height="36" rx="6" fill="transparent"/>
+      <path d="M24 12 L24 22 M20 18 L24 22 L28 18 M18 24 L30 24" stroke="#808899" stroke-width="1.5" fill="none"/>
+      <text x="44" y="23" fill="#9DA4B4" font-size="13">Downloads</text>
+    </g>
+
+    <g transform="translate(10, 184)">
+      <rect x="0" y="0" width="184" height="36" rx="6" fill="transparent"/>
+      <circle cx="24" cy="18" r="7" stroke="#808899" stroke-width="1.5" fill="none"/>
+      <polyline points="24,14 24,18 27,20" stroke="#808899" stroke-width="1.5"/>
+      <text x="44" y="23" fill="#9DA4B4" font-size="13">Auto-Rotate</text>
+    </g>
+
+    <!-- SIDEBAR BOTTOM: Preferences & Safety -->
+    <g transform="translate(10, 660)">
+      <line x1="4" y1="0" x2="180" y2="0" stroke="#222837" stroke-width="1"/>
+      <text x="6" y="-6" fill="#586174" font-size="10" font-weight="700" letter-spacing="0.5">PREFERENCES &amp; SAFETY</text>
+
+      <g transform="translate(0, 14)">
+        <rect x="0" y="0" width="184" height="50" rx="8" fill="#171D2A" stroke="#263147" stroke-width="1"/>
+        <path d="M16 16 L21 13 L26 16 L26 22 C26 26 21 29 21 29 C21 29 16 26 16 22 Z" fill="#22C55E"/>
+        <text x="34" y="23" fill="#FFFFFF" font-size="12" font-weight="600">SFW Shield</text>
+        <text x="34" y="37" fill="#22C55E" font-size="10" font-weight="600">Strict Safe (SFW)</text>
+        <rect x="134" y="16" width="38" height="20" rx="10" fill="#0078D4"/>
+        <circle cx="158" cy="26" r="7" fill="#FFFFFF"/>
+      </g>
+
+      <g transform="translate(0, 74)">
+        <rect x="0" y="0" width="184" height="36" rx="6" fill="transparent"/>
+        <circle cx="24" cy="18" r="6" stroke="#808899" stroke-width="1.5" fill="none"/>
+        <path d="M24 9 L24 12 M24 24 L24 27 M15 18 L18 18 M30 18 L33 18" stroke="#808899" stroke-width="1.5"/>
+        <text x="44" y="23" fill="#9DA4B4" font-size="13">Settings</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 3. TOP ACTION BAR (Search + In-Place Expanding Source & Filters Controls)  -->
+  <!-- ========================================================================= -->
+  <g id="TopActionBar" transform="translate(224, 48)">
+    <!-- Row 1: Search AutoSuggest Box & Filter Toggle Button -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="540" height="38" rx="6" fill="#181C26" stroke="#282E3E" stroke-width="1"/>
+      <circle cx="18" cy="19" r="5.5" stroke="#6C7588" stroke-width="1.4" fill="none"/>
+      <line x1="22" y1="23" x2="28" y2="29" stroke="#6C7588" stroke-width="1.4"/>
+      <text x="36" y="24" fill="#6C7588" font-size="12">Search tags (e.g. scenic, starry_sky, wide_wallpaper...)</text>
+
+      <!-- [ Source & Filters ] Toggle Button -->
+      <g transform="translate(552, 0)">
+        <rect x="0" y="0" width="156" height="38" rx="6" fill="#1F2636" stroke="#0078D4" stroke-width="1.5"/>
+        <path d="M16 13 L26 13 L22 18 L22 25 L20 25 L20 18 Z" fill="#0078D4"/>
+        <text x="32" y="24" fill="#FFFFFF" font-size="12" font-weight="600">Source &amp; Filters</text>
+        <path d="M136 17 L140 21 L144 17" stroke="#0078D4" stroke-width="1.5" fill="none"/>
+      </g>
+    </g>
+
+    <!-- Row 2: In-Place Docked Filter Bar (Directly beneath search row when opened) -->
+    <g transform="translate(0, 48)">
+      <rect x="0" y="0" width="708" height="42" rx="6" fill="#161B27" stroke="#262E40" stroke-width="1"/>
+      
+      <!-- Source Segment -->
+      <text x="14" y="26" fill="#6C7588" font-size="11" font-weight="700">SOURCE:</text>
+      <g transform="translate(68, 8)">
+        <rect x="0" y="0" width="240" height="26" rx="4" fill="#11141D"/>
+        <rect x="2" y="2" width="74" height="22" rx="3" fill="#242B3B"/>
+        <text x="14" y="17" fill="#FFFFFF" font-size="11" font-weight="600">yande.re</text>
+        <text x="86" y="17" fill="#808899" font-size="11">konachan.net</text>
+        <text x="166" y="17" fill="#808899" font-size="11">konachan.com</text>
+      </g>
+
+      <!-- Ratio Dropdown -->
+      <text x="328" y="26" fill="#6C7588" font-size="11" font-weight="700">RATIO:</text>
+      <rect x="376" y="8" width="136" height="26" rx="4" fill="#11141D" stroke="#242B3B" stroke-width="1"/>
+      <text x="388" y="25" fill="#E2E8F0" font-size="11">16:9 Landscape</text>
+      <path d="M498 19 L502 23 L506 19" stroke="#808899" stroke-width="1.2" fill="none"/>
+
+      <!-- Quality Dropdown -->
+      <text x="526" y="26" fill="#6C7588" font-size="11" font-weight="700">QUALITY:</text>
+      <rect x="586" y="8" width="108" height="26" rx="4" fill="#11141D" stroke="#242B3B" stroke-width="1"/>
+      <text x="598" y="25" fill="#E2E8F0" font-size="11">4K UHD+</text>
+      <path d="M678 19 L682 23 L686 19" stroke="#808899" stroke-width="1.2" fill="none"/>
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 4. WALLPAPER GALLERY (Clean Responsive)   -->
+  <!-- ========================================== -->
+  <g id="PureImageGrid" transform="translate(224, 148)">
+
+    <!-- ROW 1 -->
+    <!-- Card 1: Selected -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#202636" stroke="#0078D4" stroke-width="2.5" filter="url(#hoverGlow)"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#252D3F"/>
+        <path d="M10 125 L65 65 L115 110 L155 80 L205 125" stroke="#485675" stroke-width="2.5" fill="none"/>
+        <circle cx="55" cy="40" r="14" fill="#3D4B68"/>
+        <circle cx="200" cy="12" r="4" fill="#0078D4"/>
+      </g>
+    </g>
+
+    <!-- Card 2 -->
+    <g transform="translate(240, 0)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#161A24" stroke="#252B3A" stroke-width="1"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#1E2330"/>
+        <path d="M20 130 L70 75 L120 120 L165 70 L205 115" stroke="#373F54" stroke-width="2" fill="none"/>
+        <circle cx="165" cy="38" r="12" fill="#2F3648"/>
+      </g>
+    </g>
+
+    <!-- Card 3 -->
+    <g transform="translate(480, 0)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#1A1F2C" stroke="#3A435B" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#212736"/>
+        <path d="M15 120 L75 80 L130 125 L175 90 L210 125" stroke="#404B63" stroke-width="2" fill="none"/>
+        <circle cx="75" cy="45" r="12" fill="#333D52"/>
+        <rect width="212" height="135" fill="#000000" opacity="0.35"/>
+        <rect x="8" y="106" width="68" height="20" rx="4" fill="#000000" opacity="0.75"/>
+        <text x="14" y="120" fill="#FFFFFF" font-size="10" font-weight="600">3840×2160</text>
+        <circle cx="194" cy="18" r="12" fill="#000000" opacity="0.6"/>
+        <polygon points="194,12 196,16 200,16 197,19 198,23 194,21 190,23 191,19 188,16 192,16" fill="#F59E0B"/>
+      </g>
+    </g>
+
+    <!-- ROW 2 -->
+    <g transform="translate(0, 160)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#161A24" stroke="#252B3A" stroke-width="1"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#1D2330"/>
+        <path d="M10 135 L60 85 L110 125 L160 80 L210 130" stroke="#373F54" stroke-width="2" fill="none"/>
+        <circle cx="170" cy="40" r="10" fill="#2F3648"/>
+      </g>
+    </g>
+
+    <g transform="translate(240, 160)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#161A24" stroke="#252B3A" stroke-width="1"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#1E2332"/>
+        <path d="M15 130 L70 90 L125 130 L170 95 L210 130" stroke="#373F54" stroke-width="2" fill="none"/>
+        <circle cx="65" cy="50" r="14" fill="#2F3648"/>
+      </g>
+    </g>
+
+    <g transform="translate(480, 160)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#161A24" stroke="#252B3A" stroke-width="1"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#1E2330"/>
+        <path d="M20 125 L80 75 L135 120 L175 85 L210 120" stroke="#373F54" stroke-width="2" fill="none"/>
+        <circle cx="140" cy="45" r="12" fill="#2F3648"/>
+      </g>
+    </g>
+
+    <!-- ROW 3 -->
+    <g transform="translate(0, 320)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#161A24" stroke="#252B3A" stroke-width="1"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#1E2332"/>
+        <path d="M10 120 L60 70 L110 115 L160 75 L210 125" stroke="#373F54" stroke-width="2" fill="none"/>
+        <circle cx="80" cy="40" r="12" fill="#2F3648"/>
+      </g>
+    </g>
+
+    <g transform="translate(240, 320)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#161A24" stroke="#252B3A" stroke-width="1"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#1D2330"/>
+        <path d="M25 130 L75 80 L130 125 L170 85 L210 125" stroke="#373F54" stroke-width="2" fill="none"/>
+        <circle cx="160" cy="50" r="10" fill="#2F3648"/>
+      </g>
+    </g>
+
+    <g transform="translate(480, 320)">
+      <rect x="0" y="0" width="224" height="147" rx="10" fill="#161A24" stroke="#252B3A" stroke-width="1"/>
+      <g transform="translate(6, 6)" clip-path="url(#cardClip)">
+        <rect width="212" height="135" fill="#1E2332"/>
+        <path d="M15 125 L70 80 L125 125 L165 90 L210 130" stroke="#373F54" stroke-width="2" fill="none"/>
+        <circle cx="90" cy="45" r="12" fill="#2F3648"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 5. DEDICATED ACTION & METADATA PANEL       -->
+  <!-- ========================================== -->
+  <g id="DetailInspectorPanel" transform="translate(956, 48)">
+    <rect x="0" y="0" width="310" height="756" rx="10" fill="#161A24" stroke="#262D3E" stroke-width="1.2" filter="url(#fluentElevation)"/>
+
+    <text x="20" y="30" fill="#FFFFFF" font-size="14" font-weight="700">Wallpaper Details</text>
+    <text x="274" y="30" fill="#7E8799" font-size="15" cursor="pointer">✕</text>
+    <line x1="20" y1="42" x2="290" y2="42" stroke="#222837" stroke-width="1"/>
+
+    <!-- High-Resolution Image Preview -->
+    <g transform="translate(20, 52)">
+      <rect width="270" height="152" rx="8" fill="#222A3B" stroke="#333E54" stroke-width="1"/>
+      <path d="M15 140 L75 80 L135 130 L180 95 L255 145" stroke="#505F80" stroke-width="2.5" fill="none"/>
+      <circle cx="70" cy="55" r="14" fill="#3D4B68"/>
+    </g>
+
+    <!-- Metadata Flow -->
+    <g transform="translate(20, 220)">
+      <text x="0" y="0" fill="#7E8799" font-size="10" font-weight="700" letter-spacing="0.6">RESOLUTION &amp; ASPECT</text>
+      <text x="0" y="18" fill="#FFFFFF" font-size="13" font-weight="600">3840 × 2160 <tspan fill="#0078D4" font-size="11" font-weight="600">(16:9 • 4K UHD)</tspan></text>
+
+      <text x="0" y="44" fill="#7E8799" font-size="10" font-weight="700" letter-spacing="0.6">ARTIST &amp; SOURCE</text>
+      <text x="0" y="62" fill="#E2E6EE" font-size="13">wlop <tspan fill="#0078D4" font-size="11">↗ yande.re #1048291</tspan></text>
+
+      <text x="0" y="88" fill="#7E8799" font-size="10" font-weight="700" letter-spacing="0.6">FILE SIZE &amp; FORMAT</text>
+      <text x="0" y="106" fill="#E2E6EE" font-size="13">4.82 MB (Lossless PNG)</text>
+
+      <text x="0" y="134" fill="#7E8799" font-size="10" font-weight="700" letter-spacing="0.6">TAGS</text>
+      <g transform="translate(0, 144)">
+        <rect x="0" y="0" width="54" height="22" rx="4" fill="#222838"/>
+        <text x="8" y="15" fill="#A0A8B8" font-size="11">#scenic</text>
+
+        <rect x="60" y="0" width="46" height="22" rx="4" fill="#222838"/>
+        <text x="68" y="15" fill="#A0A8B8" font-size="11">#stars</text>
+
+        <rect x="112" y="0" width="70" height="22" rx="4" fill="#222838"/>
+        <text x="120" y="15" fill="#A0A8B8" font-size="11">#landscape</text>
+
+        <rect x="188" y="0" width="54" height="22" rx="4" fill="#222838"/>
+        <text x="196" y="15" fill="#A0A8B8" font-size="11">#clouds</text>
+      </g>
+    </g>
+
+    <!-- 3-Tier Action Center -->
+    <g transform="translate(20, 498)">
+      <text x="0" y="0" fill="#7E8799" font-size="10" font-weight="700" letter-spacing="0.6">APPLY TO DISPLAY</text>
+      <rect x="0" y="6" width="270" height="32" rx="5" fill="#1C212E" stroke="#2C3446" stroke-width="1"/>
+      <text x="12" y="27" fill="#E1E5EE" font-size="11.5">🖥️ Display 1 (Primary 4K OLED)</text>
+      <path d="M250 21 L254 25 L258 21" stroke="#7E8799" stroke-width="1.4" fill="none"/>
+
+      <!-- Tier 1: Primary Button -->
+      <rect x="0" y="46" width="270" height="40" rx="6" fill="url(#accentGrad)"/>
+      <text x="64" y="71" fill="#FFFFFF" font-size="13" font-weight="600">🪟 Set as Wallpaper</text>
+
+      <!-- Tier 2: Secondary Button Row -->
+      <g transform="translate(0, 94)">
+        <rect x="0" y="0" width="216" height="34" rx="5" fill="#202636" stroke="#2F384C" stroke-width="1"/>
+        <text x="48" y="22" fill="#D5DAE5" font-size="12" font-weight="500">🔒 Set Lock Screen</text>
+
+        <rect x="224" y="0" width="46" height="34" rx="5" fill="#202636" stroke="#2F384C" stroke-width="1"/>
+        <polygon points="247,10 249,15 254,15 250,19 252,24 247,21 242,24 244,19 240,15 245,15" fill="#F59E0B"/>
+      </g>
+
+      <!-- Tier 3: Tertiary Ghost -->
+      <rect x="0" y="136" width="270" height="30" rx="5" fill="transparent"/>
+      <text x="50" y="156" fill="#8E97A8" font-size="11.5" font-weight="500">📥 Download Original (4.82 MB)</text>
+    </g>
+  </g>
+</svg>

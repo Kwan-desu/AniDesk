@@ -1,0 +1,63 @@
+<UserControl
+    x:Class="AniDesk.App.Views.Pages.FavoritesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:controls="clr-namespace:AniDesk.App.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:AniDesk.App.ViewModels"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance vm:FavoritesViewModel}">
+
+    <Grid Background="#0E121A">
+        <!-- Empty State -->
+        <StackPanel
+            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <ui:SymbolIcon Symbol="Star24" FontSize="48" Foreground="#656E82" Margin="0,0,0,12" />
+            <TextBlock Text="No favorites bookmarked yet" FontSize="15" FontWeight="SemiBold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,4" />
+            <TextBlock Text="Click the star icon on any wallpaper card to save it here for quick access." FontSize="12.5" Foreground="#9DA6B8" HorizontalAlignment="Center" />
+        </StackPanel>
+
+        <!-- Favorites Grid -->
+        <ScrollViewer
+            Visibility="{Binding IsEmpty, Converter={StaticResource InverseBoolToVis}}"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalScrollBarVisibility="Disabled"
+            Padding="16">
+            <ListBox
+                ItemsSource="{Binding Favorites}"
+                Background="Transparent"
+                BorderThickness="0"
+                SelectionChanged="OnSelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel HorizontalAlignment="Center" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Margin" Value="8" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <controls:WallpaperCard Width="228" Height="145" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
