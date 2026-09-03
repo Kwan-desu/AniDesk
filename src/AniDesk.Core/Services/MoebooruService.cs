@@ -83,6 +83,12 @@ public class MoebooruService : IMoebooruService
     {
         if (source == BooruSource.All)
         {
+            if (!_safetyService.IsSfwShieldActive)
+            {
+                // When SFW shield is disabled, fetch directly from yande.re which contains both SFW and NSFW posts
+                return await FetchSingleAsync(BooruSource.Yandere, tags, page, limit, cancellationToken);
+            }
+
             // Parallel fetch from yande.re + konachan.net (SFW-safe pair)
             int half = Math.Max(15, limit / 2);
             var t1 = FetchSingleAsync(BooruSource.Yandere, tags, page, half, cancellationToken);
@@ -132,6 +138,20 @@ public class MoebooruService : IMoebooruService
                     {
                         posts = await resp.Content.ReadFromJsonAsync<List<MoebooruPost>>(_jsonOptions, ct);
                         break;
+                    }
+                    else if (resp.StatusCode == System.Net.HttpStatusCode.Forbidden && source == BooruSource.KonachanCom)
+                    {
+                        // Fallback from Cloudflare-protected konachan.com to yande.re
+                        string fallbackUrl = $"https://yande.re/post.json?page={page}&limit={limit}";
+                        if (!string.IsNullOrWhiteSpace(prepared))
+                            fallbackUrl += $"&tags={Uri.EscapeDataString(prepared)}";
+
+                        using var fallbackResp = await _httpClient.GetAsync(fallbackUrl, ct);
+                        if (fallbackResp.IsSuccessStatusCode)
+                        {
+                            posts = await fallbackResp.Content.ReadFromJsonAsync<List<MoebooruPost>>(_jsonOptions, ct);
+                            break;
+                        }
                     }
                 }
                 catch when (attempt < 2) { await Task.Delay(250, ct); }

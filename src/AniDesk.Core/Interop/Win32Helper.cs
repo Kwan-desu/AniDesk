@@ -5,12 +5,17 @@ namespace AniDesk.Core.Interop;
 public static class Win32Helper
 {
     public const int SPI_SETDESKWALLPAPER = 0x0014;
+    public const int SPI_GETDESKWALLPAPER = 0x0073;
     public const int SPIF_UPDATEINIFILE = 0x01;
     public const int SPIF_SENDCHANGE = 0x02;
 
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SystemParametersInfo(int uAction, int uParam, System.Text.StringBuilder lpvParam, int fuWinIni);
 
     [DllImport("user32.dll")]
     public static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumProc lpfnEnum, IntPtr dwData);

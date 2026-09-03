@@ -25,6 +25,31 @@ public sealed class PanicButtonService : IDisposable
     public bool IsRegistered => _isRegistered;
     public string SafeWallpaperPath => _safeWallpaperPath;
 
+    private bool _isEnabled = true;
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set
+        {
+            if (_isEnabled != value)
+            {
+                _isEnabled = value;
+                if (!value)
+                {
+                    Unregister();
+                }
+                else if (_currentKey != 0)
+                {
+                    Register(_currentModifiers, _currentKey);
+                }
+                else
+                {
+                    Register();
+                }
+            }
+        }
+    }
+
     public event EventHandler<bool>? PanicStateChanged;
 
     public PanicButtonService(IntPtr hotkeySinkHwnd, IntPtr targetWindowHwnd = default, string? customSafePath = null)
@@ -171,6 +196,7 @@ public sealed class PanicButtonService : IDisposable
 
     public bool HandleWindowMessage(int msg, IntPtr wParam)
     {
+        if (!_isEnabled) return false;
         if (msg == NativeMethods.WM_HOTKEY && wParam.ToInt32() == PANIC_HOTKEY_ID)
         {
             ExecuteEmergencyToggle();
@@ -311,10 +337,23 @@ public sealed class PanicButtonService : IDisposable
     {
         try
         {
-            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop");
-            _fallbackPreviousWallpaper = key?.GetValue("WallPaper") as string;
+            var sb = new System.Text.StringBuilder(512);
+            if (Win32Helper.SystemParametersInfo(Win32Helper.SPI_GETDESKWALLPAPER, 512, sb, 0) && sb.Length > 0)
+            {
+                _fallbackPreviousWallpaper = sb.ToString();
+            }
         }
         catch { }
+
+        if (string.IsNullOrWhiteSpace(_fallbackPreviousWallpaper))
+        {
+            try
+            {
+                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop");
+                _fallbackPreviousWallpaper = key?.GetValue("WallPaper") as string;
+            }
+            catch { }
+        }
 
         if (File.Exists(_safeWallpaperPath))
         {

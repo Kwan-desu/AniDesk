@@ -14,4 +14,6 @@ public class AppSettings
     public string PanicWallpaperPath { get; set; } = string.Empty;
     public bool MinimizeToTrayOnClose { get; set; } = true;
     public string PanicHotkeyDisplay { get; set; } = "Win + Shift + H";
+    public bool EnableEmergencyDesktop { get; set; } = true;
+    public bool RunPanicDaemonOnStartup { get; set; } = false;
 }

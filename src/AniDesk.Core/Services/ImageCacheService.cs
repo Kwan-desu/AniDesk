@@ -20,6 +20,7 @@ public class ImageCacheService : IImageCacheService
     private readonly string _cacheFolder;
     private readonly HttpClient _httpClient;
     private readonly ConcurrentDictionary<string, Task<string>> _inFlightDownloads = new();
+    private readonly SemaphoreSlim _downloadThrottle = new(6, 6);
     private long _totalCacheSizeBytes = -1;
 
     public ImageCacheService(HttpClient? httpClient = null)
@@ -104,46 +105,54 @@ public class ImageCacheService : IImageCacheService
 
                 string tempFile = Path.Combine(_cacheFolder, $"dl_{Guid.NewGuid():N}.tmp");
 
-                for (int attempt = 1; attempt <= 2; attempt++)
+                await _downloadThrottle.WaitAsync(cancellationToken);
+                try
                 {
-                    try
+                    for (int attempt = 1; attempt <= 2; attempt++)
                     {
-                        using var request = new HttpRequestMessage(HttpMethod.Get, url);
-                        if (url.Contains("yande.re", StringComparison.OrdinalIgnoreCase))
+                        try
                         {
-                            request.Headers.Referrer = new Uri("https://yande.re/");
-                        }
-                        else if (url.Contains("konachan", StringComparison.OrdinalIgnoreCase))
-                        {
-                            request.Headers.Referrer = new Uri("https://konachan.net/");
-                        }
-
-                        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 16384, true))
+                            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                            if (url.Contains("yande.re", StringComparison.OrdinalIgnoreCase))
                             {
-                                await response.Content.CopyToAsync(fileStream, cancellationToken);
+                                request.Headers.Referrer = new Uri("https://yande.re/");
+                            }
+                            else if (url.Contains("konachan", StringComparison.OrdinalIgnoreCase))
+                            {
+                                request.Headers.Referrer = new Uri("https://konachan.net/");
                             }
 
-                            if (File.Exists(tempFile) && new FileInfo(tempFile).Length > 0)
+                            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                            if (response.IsSuccessStatusCode)
                             {
-                                var fi = new FileInfo(tempFile);
-                                long len = fi.Length;
-                                File.Move(tempFile, cachedPath, overwrite: true);
-                                Interlocked.Add(ref _totalCacheSizeBytes, len);
-                                return cachedPath;
+                                using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 16384, true))
+                                {
+                                    await response.Content.CopyToAsync(fileStream, cancellationToken);
+                                }
+
+                                if (File.Exists(tempFile) && new FileInfo(tempFile).Length > 0)
+                                {
+                                    var fi = new FileInfo(tempFile);
+                                    long len = fi.Length;
+                                    File.Move(tempFile, cachedPath, overwrite: true);
+                                    Interlocked.Add(ref _totalCacheSizeBytes, len);
+                                    return cachedPath;
+                                }
                             }
                         }
+                        catch when (attempt < 2)
+                        {
+                            await Task.Delay(200, cancellationToken);
+                        }
+                        finally
+                        {
+                            try { if (File.Exists(tempFile)) File.Delete(tempFile); } catch { }
+                        }
                     }
-                    catch when (attempt < 2)
-                    {
-                        await Task.Delay(200, cancellationToken);
-                    }
-                    finally
-                    {
-                        try { if (File.Exists(tempFile)) File.Delete(tempFile); } catch { }
-                    }
+                }
+                finally
+                {
+                    _downloadThrottle.Release();
                 }
 
                 if (File.Exists(cachedPath) && new FileInfo(cachedPath).Length > 0)

@@ -41,6 +41,8 @@ public partial class SettingsPage : UserControl
             SfwSwitch.IsChecked = settings.IsSfwShieldActive;
             DownloadPathBox.Text = _storageService.GetDownloadDirectory();
             TraySwitch.IsChecked = settings.MinimizeToTrayOnClose;
+            EnablePanicSwitch.IsChecked = settings.EnableEmergencyDesktop;
+            StartupSwitch.IsChecked = settings.RunPanicDaemonOnStartup;
 
             if (!string.IsNullOrWhiteSpace(settings.PanicWallpaperPath) && File.Exists(settings.PanicWallpaperPath))
             {
@@ -88,6 +90,53 @@ public partial class SettingsPage : UserControl
             var settings = _storageService.LoadSettings();
             settings.MinimizeToTrayOnClose = TraySwitch.IsChecked.Value;
             _storageService.SaveSettings(settings);
+        }
+    }
+
+    private void OnEnablePanicToggled(object sender, RoutedEventArgs e)
+    {
+        if (_isLoadingSettings || !IsLoaded || _storageService == null) return;
+        if (EnablePanicSwitch.IsChecked.HasValue)
+        {
+            var settings = _storageService.LoadSettings();
+            settings.EnableEmergencyDesktop = EnablePanicSwitch.IsChecked.Value;
+            _storageService.SaveSettings(settings);
+
+            if (_panicService != null)
+            {
+                _panicService.IsEnabled = settings.EnableEmergencyDesktop;
+            }
+        }
+    }
+
+    private void OnStartupToggled(object sender, RoutedEventArgs e)
+    {
+        if (_isLoadingSettings || !IsLoaded || _storageService == null) return;
+        if (StartupSwitch.IsChecked.HasValue)
+        {
+            bool enable = StartupSwitch.IsChecked.Value;
+            var settings = _storageService.LoadSettings();
+            settings.RunPanicDaemonOnStartup = enable;
+            _storageService.SaveSettings(settings);
+
+            try
+            {
+                const string runKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(runKey, true);
+                if (key != null)
+                {
+                    string appPath = Environment.ProcessPath ?? string.Empty;
+                    if (enable && !string.IsNullOrWhiteSpace(appPath))
+                    {
+                        key.SetValue("AniDesk", $"\"{appPath}\" --daemon");
+                    }
+                    else
+                    {
+                        key.DeleteValue("AniDesk", false);
+                    }
+                }
+            }
+            catch { }
         }
     }
 

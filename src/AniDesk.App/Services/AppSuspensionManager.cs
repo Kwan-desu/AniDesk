@@ -16,19 +16,19 @@ public static class AppSuspensionManager
 
     public static void EnterBackgroundMode(Window mainWindow)
     {
-        _isHibernating = true;
-
-        // 1. Instantly hide window from taskbar and desktop
         mainWindow.Hide();
         mainWindow.ShowInTaskbar = false;
+        Hibernate();
+    }
 
-        // 2. Clear unmanaged image cache textures immediately
+    public static void Hibernate()
+    {
+        _isHibernating = true;
         AsyncImageLoader.PurgeMemoryCache();
 
-        // 3. Deferred GC compaction: guard against rapid minimize-and-restore thrash
         _ = Task.Run(async () =>
         {
-            await Task.Delay(500);
+            await Task.Delay(200);
             if (!_isHibernating) return;
 
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -36,9 +36,12 @@ public static class AppSuspensionManager
             GC.WaitForPendingFinalizers();
             GC.Collect(2, GCCollectionMode.Aggressive, blocking: true, compacting: true);
 
-            // 4. Flush hardware working set
-            IntPtr hProcess = Process.GetCurrentProcess().Handle;
-            NativeMethods.SetProcessWorkingSetSize(hProcess, (IntPtr)(-1), (IntPtr)(-1));
+            try
+            {
+                IntPtr hProcess = Process.GetCurrentProcess().Handle;
+                NativeMethods.SetProcessWorkingSetSize(hProcess, (IntPtr)(-1), (IntPtr)(-1));
+            }
+            catch { }
         });
     }
 

@@ -20,6 +20,17 @@
                     <TextBlock Text="Emergency Desktop Sanitization" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,2" />
                     <TextBlock Text="Pressing the global hotkey instantly hides AniDesk and replaces desktop wallpapers with a clean normal image in under 35ms." FontSize="11.5" Foreground="#94A3B8" Margin="0,0,0,14" TextWrapping="Wrap" />
 
+                    <!-- Enable Emergency Desktop Toggle -->
+                    <DockPanel Margin="0,0,0,14" LastChildFill="False">
+                        <StackPanel DockPanel.Dock="Left">
+                            <TextBlock Text="Enable Emergency Desktop" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                            <TextBlock Text="Master toggle to activate or deactivate the global panic hotkey hook" FontSize="11" Foreground="#94A3B8"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="EnablePanicSwitch" DockPanel.Dock="Right" IsChecked="True" Click="OnEnablePanicToggled"/>
+                    </DockPanel>
+
+                    <Separator Background="#1E2536" Margin="0,0,0,12"/>
+
                     <!-- Hotkey Information -->
                     <DockPanel Margin="0,0,0,14" LastChildFill="False">
                         <StackPanel DockPanel.Dock="Left">
@@ -46,8 +57,10 @@
                             <ColumnDefinition Width="10" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="PanicWallpaperPathBox" IsReadOnly="True" Height="34" />
-                        <Button Grid.Column="2" Content="Browse..." Height="34" Click="OnBrowsePanicWallpaperClicked" />
+                        <TextBox x:Name="PanicWallpaperPathBox" IsReadOnly="True" Height="38"
+                                 Background="#121622" Foreground="#FFFFFF" BorderBrush="#252F42" BorderThickness="1"
+                                 Padding="10,0" VerticalContentAlignment="Center" FontSize="12" />
+                        <Button Grid.Column="2" Content="Browse..." Height="38" Padding="16,0" Click="OnBrowsePanicWallpaperClicked" />
                     </Grid>
                 </StackPanel>
             </Border>
@@ -55,13 +68,25 @@
             <!-- Group 2: System Tray & Low Usage -->
             <TextBlock Text="SYSTEM TRAY &amp; LOW USAGE" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="0,0,0,8" />
             <Border Background="#161B27" BorderBrush="#222838" BorderThickness="1" CornerRadius="8" Padding="16,14" Margin="0,0,0,20">
-                <DockPanel LastChildFill="False">
-                    <StackPanel DockPanel.Dock="Left" MaxWidth="520">
-                        <TextBlock Text="Minimize to System Tray on Close" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" />
-                        <TextBlock Text="Closing the window hibernates AniDesk to the tray (&lt;18 MB RAM, 0% CPU) while keeping the panic hotkey active." FontSize="11.5" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,2,0,0"/>
-                    </StackPanel>
-                    <ui:ToggleSwitch x:Name="TraySwitch" DockPanel.Dock="Right" IsChecked="True" Click="OnTrayToggled"/>
-                </DockPanel>
+                <StackPanel>
+                    <DockPanel LastChildFill="False" Margin="0,0,0,12">
+                        <StackPanel DockPanel.Dock="Left" MaxWidth="520">
+                            <TextBlock Text="Minimize to System Tray on Close" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                            <TextBlock Text="Closing the window hibernates AniDesk to the tray (&lt;18 MB RAM, 0% CPU) while keeping the panic hotkey active." FontSize="11.5" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="TraySwitch" DockPanel.Dock="Right" IsChecked="True" Click="OnTrayToggled"/>
+                    </DockPanel>
+
+                    <Separator Background="#1E2536" Margin="0,0,0,12"/>
+
+                    <DockPanel LastChildFill="False">
+                        <StackPanel DockPanel.Dock="Left" MaxWidth="520">
+                            <TextBlock Text="Run Panic Daemon on Windows Startup" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                            <TextBlock Text="Automatically launches AniDesk in ultra-low-memory background daemon mode on Windows login." FontSize="11.5" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="StartupSwitch" DockPanel.Dock="Right" Click="OnStartupToggled"/>
+                    </DockPanel>
+                </StackPanel>
             </Border>
 
             <!-- Group 3: Content Safety -->
@@ -95,8 +120,10 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBox x:Name="DownloadPathBox" IsReadOnly="True" Height="34" />
-                        <Button Grid.Column="2" Content="Browse..." Height="34" Click="OnBrowseClicked" />
+                        <TextBox x:Name="DownloadPathBox" IsReadOnly="True" Height="38"
+                                 Background="#121622" Foreground="#FFFFFF" BorderBrush="#252F42" BorderThickness="1"
+                                 Padding="10,0" VerticalContentAlignment="Center" FontSize="12" />
+                        <Button Grid.Column="2" Content="Browse..." Height="38" Padding="16,0" Click="OnBrowseClicked" />
                     </Grid>
                 </StackPanel>
             </Border>

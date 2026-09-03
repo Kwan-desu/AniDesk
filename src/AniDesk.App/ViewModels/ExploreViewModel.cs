@@ -140,14 +140,23 @@ public partial class ExploreViewModel : ObservableObject
         return parts.Length > 0 ? parts[^1] : string.Empty;
     }
 
+    partial void OnIsPopularModeChanged(bool value)
+    {
+        if (value)
+        {
+            SearchTags = string.Empty;
+        }
+        _ = SearchAsync();
+    }
+
     public string GetEffectiveQueryTags()
     {
         string baseTags = (SearchTags ?? string.Empty).Trim();
-        if (IsPopularMode)
+        if (IsPopularMode || string.IsNullOrWhiteSpace(baseTags))
         {
             if (string.IsNullOrWhiteSpace(baseTags))
                 return "order:score";
-            if (!baseTags.Contains("order:score", StringComparison.OrdinalIgnoreCase))
+            if (!baseTags.Contains("order:", StringComparison.OrdinalIgnoreCase))
                 return $"{baseTags} order:score";
         }
         return baseTags;
@@ -200,9 +209,11 @@ public partial class ExploreViewModel : ObservableObject
         if (IsLoading || IsLoadingMore || !_hasMore) return;
         IsLoadingMore = true;
         _currentPage++;
+        var tok = _searchCts?.Token ?? default;
         try
         {
-            var raw = await _moebooruService.GetPostsAsync(SelectedSource, GetEffectiveQueryTags(), _currentPage, PageSize);
+            var raw = await _moebooruService.GetPostsAsync(SelectedSource, GetEffectiveQueryTags(), _currentPage, PageSize, tok);
+            if (tok.IsCancellationRequested) return;
             if (raw.Count == 0) { _hasMore = false; return; }
             var ids = _allPosts.Select(p => p.Id).ToHashSet();
             var newPosts = ApplyFilters(raw).Where(p => !ids.Contains(p.Id)).ToList();
@@ -217,6 +228,7 @@ public partial class ExploreViewModel : ObservableObject
                 _cacheService.PreloadThumbnails(newPosts.Select(p => p.ThumbnailUrl));
             }
         }
+        catch (OperationCanceledException) { }
         catch { }
         finally { IsLoadingMore = false; }
     }

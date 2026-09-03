@@ -115,6 +115,11 @@ public partial class App : Application
             // Apply dark Fluent theme
             ApplicationThemeManager.Apply(ApplicationTheme.Dark);
 
+            bool isDaemon = e.Args.Any(a => string.Equals(a, "--daemon", StringComparison.OrdinalIgnoreCase) ||
+                                            string.Equals(a, "--minimized", StringComparison.OrdinalIgnoreCase));
+
+            _panicService.IsEnabled = savedSettings.EnableEmergencyDesktop;
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             var helper = new System.Windows.Interop.WindowInteropHelper(mainWindow);
             _panicService.SetTargetWindow(helper.EnsureHandle());
@@ -126,7 +131,14 @@ public partial class App : Application
                 _host.Services.GetService<IContentSafetyService>()
             );
 
-            mainWindow.Show();
+            if (!isDaemon)
+            {
+                mainWindow.Show();
+            }
+            else
+            {
+                AppSuspensionManager.Hibernate();
+            }
 
             base.OnStartup(e);
         }

@@ -108,10 +108,18 @@ public partial class ExplorePage : UserControl
     // ── Infinite scroll ──
     private void OnGalleryScrollChanged(object sender, ScrollChangedEventArgs e)
     {
-        if (e.ExtentHeight > 0 && e.VerticalOffset >= e.ExtentHeight - e.ViewportHeight - 400)
+        if (e.ExtentHeight <= 0) return;
+
+        bool nearEnd = (e.ExtentHeight > 200)
+            ? (e.VerticalOffset + e.ViewportHeight >= e.ExtentHeight - 350)
+            : (e.VerticalOffset + e.ViewportHeight >= e.ExtentHeight - 2);
+
+        if (nearEnd && e.VerticalChange > 0)
         {
-            if (DataContext is ExploreViewModel vm)
+            if (DataContext is ExploreViewModel vm && !vm.IsLoading && !vm.IsLoadingMore)
+            {
                 _ = vm.LoadMoreAsync();
+            }
         }
     }
 }
