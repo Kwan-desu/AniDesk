@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.IO;
 using System.Windows;
 using System.Windows.Interop;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,66 +54,93 @@ public partial class App : Application
         // Global Exception Protection
         DispatcherUnhandledException += (s, args) =>
         {
-            args.Handled = true; // Prevent crash
+            try
+            {
+                string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk", "error.log");
+                Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+                File.AppendAllText(logPath, $"[{DateTime.Now}] Dispatcher Exception: {args.Exception}\n");
+            }
+            catch { }
+            args.Handled = true; // Prevent abrupt crash
         };
 
         AppDomain.CurrentDomain.UnhandledException += (s, args) =>
         {
-            // Prevent unhandled background crash
+            try
+            {
+                string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk", "error.log");
+                Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+                File.AppendAllText(logPath, $"[{DateTime.Now}] AppDomain Exception: {args.ExceptionObject}\n");
+            }
+            catch { }
         };
 
         TaskScheduler.UnobservedTaskException += (s, args) =>
         {
-            args.SetObserved(); // Prevent task crash
+            args.SetObserved();
         };
 
-        // 1. Create persistent HWND_MESSAGE sink for global hotkeys & tray messages
-        var parameters = new System.Windows.Interop.HwndSourceParameters("AniDesk_MessageSink")
+        try
         {
-            ParentWindow = (IntPtr)(-3) // HWND_MESSAGE (never destroyed on hide/minimize)
-        };
-        _hotkeySink = new System.Windows.Interop.HwndSource(parameters);
+            // 1. Create persistent HWND_MESSAGE sink for global hotkeys & tray messages
+            var parameters = new System.Windows.Interop.HwndSourceParameters("AniDesk_MessageSink")
+            {
+                ParentWindow = (IntPtr)(-3) // HWND_MESSAGE (never destroyed on hide/minimize)
+            };
+            _hotkeySink = new System.Windows.Interop.HwndSource(parameters);
 
-        await _host.StartAsync();
+            await _host.StartAsync();
 
-        // 2. Initialize PanicButtonService
-        var storage = _host.Services.GetRequiredService<ILocalStorageService>();
-        var savedSettings = storage.LoadSettings();
-        _panicService = new PanicButtonService(_hotkeySink.Handle, customSafePath: savedSettings.PanicWallpaperPath);
-        _panicService.Register(); // Win+Shift+H default
+            // 2. Initialize PanicButtonService
+            var storage = _host.Services.GetRequiredService<ILocalStorageService>();
+            var savedSettings = storage.LoadSettings();
+            _panicService = new PanicButtonService(_hotkeySink.Handle, customSafePath: savedSettings.PanicWallpaperPath);
+            _panicService.Register(); // Win+Shift+H default
 
-        _hotkeySink.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
+            _hotkeySink.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
+            {
+                if (_panicService != null && _panicService.HandleWindowMessage(msg, wParam))
+                {
+                    handled = true;
+                    return IntPtr.Zero;
+                }
+                if (_trayManager != null && _trayManager.HandleWindowMessage(msg, wParam, lParam))
+                {
+                    handled = true;
+                    return IntPtr.Zero;
+                }
+                return IntPtr.Zero;
+            });
+
+            // Apply dark Fluent theme
+            ApplicationThemeManager.Apply(ApplicationTheme.Dark);
+
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            var helper = new System.Windows.Interop.WindowInteropHelper(mainWindow);
+            _panicService.SetTargetWindow(helper.EnsureHandle());
+
+            _trayManager = new TrayIconManager(
+                mainWindow,
+                _panicService,
+                _hotkeySink.Handle,
+                _host.Services.GetService<IContentSafetyService>()
+            );
+
+            mainWindow.Show();
+
+            base.OnStartup(e);
+        }
+        catch (Exception ex)
         {
-            if (_panicService != null && _panicService.HandleWindowMessage(msg, wParam))
+            try
             {
-                handled = true;
-                return IntPtr.Zero;
+                string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk", "startup_error.log");
+                Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+                File.WriteAllText(logPath, ex.ToString());
             }
-            if (_trayManager != null && _trayManager.HandleWindowMessage(msg, wParam, lParam))
-            {
-                handled = true;
-                return IntPtr.Zero;
-            }
-            return IntPtr.Zero;
-        });
-
-        // Apply dark Fluent theme
-        ApplicationThemeManager.Apply(ApplicationTheme.Dark);
-
-        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-        var helper = new System.Windows.Interop.WindowInteropHelper(mainWindow);
-        _panicService.SetTargetWindow(helper.EnsureHandle());
-
-        _trayManager = new TrayIconManager(
-            mainWindow,
-            _panicService,
-            _hotkeySink.Handle,
-            _host.Services.GetService<IContentSafetyService>()
-        );
-
-        mainWindow.Show();
-
-        base.OnStartup(e);
+            catch { }
+            MessageBox.Show($"AniDesk encountered an initialization error:\n\n{ex.Message}", "AniDesk Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     protected override async void OnExit(ExitEventArgs e)

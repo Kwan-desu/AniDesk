@@ -178,7 +178,7 @@
                             <ui:SymbolIcon
                                 Symbol="Star24"
                                 Filled="{Binding Post.IsFavorite}"
-                                Foreground="{Binding Post.IsFavorite, Converter={StaticResource BoolToVis}, ConverterParameter='#F59E0B'}"
+                                Foreground="{Binding Post.IsFavorite, Converter={StaticResource BoolToBrushConverter}}"
                                 FontSize="15" />
                         </Button>
                     </Grid>

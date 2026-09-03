@@ -22,6 +22,14 @@
             <converters:AspectRatioConverter x:Key="AspectRatioConverter" />
             <converters:ValueEqualsToBoolConverter x:Key="ValueEqualsToBoolConverter" />
             <converters:StringEqualsToBrushConverter x:Key="StringEqualsToBrushConverter" />
+            <converters:BoolToBrushConverter x:Key="BoolToBrushConverter">
+                <converters:BoolToBrushConverter.TrueBrush>
+                    <SolidColorBrush Color="#E05070" />
+                </converters:BoolToBrushConverter.TrueBrush>
+                <converters:BoolToBrushConverter.FalseBrush>
+                    <SolidColorBrush Color="#94A3B8" />
+                </converters:BoolToBrushConverter.FalseBrush>
+            </converters:BoolToBrushConverter>
 
             <converters:BoolToStringConverter x:Key="SfwTitleConverter" TrueString="SFW Shield" FalseString="Unrestricted" />
             <converters:BoolToStringConverter x:Key="SfwStatusConverter" TrueString="Strict Safe" FalseString="All Content" />

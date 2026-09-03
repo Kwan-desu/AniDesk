@@ -210,7 +210,6 @@
                                         <Button
                                             Margin="0,0,8,8"
                                             Padding="10,8"
-                                            Background="{Binding Path=DataContext.SelectedMonitor, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter={Binding DeviceId}}"
                                             BorderBrush="#334155"
                                             BorderThickness="1"
                                             Click="OnMonitorCardClicked">
@@ -345,7 +344,7 @@
                                     <ui:SymbolIcon
                                         Symbol="Heart24"
                                         Filled="{Binding Post.IsFavorite}"
-                                        Foreground="{Binding Post.IsFavorite, Converter={StaticResource BoolToBrushConverter}, ConverterParameter='#E05070'}"
+                                        Foreground="{Binding Post.IsFavorite, Converter={StaticResource BoolToBrushConverter}}"
                                         FontSize="15" />
                                 </Button>
                             </Grid>

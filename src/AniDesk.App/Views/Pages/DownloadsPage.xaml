@@ -82,7 +82,7 @@
                                         Maximum="100"
                                         Height="3"
                                         Margin="0,4,0,0"
-                                        Visibility="{Binding Status, Converter={StaticResource BoolToVis}, ConverterParameter='Downloading'}" />
+                                        Visibility="{Binding Status, Converter={StaticResource EqualityToVis}, ConverterParameter='Downloading'}" />
                                 </StackPanel>
 
                                 <!-- Action -->
