@@ -57,12 +57,31 @@
                     BorderThickness="1"
                     ClipToBounds="True"
                     Margin="0,0,0,14">
-                    <Image
-                        converters:AsyncImageLoader.ImageUrl="{Binding Post.SampleUrl}"
-                        converters:AsyncImageLoader.DecodeWidth="600"
-                        Stretch="Uniform"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center" />
+                    <Grid>
+                        <Image
+                            converters:AsyncImageLoader.ImageUrl="{Binding Post.SampleUrl}"
+                            converters:AsyncImageLoader.DecodeWidth="600"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+
+                        <!-- Fullscreen Theater Zoom Button -->
+                        <Button
+                            Command="{Binding DataContext.OpenCinematicFromDetailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="8"
+                            Padding="8,4"
+                            Background="#CC10141E"
+                            BorderBrush="#4DFFFFFF"
+                            BorderThickness="1"
+                            ToolTip="Open Theater Pan/Zoom Modal">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="FullScreenMaximize24" FontSize="11" Foreground="#38BDF8" Margin="0,0,5,0"/>
+                                <TextBlock Text="Theater" FontSize="11" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
                 </Border>
 
                 <!-- 3. Continuous Flow Metadata Hierarchy -->

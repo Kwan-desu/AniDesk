@@ -34,6 +34,9 @@ public partial class ExploreViewModel : ObservableObject
     private string _searchTags = string.Empty;
 
     [ObservableProperty]
+    private bool _isPopularMode;
+
+    [ObservableProperty]
     private string _selectedAspectRatio = "All";
 
     [ObservableProperty]
@@ -137,6 +140,19 @@ public partial class ExploreViewModel : ObservableObject
         return parts.Length > 0 ? parts[^1] : string.Empty;
     }
 
+    public string GetEffectiveQueryTags()
+    {
+        string baseTags = (SearchTags ?? string.Empty).Trim();
+        if (IsPopularMode)
+        {
+            if (string.IsNullOrWhiteSpace(baseTags))
+                return "order:score";
+            if (!baseTags.Contains("order:score", StringComparison.OrdinalIgnoreCase))
+                return $"{baseTags} order:score";
+        }
+        return baseTags;
+    }
+
     [RelayCommand]
     public async Task SearchAsync()
     {
@@ -155,7 +171,7 @@ public partial class ExploreViewModel : ObservableObject
 
         try
         {
-            var raw = await _moebooruService.GetPostsAsync(SelectedSource, SearchTags, 1, PageSize, tok);
+            var raw = await _moebooruService.GetPostsAsync(SelectedSource, GetEffectiveQueryTags(), 1, PageSize, tok);
             if (tok.IsCancellationRequested) return;
 
             var filtered = ApplyFilters(raw).ToList();
@@ -186,7 +202,7 @@ public partial class ExploreViewModel : ObservableObject
         _currentPage++;
         try
         {
-            var raw = await _moebooruService.GetPostsAsync(SelectedSource, SearchTags, _currentPage, PageSize);
+            var raw = await _moebooruService.GetPostsAsync(SelectedSource, GetEffectiveQueryTags(), _currentPage, PageSize);
             if (raw.Count == 0) { _hasMore = false; return; }
             var ids = _allPosts.Select(p => p.Id).ToHashSet();
             var newPosts = ApplyFilters(raw).Where(p => !ids.Contains(p.Id)).ToList();

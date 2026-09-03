@@ -26,6 +26,9 @@ public partial class MainViewModel : ObservableObject
     private bool _isDetailPanelOpen = false;
 
     [ObservableProperty]
+    private bool _isSidebarVisible = true;
+
+    [ObservableProperty]
     private bool _isCinematicOpen = false;
 
     [ObservableProperty]
@@ -100,13 +103,14 @@ public partial class MainViewModel : ObservableObject
         switch (viewName)
         {
             case "Explore":
+                ExploreVM.IsPopularMode = false;
                 CurrentViewModel = ExploreVM;
+                _ = ExploreVM.SearchAsync();
                 break;
             case "Popular":
-                ExploreVM.SearchTags = "order:score";
-                _ = ExploreVM.SearchAsync();
+                ExploreVM.IsPopularMode = true;
                 CurrentViewModel = ExploreVM;
-                CurrentNavView = "Explore";
+                _ = ExploreVM.SearchAsync();
                 break;
             case "Favorites":
                 FavoritesVM.LoadFavorites();
@@ -129,7 +133,24 @@ public partial class MainViewModel : ObservableObject
     {
         DetailVM.SetPost(post);
         CinematicPost = post;
-        IsCinematicOpen = true;
+        IsDetailPanelOpen = true; // Opens the right-side preview drawer with options!
+        IsCinematicOpen = false;
+    }
+
+    [RelayCommand]
+    public void OpenCinematicFromDetail()
+    {
+        if (DetailVM.Post != null)
+        {
+            CinematicPost = DetailVM.Post;
+            IsCinematicOpen = true;
+        }
+    }
+
+    [RelayCommand]
+    public void ToggleSidebar()
+    {
+        IsSidebarVisible = !IsSidebarVisible;
     }
 
     [RelayCommand]

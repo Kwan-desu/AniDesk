@@ -30,15 +30,38 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Search + autocomplete -->
+                    <!-- Search + autocomplete + Popular Mode Badge -->
                     <Grid Grid.Column="0">
-                        <ui:TextBox
-                            x:Name="SearchBox"
-                            Text="{Binding SearchTags, UpdateSourceTrigger=PropertyChanged}"
-                            PlaceholderText="Search tags (e.g. scenic, starry_sky, artist:wlop)..."
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Popular Mode Badge -->
+                        <Border
+                            Grid.Column="0"
+                            Visibility="{Binding IsPopularMode, Converter={StaticResource BoolToVis}}"
+                            Background="#26F59E0B"
+                            BorderBrush="#4DF59E0B"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="10,0"
                             Height="38"
-                            Icon="Search24"
-                            PreviewKeyDown="OnSearchPreviewKeyDown"/>
+                            Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <ui:SymbolIcon Symbol="ArrowTrending24" Foreground="#F59E0B" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Popular (Top Scored)" FontSize="11.5" FontWeight="SemiBold" Foreground="#F59E0B" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Grid Grid.Column="1">
+                            <ui:TextBox
+                                x:Name="SearchBox"
+                                Text="{Binding SearchTags, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="Search tags (e.g. scenic, starry_sky, artist:wlop)..."
+                                Height="38"
+                                Icon="Search24"
+                                PreviewKeyDown="OnSearchPreviewKeyDown"/>
 
                         <!-- Suggestions Dropdown Popup (Clicking an item searches) -->
                         <Popup
@@ -89,8 +112,9 @@
                             </Border>
                         </Popup>
                     </Grid>
+                </Grid>
 
-                    <!-- SFW Shield Toolbar Pill -->
+                <!-- SFW Shield Toolbar Pill -->
                     <Border
                         Grid.Column="2"
                         Background="{Binding DataContext.IsSfwShieldActive, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource SfwBgConverter}}"
