@@ -36,6 +36,7 @@ public partial class WallpaperDetailViewModel : ObservableObject
     private bool _isStatusSuccess;
 
     public event EventHandler? CloseRequested;
+    public event EventHandler<string>? WallpaperApplied;
 
     public WallpaperDetailViewModel(
         IWallpaperService wallpaperService,
@@ -86,6 +87,7 @@ public partial class WallpaperDetailViewModel : ObservableObject
             {
                 StatusMessage = "✓ Wallpaper applied!";
                 IsStatusSuccess = true;
+                WallpaperApplied?.Invoke(this, $"Wallpaper applied to {SelectedMonitor?.DisplayName ?? "all displays"}!");
             }
             else
             {
@@ -121,6 +123,7 @@ public partial class WallpaperDetailViewModel : ObservableObject
             {
                 StatusMessage = "✓ Lock screen updated!";
                 IsStatusSuccess = true;
+                WallpaperApplied?.Invoke(this, "Lock screen wallpaper updated successfully!");
             }
             else
             {
@@ -154,6 +157,7 @@ public partial class WallpaperDetailViewModel : ObservableObject
             {
                 StatusMessage = "✓ Download completed!";
                 IsStatusSuccess = true;
+                WallpaperApplied?.Invoke(this, "Original wallpaper downloaded successfully!");
             }
             else
             {

@@ -11,8 +11,8 @@
     d:DataContext="{d:DesignInstance vm:WallpaperDetailViewModel}">
 
     <Border
-        Background="#D9161B26"
-        BorderBrush="#262D3E"
+        Background="#CC0E131E"
+        BorderBrush="#1AFFFFFF"
         BorderThickness="1,0,0,0">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Grid Margin="18,16,18,18">
@@ -124,26 +124,20 @@
                     <ComboBox
                         ItemsSource="{Binding Monitors}"
                         SelectedItem="{Binding SelectedMonitor}"
-                        DisplayMemberPath="DisplayName"
-                        Height="32"
-                        Margin="0,0,0,10" />
-
-                    <!-- High-Contrast Status Notification Banner -->
-                    <Border
-                        Visibility="{Binding StatusMessage, Converter={StaticResource NullToVis}}"
-                        Background="#162E20"
-                        BorderBrush="#22C55E"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="10,7"
-                        Margin="0,0,0,10">
-                        <TextBlock
-                            Text="{Binding StatusMessage}"
-                            FontSize="12"
-                            FontWeight="Bold"
-                            Foreground="#4ADE80"
-                            TextWrapping="Wrap" />
-                    </Border>
+                        Height="38"
+                        MinHeight="38"
+                        VerticalContentAlignment="Center"
+                        FontSize="12"
+                        Margin="0,0,0,12">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="Desktop24" FontSize="14" Foreground="#38BDF8" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" Foreground="#FFFFFF" FontSize="12"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
                     <!-- Tier 1: Primary Action (Filled Accent with Ambient Glow) -->
                     <Button

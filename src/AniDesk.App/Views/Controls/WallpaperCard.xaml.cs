@@ -28,12 +28,10 @@ public partial class WallpaperCard : UserControl
 
     private void UpdateCardHeight(double width)
     {
-        if (width > 20 && DataContext is MoebooruPost post && post.Width > 0 && post.Height > 0)
+        if (width > 20)
         {
-            double ratio = (double)post.Width / post.Height;
-            if (ratio <= 0.01) ratio = 16.0 / 9.0;
-            double desiredHeight = Math.Clamp(Math.Round(width / ratio), 90.0, 360.0);
-            if (Math.Abs(Height - desiredHeight) > 1)
+            double desiredHeight = Math.Round(width * 9.0 / 16.0);
+            if (desiredHeight > 60 && Math.Abs(Height - desiredHeight) > 1)
             {
                 Height = desiredHeight;
             }

@@ -37,8 +37,8 @@
                     <TextBlock Text="Emergency Safe Wallpaper" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,4"/>
                     <TextBlock Text="Select which clean image is swapped onto your monitors during emergency mode:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,10"/>
 
-                    <RadioButton x:Name="DefaultWallpaperRadio" Content="Use Windows 11 Built-in Clean Default" GroupName="PanicWallpaper" IsChecked="True" Foreground="#E2E8F0" Margin="0,0,0,6" Checked="OnDefaultWallpaperChecked"/>
-                    <RadioButton x:Name="CustomWallpaperRadio" Content="Custom Safe Image Path" GroupName="PanicWallpaper" Foreground="#E2E8F0" Margin="0,0,0,8" Checked="OnCustomWallpaperChecked"/>
+                    <RadioButton x:Name="DefaultWallpaperRadio" Content="Use Windows 11 Built-in Clean Default" GroupName="PanicWallpaper" Foreground="#E2E8F0" Margin="0,0,0,6" />
+                    <RadioButton x:Name="CustomWallpaperRadio" Content="Custom Safe Image Path" GroupName="PanicWallpaper" Foreground="#E2E8F0" Margin="0,0,0,8" />
 
                     <Grid x:Name="CustomPathGrid" Visibility="Collapsed" Margin="0,4,0,4">
                         <Grid.ColumnDefinitions>

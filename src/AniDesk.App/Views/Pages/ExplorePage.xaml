@@ -24,9 +24,11 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
@@ -153,6 +155,18 @@
                             <TextBlock Text="Filters"/>
                         </StackPanel>
                     </ToggleButton>
+
+                    <!-- Refresh button -->
+                    <Button
+                        Grid.Column="6"
+                        Command="{Binding SearchCommand}"
+                        Width="38" Height="38"
+                        Padding="0"
+                        Background="#1A202C" BorderBrush="#2D3548" BorderThickness="1"
+                        ToolTip="Refresh Wallpapers (F5)"
+                        Cursor="Hand">
+                        <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="16" Foreground="#38BDF8" />
+                    </Button>
                 </Grid>
 
                 <!-- Expandable filter bar -->
@@ -177,8 +191,11 @@
                             <ComboBox
                                 SelectedValue="{Binding SelectedSource}"
                                 SelectedValuePath="Tag"
-                                Height="32"
-                                Width="220">
+                                Height="38"
+                                MinHeight="38"
+                                VerticalContentAlignment="Center"
+                                FontSize="12"
+                                Width="230">
                                 <ComboBoxItem Content="All Sources (Combined)" Tag="{x:Static models:BooruSource.All}" />
                                 <ComboBoxItem Content="yande.re" Tag="{x:Static models:BooruSource.Yandere}" />
                                 <ComboBoxItem Content="konachan.net (SFW)" Tag="{x:Static models:BooruSource.KonachanNet}" />
@@ -192,8 +209,11 @@
                             <ComboBox
                                 SelectedValue="{Binding SelectedAspectRatio}"
                                 SelectedValuePath="Tag"
-                                Height="32"
-                                Width="160">
+                                Height="38"
+                                MinHeight="38"
+                                VerticalContentAlignment="Center"
+                                FontSize="12"
+                                Width="170">
                                 <ComboBoxItem Content="All Orientations" Tag="All" />
                                 <ComboBoxItem Content="16:9 Landscape" Tag="16:9"/>
                                 <ComboBoxItem Content="21:9 Ultrawide" Tag="21:9"/>
@@ -207,8 +227,11 @@
                             <ComboBox
                                 SelectedValue="{Binding SelectedMinQuality}"
                                 SelectedValuePath="Tag"
-                                Height="32"
-                                Width="140">
+                                Height="38"
+                                MinHeight="38"
+                                VerticalContentAlignment="Center"
+                                FontSize="12"
+                                Width="150">
                                 <ComboBoxItem Content="All Qualities" Tag="All" />
                                 <ComboBoxItem Content="4K UHD+" Tag="4K"/>
                                 <ComboBoxItem Content="2K QHD+" Tag="2K"/>
@@ -220,7 +243,7 @@
                         <Button
                             Grid.Column="6"
                             Command="{Binding ApplyFiltersCommand}"
-                            Height="32" Padding="18,0"
+                            Height="38" Padding="18,0"
                             Background="#0078D4" Foreground="#FFFFFF"
                             FontWeight="SemiBold" Content="Apply Filters"/>
                     </Grid>
@@ -296,12 +319,36 @@
                 </ItemsControl>
             </ScrollViewer>
 
-            <!-- Load-more bar -->
-            <ProgressBar
-                IsIndeterminate="True"
+            <!-- Centered Floating Circular ProgressRing Indicator -->
+            <Border
                 Visibility="{Binding IsLoadingMore, Converter={StaticResource BoolToVis}}"
+                HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
-                Height="3"/>
+                Margin="0,0,0,24"
+                Panel.ZIndex="50"
+                Background="#E6121724"
+                BorderBrush="#29354A"
+                BorderThickness="1"
+                CornerRadius="22"
+                Padding="18,10">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" Direction="270" Color="#000000" Opacity="0.55" />
+                </Border.Effect>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:ProgressRing
+                        IsIndeterminate="True"
+                        Width="22"
+                        Height="22"
+                        Foreground="#0078D4"
+                        Margin="0,0,12,0" />
+                    <TextBlock
+                        Text="Loading more wallpapers..."
+                        FontSize="12.5"
+                        FontWeight="SemiBold"
+                        Foreground="#E2E8F0"
+                        VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

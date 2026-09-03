@@ -192,7 +192,7 @@ public sealed class PanicButtonService : IDisposable
             IDesktopWallpaper? desktopWallpaper = null;
             try
             {
-                desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
+                desktopWallpaper = DesktopWallpaperFactory.Create();
 
                 if (!_isPanicked)
                 {
@@ -204,29 +204,43 @@ public sealed class PanicButtonService : IDisposable
 
                     // 2. Snapshot current active wallpaper(s)
                     _previousWallpapers.Clear();
-                    uint count = desktopWallpaper.GetMonitorDevicePathCount();
 
-                    if (count == 0)
+                    bool comSucceeded = false;
+                    if (desktopWallpaper != null)
                     {
-                        string current = desktopWallpaper.GetWallpaper(null);
-                        _previousWallpapers[string.Empty] = current;
-                        if (File.Exists(_safeWallpaperPath))
+                        try
                         {
-                            desktopWallpaper.SetWallpaper(null, _safeWallpaperPath);
-                        }
-                    }
-                    else
-                    {
-                        for (uint i = 0; i < count; i++)
-                        {
-                            string devicePath = desktopWallpaper.GetMonitorDevicePathAt(i);
-                            string current = desktopWallpaper.GetWallpaper(devicePath);
-                            _previousWallpapers[devicePath] = current;
-                            if (File.Exists(_safeWallpaperPath))
+                            uint count = desktopWallpaper.GetMonitorDevicePathCount();
+                            if (count == 0)
                             {
-                                desktopWallpaper.SetWallpaper(devicePath, _safeWallpaperPath);
+                                string current = desktopWallpaper.GetWallpaper(null);
+                                _previousWallpapers[string.Empty] = current;
+                                if (File.Exists(_safeWallpaperPath))
+                                {
+                                    desktopWallpaper.SetWallpaper(null, _safeWallpaperPath);
+                                }
                             }
+                            else
+                            {
+                                for (uint i = 0; i < count; i++)
+                                {
+                                    string devicePath = desktopWallpaper.GetMonitorDevicePathAt(i);
+                                    string current = desktopWallpaper.GetWallpaper(devicePath);
+                                    _previousWallpapers[devicePath] = current;
+                                    if (File.Exists(_safeWallpaperPath))
+                                    {
+                                        desktopWallpaper.SetWallpaper(devicePath, _safeWallpaperPath);
+                                    }
+                                }
+                            }
+                            comSucceeded = true;
                         }
+                        catch { }
+                    }
+
+                    if (!comSucceeded)
+                    {
+                        ApplyFallbackSafeWallpaper();
                     }
 
                     _isPanicked = true;
@@ -234,25 +248,35 @@ public sealed class PanicButtonService : IDisposable
                 else
                 {
                     // REVERT / TOGGLE RESTORE
-                    uint count = desktopWallpaper.GetMonitorDevicePathCount();
-
-                    if (_previousWallpapers.Count > 0)
+                    bool comRevertSucceeded = false;
+                    if (desktopWallpaper != null && _previousWallpapers.Count > 0)
                     {
-                        if (count == 0 && _previousWallpapers.TryGetValue(string.Empty, out var single) && File.Exists(single))
+                        try
                         {
-                            desktopWallpaper.SetWallpaper(null, single);
-                        }
-                        else
-                        {
-                            for (uint i = 0; i < count; i++)
+                            uint count = desktopWallpaper.GetMonitorDevicePathCount();
+                            if (count == 0 && _previousWallpapers.TryGetValue(string.Empty, out var single) && File.Exists(single))
                             {
-                                string devicePath = desktopWallpaper.GetMonitorDevicePathAt(i);
-                                if (_previousWallpapers.TryGetValue(devicePath, out var saved) && File.Exists(saved))
+                                desktopWallpaper.SetWallpaper(null, single);
+                            }
+                            else
+                            {
+                                for (uint i = 0; i < count; i++)
                                 {
-                                    desktopWallpaper.SetWallpaper(devicePath, saved);
+                                    string devicePath = desktopWallpaper.GetMonitorDevicePathAt(i);
+                                    if (_previousWallpapers.TryGetValue(devicePath, out var saved) && File.Exists(saved))
+                                    {
+                                        desktopWallpaper.SetWallpaper(devicePath, saved);
+                                    }
                                 }
                             }
+                            comRevertSucceeded = true;
                         }
+                        catch { }
+                    }
+
+                    if (!comRevertSucceeded)
+                    {
+                        RevertFallbackWallpaper();
                     }
 
                     // Restore window
@@ -269,7 +293,7 @@ public sealed class PanicButtonService : IDisposable
             {
                 if (desktopWallpaper != null)
                 {
-                    Marshal.ReleaseComObject(desktopWallpaper);
+                    try { Marshal.ReleaseComObject(desktopWallpaper); } catch { }
                 }
             }
 
@@ -278,6 +302,41 @@ public sealed class PanicButtonService : IDisposable
         finally
         {
             Interlocked.Exchange(ref _isTransitioning, 0);
+        }
+    }
+
+    private string? _fallbackPreviousWallpaper;
+
+    private void ApplyFallbackSafeWallpaper()
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop");
+            _fallbackPreviousWallpaper = key?.GetValue("WallPaper") as string;
+        }
+        catch { }
+
+        if (File.Exists(_safeWallpaperPath))
+        {
+            Win32Helper.SystemParametersInfo(
+                Win32Helper.SPI_SETDESKWALLPAPER,
+                0,
+                _safeWallpaperPath,
+                Win32Helper.SPIF_UPDATEINIFILE | Win32Helper.SPIF_SENDCHANGE
+            );
+        }
+    }
+
+    private void RevertFallbackWallpaper()
+    {
+        if (!string.IsNullOrWhiteSpace(_fallbackPreviousWallpaper) && File.Exists(_fallbackPreviousWallpaper))
+        {
+            Win32Helper.SystemParametersInfo(
+                Win32Helper.SPI_SETDESKWALLPAPER,
+                0,
+                _fallbackPreviousWallpaper,
+                Win32Helper.SPIF_UPDATEINIFILE | Win32Helper.SPIF_SENDCHANGE
+            );
         }
     }
 

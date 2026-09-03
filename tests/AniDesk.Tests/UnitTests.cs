@@ -118,4 +118,12 @@ public class CoreUnitTests
         long size = cache.GetCacheSizeInBytes();
         Assert.True(size >= 0);
     }
+
+    [Fact]
+    public void PanicButtonService_EmergencyToggle_ExecutesWithoutException()
+    {
+        using var panic = new PanicButtonService(IntPtr.Zero);
+        var ex = Record.Exception(() => panic.ExecuteEmergencyToggle());
+        Assert.Null(ex);
+    }
 }

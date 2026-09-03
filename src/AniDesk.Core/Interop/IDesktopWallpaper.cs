@@ -65,3 +65,35 @@ public struct RECT
 public class DesktopWallpaperClass
 {
 }
+
+[ComImport]
+[Guid("B92B56A9-8B55-4E14-9A89-0199BBB6F3C6")]
+[CoClass(typeof(DesktopWallpaperClass))]
+public interface DesktopWallpaper : IDesktopWallpaper
+{
+}
+
+public static class DesktopWallpaperFactory
+{
+    public static IDesktopWallpaper? Create()
+    {
+        try
+        {
+            var type = Type.GetTypeFromCLSID(new Guid("C2CF3110-460E-4fc1-B9D0-8A1C0C9CC4BD"));
+            if (type != null)
+            {
+                var obj = Activator.CreateInstance(type);
+                if (obj is IDesktopWallpaper dw) return dw;
+            }
+        }
+        catch { }
+
+        try
+        {
+            return new DesktopWallpaper();
+        }
+        catch { }
+
+        return null;
+    }
+}

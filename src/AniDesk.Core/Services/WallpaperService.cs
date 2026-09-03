@@ -37,8 +37,10 @@ public class WallpaperService : IWallpaperService
         IDesktopWallpaper? desktopWallpaper = null;
         try
         {
-            desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
-            uint count = desktopWallpaper.GetMonitorDevicePathCount();
+            desktopWallpaper = DesktopWallpaperFactory.Create();
+            if (desktopWallpaper != null)
+            {
+                uint count = desktopWallpaper.GetMonitorDevicePathCount();
 
             for (uint i = 0; i < count; i++)
             {
@@ -55,6 +57,7 @@ public class WallpaperService : IWallpaperService
                     IsPrimary = (i == 0)
                 });
             }
+        }
         }
         catch
         {
@@ -112,7 +115,8 @@ public class WallpaperService : IWallpaperService
             IDesktopWallpaper? desktopWallpaper = null;
             try
             {
-                desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
+                desktopWallpaper = DesktopWallpaperFactory.Create();
+                if (desktopWallpaper == null) throw new InvalidOperationException("COM wallpaper service unavailable");
                 desktopWallpaper.SetPosition((DesktopWallpaperPosition)fit);
 
                 if (monitorIndex < 0)

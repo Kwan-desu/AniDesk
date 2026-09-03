@@ -13,6 +13,8 @@ public partial class SettingsPage : UserControl
     private readonly IImageCacheService _cacheService;
     private readonly PanicButtonService? _panicService;
 
+    private bool _isLoadingSettings;
+
     public SettingsPage()
     {
         InitializeComponent();
@@ -22,34 +24,48 @@ public partial class SettingsPage : UserControl
         _cacheService = App.Services.GetRequiredService<IImageCacheService>();
         _panicService = App.Services.GetService<PanicButtonService>();
 
-        Loaded += (s, e) => LoadSettings();
+        Loaded += (s, e) =>
+        {
+            LoadSettings();
+            DefaultWallpaperRadio.Checked += OnDefaultWallpaperChecked;
+            CustomWallpaperRadio.Checked += OnCustomWallpaperChecked;
+        };
     }
 
     private void LoadSettings()
     {
-        var settings = _storageService.LoadSettings();
-        SfwSwitch.IsChecked = settings.IsSfwShieldActive;
-        DownloadPathBox.Text = _storageService.GetDownloadDirectory();
-        TraySwitch.IsChecked = settings.MinimizeToTrayOnClose;
-
-        if (!string.IsNullOrWhiteSpace(settings.PanicWallpaperPath) && File.Exists(settings.PanicWallpaperPath))
+        _isLoadingSettings = true;
+        try
         {
-            CustomWallpaperRadio.IsChecked = true;
-            CustomPathGrid.Visibility = Visibility.Visible;
-            PanicWallpaperPathBox.Text = settings.PanicWallpaperPath;
-        }
-        else
-        {
-            DefaultWallpaperRadio.IsChecked = true;
-            CustomPathGrid.Visibility = Visibility.Collapsed;
-            PanicWallpaperPathBox.Text = string.Empty;
-        }
+            var settings = _storageService.LoadSettings();
+            SfwSwitch.IsChecked = settings.IsSfwShieldActive;
+            DownloadPathBox.Text = _storageService.GetDownloadDirectory();
+            TraySwitch.IsChecked = settings.MinimizeToTrayOnClose;
 
-        UpdateCacheSizeText();
+            if (!string.IsNullOrWhiteSpace(settings.PanicWallpaperPath) && File.Exists(settings.PanicWallpaperPath))
+            {
+                CustomWallpaperRadio.IsChecked = true;
+                if (CustomPathGrid != null) CustomPathGrid.Visibility = Visibility.Visible;
+                PanicWallpaperPathBox.Text = settings.PanicWallpaperPath;
+            }
+            else
+            {
+                DefaultWallpaperRadio.IsChecked = true;
+                if (CustomPathGrid != null) CustomPathGrid.Visibility = Visibility.Collapsed;
+                PanicWallpaperPathBox.Text = string.Empty;
+            }
+
+            UpdateCacheSizeText();
+        }
+        finally
+        {
+            _isLoadingSettings = false;
+        }
     }
 
     private void UpdateCacheSizeText()
     {
+        if (_cacheService == null) return;
         long bytes = _cacheService.GetCacheSizeInBytes();
         double mb = (double)bytes / (1024 * 1024);
         CacheSizeText.Text = $"Currently cached: {mb:F2} MB";
@@ -57,6 +73,7 @@ public partial class SettingsPage : UserControl
 
     private void OnSfwToggled(object sender, RoutedEventArgs e)
     {
+        if (_isLoadingSettings || !IsLoaded || _safetyService == null) return;
         if (SfwSwitch.IsChecked.HasValue)
         {
             _safetyService.IsSfwShieldActive = SfwSwitch.IsChecked.Value;
@@ -65,6 +82,7 @@ public partial class SettingsPage : UserControl
 
     private void OnTrayToggled(object sender, RoutedEventArgs e)
     {
+        if (_isLoadingSettings || !IsLoaded || _storageService == null) return;
         if (TraySwitch.IsChecked.HasValue)
         {
             var settings = _storageService.LoadSettings();
@@ -75,6 +93,8 @@ public partial class SettingsPage : UserControl
 
     private void OnDefaultWallpaperChecked(object sender, RoutedEventArgs e)
     {
+        if (_isLoadingSettings || !IsLoaded || _storageService == null) return;
+
         if (CustomPathGrid != null)
         {
             CustomPathGrid.Visibility = Visibility.Collapsed;
@@ -89,6 +109,8 @@ public partial class SettingsPage : UserControl
 
     private void OnCustomWallpaperChecked(object sender, RoutedEventArgs e)
     {
+        if (_isLoadingSettings || !IsLoaded || _storageService == null) return;
+
         if (CustomPathGrid != null)
         {
             CustomPathGrid.Visibility = Visibility.Visible;

@@ -63,11 +63,11 @@
                 </converters:BoolToBrushConverter.FalseBrush>
             </converters:BoolToBrushConverter>
 
-            <!-- Global Accent & Dark Fluent Colors -->
-            <SolidColorBrush x:Key="MicaWindowBackground" Color="#0D0F16" />
-            <SolidColorBrush x:Key="SidebarBackground" Color="#131620" />
-            <SolidColorBrush x:Key="SurfaceCardBackground" Color="#1A1E2B" />
-            <SolidColorBrush x:Key="SurfaceBorderSubtle" Color="#222838" />
+            <!-- Global Accent & Translucent Mica Dark Modern Brushes -->
+            <SolidColorBrush x:Key="MicaWindowBackground" Color="#550A0D15" />
+            <SolidColorBrush x:Key="SidebarBackground" Color="#880F131D" />
+            <SolidColorBrush x:Key="SurfaceCardBackground" Color="#99161B26" />
+            <SolidColorBrush x:Key="SurfaceBorderSubtle" Color="#1FFFFFFF" />
             <SolidColorBrush x:Key="AccentDefault" Color="#0078D4" />
             <SolidColorBrush x:Key="AccentGlow" Color="#330078D4" />
             <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFF" />
@@ -76,9 +76,22 @@
             <SolidColorBrush x:Key="SafeGreen" Color="#10B981" />
             <SolidColorBrush x:Key="SafeGreenBg" Color="#2010B981" />
             <SolidColorBrush x:Key="NavActiveIndicatorBrush" Color="#0078D4" />
-            <SolidColorBrush x:Key="NavActiveBackgroundBrush" Color="#1C2333" />
-            <SolidColorBrush x:Key="TranslucentNavRailBackground" Color="#CC12151E" />
-            <SolidColorBrush x:Key="ApplicationBackgroundBrush" Color="#0B0D13" />
+            <SolidColorBrush x:Key="NavActiveBackgroundBrush" Color="#330078D4" />
+            <SolidColorBrush x:Key="TranslucentNavRailBackground" Color="#880F131D" />
+            <SolidColorBrush x:Key="ApplicationBackgroundBrush" Color="Transparent" />
+
+            <!-- Global Control Styles (Zero Clipping, 38px Ergonomics) -->
+            <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+                <Setter Property="MinHeight" Value="38" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="Padding" Value="12,0" />
+            </Style>
+
+            <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+                <Setter Property="MinHeight" Value="38" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="Padding" Value="10,0" />
+            </Style>
 
             <!-- Shimmer Animation Storyboard -->
             <Storyboard x:Key="ShimmerStoryboard" RepeatBehavior="Forever">

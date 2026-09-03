@@ -40,6 +40,17 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _themeAccent = "default";
 
+    [ObservableProperty]
+    private bool _isToastVisible;
+
+    [ObservableProperty]
+    private string _toastTitle = "Success";
+
+    [ObservableProperty]
+    private string _toastMessage = string.Empty;
+
+    private System.Windows.Threading.DispatcherTimer? _toastTimer;
+
     public MainViewModel(
         ExploreViewModel exploreVM,
         FavoritesViewModel favoritesVM,
@@ -76,6 +87,11 @@ public partial class MainViewModel : ObservableObject
         {
             IsDetailPanelOpen = false;
             IsCinematicOpen = false;
+        };
+
+        DetailVM.WallpaperApplied += (s, msg) =>
+        {
+            ShowToast("Success", msg);
         };
 
         _safetyService.SafetyStateChanged += (s, active) =>
@@ -178,5 +194,24 @@ public partial class MainViewModel : ObservableObject
         var settings = _storageService.LoadSettings();
         settings.ThemeAccent = accent;
         _storageService.SaveSettings(settings);
+    }
+
+    public void ShowToast(string title, string message)
+    {
+        ToastTitle = title;
+        ToastMessage = message;
+        IsToastVisible = true;
+
+        _toastTimer?.Stop();
+        _toastTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(3.5)
+        };
+        _toastTimer.Tick += (s, e) =>
+        {
+            IsToastVisible = false;
+            _toastTimer?.Stop();
+        };
+        _toastTimer.Start();
     }
 }

@@ -20,6 +20,8 @@
 
     <ui:FluentWindow.InputBindings>
         <KeyBinding Modifiers="Control" Key="B" Command="{Binding ToggleSidebarCommand}" />
+        <KeyBinding Key="F5" Command="{Binding ExploreVM.SearchCommand}" />
+        <KeyBinding Modifiers="Control" Key="R" Command="{Binding ExploreVM.SearchCommand}" />
     </ui:FluentWindow.InputBindings>
 
     <Grid Background="Transparent">
@@ -81,21 +83,8 @@
 
                     <!-- Nav Items Group -->
                     <StackPanel Grid.Row="0">
-                        <!-- Top Rail Header with Quick Collapse Button -->
-                        <DockPanel Margin="4,0,2,10" LastChildFill="False">
-                            <TextBlock DockPanel.Dock="Left" Text="NAVIGATION" FontSize="9.5" FontWeight="Bold" Foreground="#64748B" VerticalAlignment="Center" Margin="6,0,0,0"/>
-                            <Button
-                                DockPanel.Dock="Right"
-                                Command="{Binding ToggleSidebarCommand}"
-                                ToolTip="Hide Sidebar (Ctrl+B)"
-                                Width="26" Height="24"
-                                Padding="0"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Foreground="#64748B">
-                                <ui:SymbolIcon Symbol="PanelLeft24" FontSize="13"/>
-                            </Button>
-                        </DockPanel>
+                        <!-- Top Rail Header -->
+                        <TextBlock Text="NAVIGATION" FontSize="9.5" FontWeight="Bold" Foreground="#64748B" Margin="10,4,0,12"/>
 
                         <!-- Explore -->
                         <ui:Button
@@ -252,6 +241,35 @@
                 Grid.Column="0"
                 Grid.ColumnSpan="3"
                 Visibility="{Binding IsCinematicOpen, Converter={StaticResource BoolToVis}}" />
+
+            <!-- FLOATING GLASS TOAST NOTIFICATION (Appears on wallpaper/lockscreen applied) -->
+            <Border
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,18,0,0"
+                Panel.ZIndex="9999"
+                IsHitTestVisible="False"
+                Visibility="{Binding IsToastVisible, Converter={StaticResource BoolToVis}}"
+                Background="#E6101420"
+                BorderBrush="#3322C55E"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="16,10,22,10">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="28" ShadowDepth="4" Direction="270" Color="#000000" Opacity="0.6" />
+                </Border.Effect>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="28" Height="28" CornerRadius="14" Background="#2622C55E" Margin="0,0,12,0">
+                        <ui:SymbolIcon Symbol="Checkmark24" Foreground="#22C55E" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ToastTitle}" FontSize="11" FontWeight="Bold" Foreground="#22C55E" Margin="0,0,0,1" />
+                        <TextBlock Text="{Binding ToastMessage}" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </ui:FluentWindow>
