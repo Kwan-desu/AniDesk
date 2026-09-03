@@ -1,0 +1,18 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+publish/
+Output/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio & Rider
+.vs/
+.idea/
+*.DotSettings.user
+
+## Crash and memory dumps
+*.dmp
+*.mdmp

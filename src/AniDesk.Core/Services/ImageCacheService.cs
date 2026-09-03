@@ -7,6 +7,8 @@ namespace AniDesk.Core.Services;
 public interface IImageCacheService
 {
     Task<string> GetCachedImagePathAsync(string imageUrl, CancellationToken cancellationToken = default);
+    Task<FileStream?> OpenReadStreamAsync(string imageUrl, CancellationToken cancellationToken = default);
+    [Obsolete("Use OpenReadStreamAsync to avoid Large Object Heap allocations.")]
     Task<byte[]> GetImageBytesAsync(string imageUrl, CancellationToken cancellationToken = default);
     void PreloadThumbnails(IEnumerable<string> urls);
     void ClearCache();
@@ -18,6 +20,7 @@ public class ImageCacheService : IImageCacheService
     private readonly string _cacheFolder;
     private readonly HttpClient _httpClient;
     private readonly ConcurrentDictionary<string, Task<string>> _inFlightDownloads = new();
+    private long _totalCacheSizeBytes = -1;
 
     public ImageCacheService(HttpClient? httpClient = null)
     {
@@ -37,6 +40,28 @@ public class ImageCacheService : IImageCacheService
         );
 
         Directory.CreateDirectory(_cacheFolder);
+
+        // Compute initial cache size in background to never block UI startup
+        Task.Run(() =>
+        {
+            try
+            {
+                if (Directory.Exists(_cacheFolder))
+                {
+                    var di = new DirectoryInfo(_cacheFolder);
+                    long total = di.GetFiles().Sum(fi => fi.Length);
+                    Interlocked.Exchange(ref _totalCacheSizeBytes, total);
+                }
+                else
+                {
+                    Interlocked.Exchange(ref _totalCacheSizeBytes, 0);
+                }
+            }
+            catch
+            {
+                Interlocked.Exchange(ref _totalCacheSizeBytes, 0);
+            }
+        });
     }
 
     public void PreloadThumbnails(IEnumerable<string> urls)
@@ -103,7 +128,10 @@ public class ImageCacheService : IImageCacheService
 
                             if (File.Exists(tempFile) && new FileInfo(tempFile).Length > 0)
                             {
+                                var fi = new FileInfo(tempFile);
+                                long len = fi.Length;
                                 File.Move(tempFile, cachedPath, overwrite: true);
+                                Interlocked.Add(ref _totalCacheSizeBytes, len);
                                 return cachedPath;
                             }
                         }
@@ -136,6 +164,16 @@ public class ImageCacheService : IImageCacheService
         });
     }
 
+    public async Task<FileStream?> OpenReadStreamAsync(string imageUrl, CancellationToken cancellationToken = default)
+    {
+        string localPath = await GetCachedImagePathAsync(imageUrl, cancellationToken);
+        if (File.Exists(localPath))
+        {
+            return new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan | FileOptions.Asynchronous);
+        }
+        return null;
+    }
+
     public async Task<byte[]> GetImageBytesAsync(string imageUrl, CancellationToken cancellationToken = default)
     {
         string localPath = await GetCachedImagePathAsync(imageUrl, cancellationToken);
@@ -159,17 +197,23 @@ public class ImageCacheService : IImageCacheService
                     try { File.Delete(file); } catch { }
                 }
             }
+            Interlocked.Exchange(ref _totalCacheSizeBytes, 0);
         }
         catch { }
     }
 
     public long GetCacheSizeInBytes()
     {
+        long current = Interlocked.Read(ref _totalCacheSizeBytes);
+        if (current >= 0) return current;
+
         try
         {
             if (!Directory.Exists(_cacheFolder)) return 0;
             var di = new DirectoryInfo(_cacheFolder);
-            return di.GetFiles().Sum(fi => fi.Length);
+            long size = di.GetFiles().Sum(fi => fi.Length);
+            Interlocked.Exchange(ref _totalCacheSizeBytes, size);
+            return size;
         }
         catch
         {
@@ -179,11 +223,13 @@ public class ImageCacheService : IImageCacheService
 
     private static string GetHashedFileName(string url)
     {
-        using var md5 = MD5.Create();
-        byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(url));
+        Span<byte> utf8 = stackalloc byte[Encoding.UTF8.GetByteCount(url)];
+        Encoding.UTF8.GetBytes(url, utf8);
+        Span<byte> hash = stackalloc byte[16];
+        MD5.HashData(utf8, hash);
         string hashStr = Convert.ToHexString(hash).ToLowerInvariant();
         string ext = Path.GetExtension(new Uri(url).AbsolutePath);
-        if (string.IsNullOrWhiteSpace(ext)) ext = ".jpg";
+        if (string.IsNullOrWhiteSpace(ext) || ext.Length > 5) ext = ".jpg";
         return $"{hashStr}{ext}";
     }
 }

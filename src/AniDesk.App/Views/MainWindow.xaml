@@ -18,7 +18,7 @@
     WindowBackdropType="Mica"
     ExtendsContentIntoTitleBar="True">
 
-    <Grid Background="#0D0F16">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" /> <!-- TitleBar -->
             <RowDefinition Height="*" />    <!-- Main App Body -->
@@ -31,16 +31,16 @@
             Height="36"
             FontSize="12" />
 
-        <!-- 2. Main App Body (Sidebar + Content + Detail Inspector) -->
+        <!-- 2. Main App Body (Sidebar + Content + Detail Inspector + Cinematic Overlay) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="220" /> <!-- Left Nav Rail -->
                 <ColumnDefinition Width="*" />   <!-- Center Content Pages -->
-                <ColumnDefinition Width="Auto" /> <!-- Right Detail Drawer -->
+                <ColumnDefinition Width="Auto" /> <!-- Right Detail Drawer (Fallback) -->
             </Grid.ColumnDefinitions>
 
             <!-- LEFT NAVIGATION RAIL -->
-            <Border Grid.Column="0" Background="#12151E" BorderBrush="#1F2432" BorderThickness="0,0,1,0" Padding="10,12,10,14">
+            <Border Grid.Column="0" Background="{StaticResource TranslucentNavRailBackground}" BorderBrush="#1F283C" BorderThickness="0,0,1,0" Padding="10,12,10,14">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />    <!-- Nav Items -->
@@ -60,7 +60,10 @@
                             FontSize="13"
                             FontWeight="SemiBold"
                             Icon="Compass24"
-                            Content="Explore" />
+                            Content="Explore"
+                            BorderThickness="3,0,0,0"
+                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}" />
 
                         <!-- Popular -->
                         <ui:Button
@@ -72,7 +75,10 @@
                             Padding="12,8"
                             FontSize="13"
                             Icon="ArrowTrending24"
-                            Content="Popular" />
+                            Content="Popular"
+                            BorderThickness="3,0,0,0"
+                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}" />
 
                         <!-- Favorites -->
                         <ui:Button
@@ -84,7 +90,10 @@
                             Padding="12,8"
                             FontSize="13"
                             Icon="Star24"
-                            Content="Favorites" />
+                            Content="Favorites"
+                            BorderThickness="3,0,0,0"
+                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}" />
 
                         <!-- Downloads -->
                         <ui:Button
@@ -96,15 +105,18 @@
                             Padding="12,8"
                             FontSize="13"
                             Icon="ArrowDownload24"
-                            Content="Downloads" />
+                            Content="Downloads"
+                            BorderThickness="3,0,0,0"
+                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}" />
                     </StackPanel>
 
                     <!-- PREFERENCES & SAFETY GROUP (Bottom Rail) -->
                     <StackPanel Grid.Row="1">
-                        <Separator Background="#222838" Margin="4,0,4,10" />
-                        <TextBlock Text="PREFERENCES &amp; SAFETY" FontSize="9.5" FontWeight="Bold" Foreground="#586174" Margin="6,0,0,8" />
+                        <Separator Background="#1E2536" Margin="4,0,4,10" />
+                        <TextBlock Text="PRIVACY &amp; SHIELD" FontSize="9.5" FontWeight="Bold" Foreground="#64748B" Margin="6,0,0,8" />
 
-                        <!-- SFW Shield / NSFW Mode Switch Card -->
+                        <!-- Discrete SFW Shield Status Card -->
                         <Border
                             Background="{Binding IsSfwShieldActive, Converter={StaticResource SfwBgConverter}}"
                             BorderBrush="{Binding IsSfwShieldActive, Converter={StaticResource SfwBorderConverter}}"
@@ -154,7 +166,10 @@
                             Padding="12,8"
                             FontSize="13"
                             Icon="Settings24"
-                            Content="Settings" />
+                            Content="Settings"
+                            BorderThickness="3,0,0,0"
+                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -177,12 +192,18 @@
                 </ContentControl.Resources>
             </ContentControl>
 
-            <!-- RIGHT DETAIL INSPECTOR DRAWER -->
+            <!-- RIGHT DETAIL INSPECTOR DRAWER (Kept for optional side inspection) -->
             <controls:WallpaperDetailPanel
                 Grid.Column="2"
                 Width="320"
                 DataContext="{Binding DetailVM}"
                 Visibility="{Binding DataContext.IsDetailPanelOpen, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+
+            <!-- FULL THEATER CINEMATIC OVERLAY (Spans full window body) -->
+            <controls:CinematicOverlay
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Visibility="{Binding IsCinematicOpen, Converter={StaticResource BoolToVis}}" />
         </Grid>
     </Grid>
 </ui:FluentWindow>

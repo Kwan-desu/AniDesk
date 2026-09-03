@@ -26,6 +26,12 @@ public partial class MainViewModel : ObservableObject
     private bool _isDetailPanelOpen = false;
 
     [ObservableProperty]
+    private bool _isCinematicOpen = false;
+
+    [ObservableProperty]
+    private MoebooruPost? _cinematicPost;
+
+    [ObservableProperty]
     private bool _isSfwShieldActive;
 
     [ObservableProperty]
@@ -52,22 +58,21 @@ public partial class MainViewModel : ObservableObject
         _isSfwShieldActive = _safetyService.IsSfwShieldActive;
         _themeAccent = _storageService.LoadSettings().ThemeAccent;
 
-        // Wire up selection events to detail view model
+        // Wire up selection events to open cinematic theater overlay
         ExploreVM.PostSelected += (s, post) =>
         {
-            DetailVM.SetPost(post);
-            IsDetailPanelOpen = true;
+            OpenPostDetail(post);
         };
 
         FavoritesVM.PostSelected += (s, post) =>
         {
-            DetailVM.SetPost(post);
-            IsDetailPanelOpen = true;
+            OpenPostDetail(post);
         };
 
         DetailVM.CloseRequested += (s, e) =>
         {
             IsDetailPanelOpen = false;
+            IsCinematicOpen = false;
         };
 
         _safetyService.SafetyStateChanged += (s, active) =>
@@ -118,6 +123,25 @@ public partial class MainViewModel : ObservableObject
                 CurrentViewModel = ExploreVM;
                 break;
         }
+    }
+
+    public void OpenPostDetail(MoebooruPost post)
+    {
+        DetailVM.SetPost(post);
+        CinematicPost = post;
+        IsCinematicOpen = true;
+    }
+
+    [RelayCommand]
+    public void CloseCinematic()
+    {
+        IsCinematicOpen = false;
+    }
+
+    [RelayCommand]
+    public void ToggleSfw()
+    {
+        IsSfwShieldActive = !IsSfwShieldActive;
     }
 
     [RelayCommand]

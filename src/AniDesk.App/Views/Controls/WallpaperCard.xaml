@@ -9,19 +9,62 @@
     mc:Ignorable="d"
     Cursor="Hand"
     Margin="4"
-    MinHeight="100"
-    SizeChanged="OnCardSizeChanged">
+    MinHeight="90"
+    SizeChanged="OnCardSizeChanged"
+    DataContextChanged="OnCardDataContextChanged">
+
+    <UserControl.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="Set as Desktop Wallpaper" Click="OnContextMenuSetWallpaper">
+                <MenuItem.Icon>
+                    <ui:SymbolIcon Symbol="Desktop24" FontSize="14" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Set as Lock Screen" Click="OnContextMenuSetLockScreen">
+                <MenuItem.Icon>
+                    <ui:SymbolIcon Symbol="LockClosed24" FontSize="14" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="Toggle Favorite" Click="OnContextMenuToggleFavorite">
+                <MenuItem.Icon>
+                    <ui:SymbolIcon Symbol="Star24" FontSize="14" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Download Original" Click="OnContextMenuDownload">
+                <MenuItem.Icon>
+                    <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="14" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="Copy Image URL" Click="OnContextMenuCopyUrl">
+                <MenuItem.Icon>
+                    <ui:SymbolIcon Symbol="Copy24" FontSize="14" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+    </UserControl.ContextMenu>
 
     <Border
         x:Name="CardBorder"
         CornerRadius="10"
         Background="#181D2A"
-        BorderBrush="#1E2536"
         BorderThickness="1"
         ClipToBounds="True"
         PreviewMouseLeftButtonUp="OnCardClicked">
 
+        <!-- Windows 11 Top-Lit Specular Edge Highlight -->
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#24FFFFFF" Offset="0" />
+                <GradientStop Color="#0AFFFFFF" Offset="1" />
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+
         <Grid x:Name="CardContentGrid">
+            <!-- Fallback broken-image icon if image source fails or null -->
+            <ui:SymbolIcon Symbol="ImageSearch24" FontSize="28" Foreground="#2A3348" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
             <!-- Thumbnail -->
             <Image
                 x:Name="ThumbImage"
@@ -35,13 +78,13 @@
             <Grid x:Name="HoverOverlay" Opacity="0">
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
-                        <GradientStop Color="#D9000000" Offset="0"/>
+                        <GradientStop Color="#E6000000" Offset="0"/>
                         <GradientStop Color="#44000000" Offset="0.55"/>
                         <GradientStop Color="#00000000" Offset="1"/>
                     </LinearGradientBrush>
                 </Grid.Background>
 
-                <!-- Bookmark -->
+                <!-- Bookmark Button (Top Right) -->
                 <Button
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
@@ -70,20 +113,55 @@
                         FontSize="14"/>
                 </Button>
 
-                <!-- Resolution pill -->
-                <Border
-                    VerticalAlignment="Bottom"
-                    HorizontalAlignment="Left"
-                    Margin="8"
-                    Background="#CC000000"
-                    CornerRadius="4"
-                    Padding="6,2">
-                    <TextBlock
-                        Text="{Binding FormattedDimensions}"
-                        Foreground="#FFFFFF"
-                        FontSize="10.5"
-                        FontWeight="SemiBold"/>
-                </Border>
+                <!-- Bottom Bar: Aspect/Resolution Pill (Left) + Quick-Set Button (Right) -->
+                <Grid VerticalAlignment="Bottom" Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Resolution & Aspect Tag Pill -->
+                    <Border
+                        Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        Background="#CC000000"
+                        BorderBrush="#22FFFFFF"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="6,3">
+                        <TextBlock
+                            Text="{Binding FormattedDimensions}"
+                            Foreground="#FFFFFF"
+                            FontSize="10.5"
+                            FontWeight="SemiBold"/>
+                    </Border>
+
+                    <!-- Quick "Set" Button -->
+                    <Button
+                        Grid.Column="1"
+                        Height="26"
+                        Padding="8,0"
+                        Background="#D90078D4"
+                        BorderBrush="#44FFFFFF"
+                        BorderThickness="1"
+                        Click="OnQuickSetClicked">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Desktop24" Foreground="#FFFFFF" FontSize="11" Margin="0,0,4,0"/>
+                            <TextBlock Text="Set" Foreground="#FFFFFF" FontSize="11" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
             </Grid>
         </Grid>
     </Border>

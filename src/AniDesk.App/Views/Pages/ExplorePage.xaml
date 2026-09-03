@@ -12,18 +12,20 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance vm:ExploreViewModel}">
 
-    <Grid Background="#0E121A">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- ── Search + Filter Header ── -->
-        <Border Grid.Row="0" Background="#11151F" BorderBrush="#222838" BorderThickness="0,0,0,1" Padding="18,12,18,10">
+        <Border Grid.Row="0" Background="#B311151F" BorderBrush="#1F283C" BorderThickness="0,0,0,1" Padding="18,12,18,10">
             <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
@@ -88,9 +90,36 @@
                         </Popup>
                     </Grid>
 
+                    <!-- SFW Shield Toolbar Pill -->
+                    <Border
+                        Grid.Column="2"
+                        Background="{Binding DataContext.IsSfwShieldActive, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource SfwBgConverter}}"
+                        BorderBrush="{Binding DataContext.IsSfwShieldActive, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource SfwBorderConverter}}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12,0"
+                        Height="38"
+                        Cursor="Hand">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.ToggleSfwCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                        </Border.InputBindings>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon
+                                Symbol="Shield24"
+                                Foreground="{Binding DataContext.IsSfwShieldActive, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource SfwColorConverter}}"
+                                Margin="0,0,6,0"
+                                FontSize="14"/>
+                            <TextBlock
+                                Text="{Binding DataContext.IsSfwShieldActive, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource SfwPillLabelConverter}}"
+                                Foreground="#FFFFFF"
+                                FontSize="12"
+                                FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Filter toggle -->
                     <ToggleButton
-                        Grid.Column="2"
+                        Grid.Column="4"
                         IsChecked="{Binding IsFilterOpen, Mode=TwoWay}"
                         Height="38" Padding="14,0"
                         Background="#1A202C" BorderBrush="#2D3548"

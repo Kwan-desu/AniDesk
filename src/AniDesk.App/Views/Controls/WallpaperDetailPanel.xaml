@@ -49,7 +49,8 @@
                 <!-- 2. High-Res Image Preview Box -->
                 <Border
                     Grid.Row="1"
-                    Height="160"
+                    MinHeight="140"
+                    MaxHeight="260"
                     CornerRadius="10"
                     Background="#1E2433"
                     BorderBrush="#333E54"
@@ -59,7 +60,7 @@
                     <Image
                         converters:AsyncImageLoader.ImageUrl="{Binding Post.SampleUrl}"
                         converters:AsyncImageLoader.DecodeWidth="600"
-                        Stretch="UniformToFill"
+                        Stretch="Uniform"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center" />
                 </Border>

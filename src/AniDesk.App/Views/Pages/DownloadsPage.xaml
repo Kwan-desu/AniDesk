@@ -10,14 +10,14 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance vm:DownloadsViewModel}">
 
-    <Grid Background="#0E121A">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Downloads Header -->
-        <Border Grid.Row="0" Background="#11151F" BorderBrush="#222838" BorderThickness="0,0,0,1" Padding="24,14">
+        <Border Grid.Row="0" Background="#B311151F" BorderBrush="#1F283C" BorderThickness="0,0,0,1" Padding="24,14">
             <DockPanel LastChildFill="False">
                 <StackPanel DockPanel.Dock="Left">
                     <TextBlock Text="Downloads" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF" />

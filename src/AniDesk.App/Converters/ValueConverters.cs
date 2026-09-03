@@ -119,3 +119,29 @@ public class WidthToColumnCountConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+public class ValueEqualsToBoolConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return string.Equals(value?.ToString(), parameter?.ToString(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+public class StringEqualsToBrushConverter : IValueConverter
+{
+    public Brush? TrueBrush { get; set; }
+    public Brush? FalseBrush { get; set; }
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool eq = string.Equals(value?.ToString(), parameter?.ToString(), StringComparison.OrdinalIgnoreCase);
+        return eq ? TrueBrush : FalseBrush;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}

@@ -9,6 +9,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ILocalStorageService _storageService;
     private readonly IContentSafetyService _safetyService;
     private readonly IImageCacheService _cacheService;
+    private readonly PanicButtonService? _panicService;
 
     [ObservableProperty]
     private bool _isSfwShieldActive;
@@ -19,14 +20,28 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string _cacheSizeText = "0.00 MB";
 
+    [ObservableProperty]
+    private string _panicWallpaperPath = string.Empty;
+
+    [ObservableProperty]
+    private bool _minimizeToTrayOnClose = true;
+
+    [ObservableProperty]
+    private string _panicHotkeyDisplay = "Win + Shift + H";
+
+    [ObservableProperty]
+    private bool _isCustomPanicWallpaper;
+
     public SettingsViewModel(
         ILocalStorageService storageService,
         IContentSafetyService safetyService,
-        IImageCacheService cacheService)
+        IImageCacheService cacheService,
+        PanicButtonService? panicService = null)
     {
         _storageService = storageService;
         _safetyService = safetyService;
         _cacheService = cacheService;
+        _panicService = panicService;
 
         LoadSettings();
     }
@@ -36,6 +51,10 @@ public partial class SettingsViewModel : ObservableObject
         var settings = _storageService.LoadSettings();
         IsSfwShieldActive = settings.IsSfwShieldActive;
         DownloadPath = _storageService.GetDownloadDirectory();
+        PanicWallpaperPath = settings.PanicWallpaperPath;
+        MinimizeToTrayOnClose = settings.MinimizeToTrayOnClose;
+        PanicHotkeyDisplay = string.IsNullOrWhiteSpace(settings.PanicHotkeyDisplay) ? "Win + Shift + H" : settings.PanicHotkeyDisplay;
+        IsCustomPanicWallpaper = !string.IsNullOrWhiteSpace(PanicWallpaperPath);
         UpdateCacheSizeText();
     }
 
@@ -49,6 +68,13 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnIsSfwShieldActiveChanged(bool value)
     {
         _safetyService.IsSfwShieldActive = value;
+    }
+
+    partial void OnMinimizeToTrayOnCloseChanged(bool value)
+    {
+        var settings = _storageService.LoadSettings();
+        settings.MinimizeToTrayOnClose = value;
+        _storageService.SaveSettings(settings);
     }
 
     [RelayCommand]
@@ -67,6 +93,39 @@ public partial class SettingsViewModel : ObservableObject
             _storageService.SaveSettings(settings);
             DownloadPath = dialog.FolderName;
         }
+    }
+
+    [RelayCommand]
+    private void BrowsePanicWallpaper()
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Select Clean/Safe Wallpaper",
+            Filter = "Images (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|All Files (*.*)|*.*"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            PanicWallpaperPath = dialog.FileName;
+            IsCustomPanicWallpaper = true;
+            _panicService?.SetCustomSafeWallpaper(PanicWallpaperPath);
+
+            var settings = _storageService.LoadSettings();
+            settings.PanicWallpaperPath = PanicWallpaperPath;
+            _storageService.SaveSettings(settings);
+        }
+    }
+
+    [RelayCommand]
+    private void ResetPanicWallpaper()
+    {
+        PanicWallpaperPath = string.Empty;
+        IsCustomPanicWallpaper = false;
+        _panicService?.SetCustomSafeWallpaper(null);
+
+        var settings = _storageService.LoadSettings();
+        settings.PanicWallpaperPath = string.Empty;
+        _storageService.SaveSettings(settings);
     }
 
     [RelayCommand]

@@ -10,54 +10,63 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance vm:FavoritesViewModel}">
 
-    <Grid Background="#0E121A">
-        <!-- Empty State -->
-        <StackPanel
+    <Grid Background="Transparent">
+        <!-- 1. Refined Windows 11 Empty State -->
+        <Border
             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-            <ui:SymbolIcon Symbol="Star24" FontSize="48" Foreground="#656E82" Margin="0,0,0,12" />
-            <TextBlock Text="No favorites bookmarked yet" FontSize="15" FontWeight="SemiBold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,4" />
-            <TextBlock Text="Click the star icon on any wallpaper card to save it here for quick access." FontSize="12.5" Foreground="#9DA6B8" HorizontalAlignment="Center" />
-        </StackPanel>
+            VerticalAlignment="Center"
+            Background="#121622"
+            BorderBrush="#25FFFFFF"
+            BorderThickness="1"
+            CornerRadius="14"
+            Padding="36,32"
+            MaxWidth="460">
+            <StackPanel HorizontalAlignment="Center">
+                <Border
+                    Width="68" Height="68"
+                    CornerRadius="34"
+                    Background="#1E273A"
+                    BorderBrush="#2F3C57"
+                    BorderThickness="1"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,16">
+                    <ui:SymbolIcon Symbol="Star24" FontSize="28" Foreground="#F59E0B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="No Favorite Wallpapers Yet" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,6" />
+                <TextBlock Text="Click the heart icon on any artwork in Explore to pin it here for instant offline rotation and quick access." FontSize="12.5" Foreground="#94A3B8" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
 
-        <!-- Favorites Grid -->
+        <!-- 2. Virtualized Favorites Gallery -->
         <ScrollViewer
+            x:Name="FavoritesScrollViewer"
             Visibility="{Binding IsEmpty, Converter={StaticResource InverseBoolToVis}}"
             VerticalScrollBarVisibility="Auto"
             HorizontalScrollBarVisibility="Disabled"
-            Padding="16">
-            <ListBox
-                ItemsSource="{Binding Favorites}"
-                Background="Transparent"
-                BorderThickness="0"
-                SelectionChanged="OnSelectionChanged">
-                <ListBox.ItemsPanel>
+            CanContentScroll="True"
+            SizeChanged="OnFavoritesSizeChanged"
+            Padding="8,8,8,4">
+
+            <ItemsControl
+                ItemsSource="{Binding PostRows}"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                VirtualizingPanel.ScrollUnit="Pixel"
+                ScrollViewer.CanContentScroll="True">
+
+                <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel HorizontalAlignment="Center" />
+                        <VirtualizingStackPanel Orientation="Vertical"/>
                     </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Margin" Value="8" />
-                        <Setter Property="Padding" Value="0" />
-                        <Setter Property="Background" Value="Transparent" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <ContentPresenter />
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <controls:WallpaperCard Width="228" Height="145" />
+                        <controls:GalleryRow Row="{Binding}"/>
                     </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
     </Grid>
 </UserControl>

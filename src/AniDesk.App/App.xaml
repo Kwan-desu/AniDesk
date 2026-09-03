@@ -19,34 +19,39 @@
             <converters:EqualityToVisibilityConverter x:Key="EqualityToVis" />
             <converters:WidthToSixteenNineHeightConverter x:Key="W169H" />
             <converters:WidthToColumnCountConverter x:Key="WToColumns" />
+            <converters:AspectRatioConverter x:Key="AspectRatioConverter" />
+            <converters:ValueEqualsToBoolConverter x:Key="ValueEqualsToBoolConverter" />
+            <converters:StringEqualsToBrushConverter x:Key="StringEqualsToBrushConverter" />
 
-            <converters:BoolToStringConverter x:Key="SfwTitleConverter" TrueString="SFW Shield" FalseString="NSFW Mode" />
-            <converters:BoolToStringConverter x:Key="SfwStatusConverter" TrueString="Strict Safe" FalseString="NSFW" />
+            <converters:BoolToStringConverter x:Key="SfwTitleConverter" TrueString="SFW Shield" FalseString="Unrestricted" />
+            <converters:BoolToStringConverter x:Key="SfwStatusConverter" TrueString="Strict Safe" FalseString="All Content" />
+            <converters:BoolToStringConverter x:Key="SfwPillLabelConverter" TrueString="SFW Shield: Safe" FalseString="SFW Shield: Off" />
 
+            <!-- Discrete SFW indicator colors: emerald for safe, discreet slate/amber for unrestricted (never shocking red) -->
             <converters:BoolToBrushConverter x:Key="SfwColorConverter">
                 <converters:BoolToBrushConverter.TrueBrush>
-                    <SolidColorBrush Color="#22C55E" />
+                    <SolidColorBrush Color="#10B981" />
                 </converters:BoolToBrushConverter.TrueBrush>
                 <converters:BoolToBrushConverter.FalseBrush>
-                    <SolidColorBrush Color="#EF4444" />
+                    <SolidColorBrush Color="#94A3B8" />
                 </converters:BoolToBrushConverter.FalseBrush>
             </converters:BoolToBrushConverter>
 
             <converters:BoolToBrushConverter x:Key="SfwBgConverter">
                 <converters:BoolToBrushConverter.TrueBrush>
-                    <SolidColorBrush Color="#171D2A" />
+                    <SolidColorBrush Color="#1A10B981" />
                 </converters:BoolToBrushConverter.TrueBrush>
                 <converters:BoolToBrushConverter.FalseBrush>
-                    <SolidColorBrush Color="#2E1818" />
+                    <SolidColorBrush Color="#1A94A3B8" />
                 </converters:BoolToBrushConverter.FalseBrush>
             </converters:BoolToBrushConverter>
 
             <converters:BoolToBrushConverter x:Key="SfwBorderConverter">
                 <converters:BoolToBrushConverter.TrueBrush>
-                    <SolidColorBrush Color="#263147" />
+                    <SolidColorBrush Color="#3310B981" />
                 </converters:BoolToBrushConverter.TrueBrush>
                 <converters:BoolToBrushConverter.FalseBrush>
-                    <SolidColorBrush Color="#542828" />
+                    <SolidColorBrush Color="#3394A3B8" />
                 </converters:BoolToBrushConverter.FalseBrush>
             </converters:BoolToBrushConverter>
 
@@ -60,8 +65,12 @@
             <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFF" />
             <SolidColorBrush x:Key="TextSecondary" Color="#9DA6B8" />
             <SolidColorBrush x:Key="TextTertiary" Color="#656E82" />
-            <SolidColorBrush x:Key="SafeGreen" Color="#22C55E" />
-            <SolidColorBrush x:Key="SafeGreenBg" Color="#2022C55E" />
+            <SolidColorBrush x:Key="SafeGreen" Color="#10B981" />
+            <SolidColorBrush x:Key="SafeGreenBg" Color="#2010B981" />
+            <SolidColorBrush x:Key="NavActiveIndicatorBrush" Color="#0078D4" />
+            <SolidColorBrush x:Key="NavActiveBackgroundBrush" Color="#1C2333" />
+            <SolidColorBrush x:Key="TranslucentNavRailBackground" Color="#CC12151E" />
+            <SolidColorBrush x:Key="ApplicationBackgroundBrush" Color="#0B0D13" />
 
             <!-- Shimmer Animation Storyboard -->
             <Storyboard x:Key="ShimmerStoryboard" RepeatBehavior="Forever">

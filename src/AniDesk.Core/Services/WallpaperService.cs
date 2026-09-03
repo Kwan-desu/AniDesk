@@ -34,9 +34,10 @@ public class WallpaperService : IWallpaperService
     {
         var list = new List<DisplayMonitorInfo>();
 
+        IDesktopWallpaper? desktopWallpaper = null;
         try
         {
-            var desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
+            desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
             uint count = desktopWallpaper.GetMonitorDevicePathCount();
 
             for (uint i = 0; i < count; i++)
@@ -77,6 +78,13 @@ public class WallpaperService : IWallpaperService
                 return true;
             }, IntPtr.Zero);
         }
+        finally
+        {
+            if (desktopWallpaper != null)
+            {
+                Marshal.ReleaseComObject(desktopWallpaper);
+            }
+        }
 
         if (list.Count == 0)
         {
@@ -101,9 +109,10 @@ public class WallpaperService : IWallpaperService
             if (!File.Exists(localFilePath)) return false;
 
             // 1. Try Windows 8/10/11 IDesktopWallpaper COM API
+            IDesktopWallpaper? desktopWallpaper = null;
             try
             {
-                var desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
+                desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaperClass();
                 desktopWallpaper.SetPosition((DesktopWallpaperPosition)fit);
 
                 if (monitorIndex < 0)
@@ -149,6 +158,13 @@ public class WallpaperService : IWallpaperService
                     localFilePath,
                     Win32Helper.SPIF_UPDATEINIFILE | Win32Helper.SPIF_SENDCHANGE
                 );
+            }
+            finally
+            {
+                if (desktopWallpaper != null)
+                {
+                    Marshal.ReleaseComObject(desktopWallpaper);
+                }
             }
         }
         catch

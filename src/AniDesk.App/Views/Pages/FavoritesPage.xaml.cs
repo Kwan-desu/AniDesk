@@ -1,6 +1,6 @@
+using System.Windows;
 using System.Windows.Controls;
 using AniDesk.App.ViewModels;
-using AniDesk.Core.Models;
 
 namespace AniDesk.App.Views.Pages;
 
@@ -11,14 +11,11 @@ public partial class FavoritesPage : UserControl
         InitializeComponent();
     }
 
-    private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void OnFavoritesSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (sender is ListBox lb && lb.SelectedItem is MoebooruPost post)
+        if (DataContext is FavoritesViewModel vm && e.NewSize.Width > 0)
         {
-            if (DataContext is FavoritesViewModel vm)
-            {
-                vm.SelectPostCommand.Execute(post);
-            }
+            vm.UpdateColumns(e.NewSize.Width);
         }
     }
 }

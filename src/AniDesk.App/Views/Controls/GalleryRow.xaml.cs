@@ -30,25 +30,68 @@ public partial class GalleryRow : UserControl
 
     private void Rebuild()
     {
-        RowGrid.Children.Clear();
-
         var row = Row;
-        if (row == null) return;
-
-        RowGrid.Columns = row.Items.Count;
-
-        foreach (var post in row.Items)
+        if (row == null)
         {
+            RowGrid.Children.Clear();
+            return;
+        }
+
+        int targetCount = row.Items.Count;
+        RowGrid.Columns = targetCount;
+
+        for (int i = 0; i < targetCount; i++)
+        {
+            var post = row.Items[i];
+
+            if (i < RowGrid.Children.Count)
+            {
+                var existing = RowGrid.Children[i];
+
+                if (post == null)
+                {
+                    if (existing is Border)
+                    {
+                        existing.Visibility = Visibility.Visible;
+                        continue;
+                    }
+                    else
+                    {
+                        RowGrid.Children[i] = new Border { Margin = new Thickness(4) };
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (existing is WallpaperCard card)
+                    {
+                        card.DataContext = post;
+                        card.Visibility = Visibility.Visible;
+                        continue;
+                    }
+                    else
+                    {
+                        RowGrid.Children[i] = new WallpaperCard { DataContext = post };
+                        continue;
+                    }
+                }
+            }
+
+            // Append new if row expanded
             if (post == null)
             {
-                // Empty placeholder to keep grid geometry correct
                 RowGrid.Children.Add(new Border { Margin = new Thickness(4) });
             }
             else
             {
-                var card = new WallpaperCard { DataContext = post };
-                RowGrid.Children.Add(card);
+                RowGrid.Children.Add(new WallpaperCard { DataContext = post });
             }
+        }
+
+        // Trim excess children if column count decreased
+        while (RowGrid.Children.Count > targetCount)
+        {
+            RowGrid.Children.RemoveAt(RowGrid.Children.Count - 1);
         }
     }
 }

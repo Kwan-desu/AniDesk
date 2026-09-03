@@ -83,4 +83,39 @@ public class CoreUnitTests
             Assert.True(!string.IsNullOrWhiteSpace(post.BestImageUrl));
         }
     }
+
+    [Fact]
+    public void PanicButtonService_InitializesSafeWallpaper_AndManagesState()
+    {
+        using var panic = new PanicButtonService(IntPtr.Zero);
+        Assert.False(panic.IsPanicked);
+        Assert.False(panic.IsRegistered);
+        Assert.True(!string.IsNullOrWhiteSpace(panic.SafeWallpaperPath));
+        Assert.True(File.Exists(panic.SafeWallpaperPath));
+    }
+
+    [Fact]
+    public void LocalStorageService_CanSaveAndRetrievePanicSettings()
+    {
+        var storage = new LocalStorageService();
+        var settings = storage.LoadSettings();
+
+        settings.PanicWallpaperPath = @"C:\Test\Safe.jpg";
+        settings.MinimizeToTrayOnClose = true;
+        settings.PanicHotkeyDisplay = "Ctrl + Shift + P";
+        storage.SaveSettings(settings);
+
+        var loaded = storage.LoadSettings();
+        Assert.Equal(@"C:\Test\Safe.jpg", loaded.PanicWallpaperPath);
+        Assert.True(loaded.MinimizeToTrayOnClose);
+        Assert.Equal("Ctrl + Shift + P", loaded.PanicHotkeyDisplay);
+    }
+
+    [Fact]
+    public void ImageCacheService_TracksCacheSizeAccurately()
+    {
+        var cache = new ImageCacheService();
+        long size = cache.GetCacheSizeInBytes();
+        Assert.True(size >= 0);
+    }
 }

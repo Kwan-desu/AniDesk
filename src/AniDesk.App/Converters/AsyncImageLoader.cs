@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -9,17 +12,15 @@ using AniDesk.Core.Services;
 namespace AniDesk.App.Converters;
 
 /// <summary>
-/// Robust async image loader. Guarantees every bound Image control receives
-/// its decoded BitmapSource even with heavy UI virtualization and concurrent requests.
+/// High-performance zero-LOH async image loader. Streams directly from disk
+/// without byte array allocations on the Large Object Heap, bounds both dimensions
+/// to protect texture memory, and uses WeakReferences so memory can be reclaimed under pressure.
 /// </summary>
 public static class AsyncImageLoader
 {
-    private const int MaxCacheSize = 100;
-    private static readonly LinkedList<string> _lruOrder = new();
-    private static readonly Dictionary<string, (LinkedListNode<string> node, BitmapImage bitmap)> _cache = new();
-    private static readonly object _cacheLock = new();
-
-    private static readonly ConcurrentDictionary<string, Task<BitmapImage?>> _inFlightTasks = new();
+    private static readonly ConcurrentDictionary<string, WeakReference<BitmapSource>> _weakCache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, Task<BitmapSource?>> _inFlightTasks = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly SemaphoreSlim _decodeThrottle = new(Math.Clamp(Environment.ProcessorCount / 2, 2, 6));
 
     public static readonly DependencyProperty ImageUrlProperty =
         DependencyProperty.RegisterAttached(
@@ -48,21 +49,16 @@ public static class AsyncImageLoader
         string? url = e.NewValue as string;
         if (string.IsNullOrWhiteSpace(url)) return;
 
-        int dw = Math.Clamp(GetDecodeWidth(img), 80, 720);
+        int dw = Math.Clamp(GetDecodeWidth(img), 80, 960);
 
-        // 1. Check in-memory LRU cache
-        lock (_cacheLock)
+        // 1. Weak cache lookup (zero allocation)
+        if (_weakCache.TryGetValue(url, out var weakRef) && weakRef.TryGetTarget(out var cachedBmp))
         {
-            if (_cache.TryGetValue(url, out var hit))
-            {
-                _lruOrder.Remove(hit.node);
-                _lruOrder.AddFirst(hit.node);
-                img.Source = hit.bitmap;
-                return;
-            }
+            img.Source = cachedBmp;
+            return;
         }
 
-        // 2. Fetch/Decode via shared in-flight task so all bound controls receive the bitmap
+        // 2. Fetch/Decode via coalesced in-flight task
         try
         {
             var task = _inFlightTasks.GetOrAdd(url, u => LoadBitmapAsync(u, dw));
@@ -75,11 +71,11 @@ public static class AsyncImageLoader
         }
         catch
         {
-            // Ignore cancelled/aborted operations
+            // Ignore cancelled or aborted decodes
         }
     }
 
-    private static async Task<BitmapImage?> LoadBitmapAsync(string url, int decodeWidth)
+    private static async Task<BitmapSource?> LoadBitmapAsync(string url, int decodeWidth)
     {
         try
         {
@@ -91,72 +87,66 @@ public static class AsyncImageLoader
                 localPath = await cache.GetCachedImagePathAsync(url);
             }
 
-            byte[]? imageBytes = null;
-            if (File.Exists(localPath))
-            {
-                imageBytes = await File.ReadAllBytesAsync(localPath);
-            }
-            else if (cache != null)
-            {
-                imageBytes = await cache.GetImageBytesAsync(url);
-            }
-
-            if (imageBytes == null || imageBytes.Length == 0)
+            if (!File.Exists(localPath))
             {
                 return null;
             }
 
-            var bmp = await Task.Run(() =>
+            await _decodeThrottle.WaitAsync();
+            try
             {
-                try
+                return await Task.Run(() =>
                 {
-                    using var ms = new MemoryStream(imageBytes);
-                    var b = new BitmapImage();
-                    b.BeginInit();
-                    b.CacheOption = BitmapCacheOption.OnLoad;
-                    b.StreamSource = ms;
-                    if (decodeWidth > 0)
+                    try
                     {
-                        b.DecodePixelWidth = decodeWidth;
-                    }
-                    b.EndInit();
-                    b.Freeze();
-                    return b;
-                }
-                catch
-                {
-                    try 
-                    { 
-                        if (localPath != url && File.Exists(localPath)) 
-                        {
-                            File.Delete(localPath); 
-                        }
-                    } 
-                    catch { }
-                    return null;
-                }
-            });
+                        // Open stream directly without allocating byte[] on LOH
+                        using var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan);
+                        if (fileStream.Length == 0) return null;
 
-            if (bmp != null)
-            {
-                lock (_cacheLock)
-                {
-                    if (!_cache.ContainsKey(url))
+                        var decoder = BitmapDecoder.Create(fileStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.None);
+                        if (decoder.Frames.Count == 0) return null;
+
+                        var frame = decoder.Frames[0];
+                        double aspect = (double)frame.PixelWidth / Math.Max(1, frame.PixelHeight);
+
+                        fileStream.Position = 0;
+
+                        var bmp = new BitmapImage();
+                        bmp.BeginInit();
+                        bmp.CacheOption = BitmapCacheOption.OnLoad;
+                        bmp.StreamSource = fileStream;
+                        bmp.DecodePixelWidth = decodeWidth;
+
+                        // Dual clamping: prevent tall 4-koma/character art from blowing up vertical memory
+                        if (aspect < 0.55)
+                        {
+                            bmp.DecodePixelHeight = (int)(decodeWidth / 0.55);
+                        }
+
+                        bmp.EndInit();
+                        bmp.Freeze(); // Required for cross-thread access and memory optimization
+
+                        _weakCache[url] = new WeakReference<BitmapSource>(bmp);
+                        return (BitmapSource)bmp;
+                    }
+                    catch
                     {
-                        var node = _lruOrder.AddFirst(url);
-                        _cache[url] = (node, bmp);
-
-                        while (_cache.Count > MaxCacheSize)
+                        try
                         {
-                            var oldest = _lruOrder.Last!;
-                            _lruOrder.RemoveLast();
-                            _cache.Remove(oldest.Value);
+                            if (localPath != url && File.Exists(localPath))
+                            {
+                                File.Delete(localPath);
+                            }
                         }
+                        catch { }
+                        return null;
                     }
-                }
+                });
             }
-
-            return bmp;
+            finally
+            {
+                _decodeThrottle.Release();
+            }
         }
         catch
         {
@@ -166,5 +156,10 @@ public static class AsyncImageLoader
         {
             _inFlightTasks.TryRemove(url, out _);
         }
+    }
+
+    public static void PurgeMemoryCache()
+    {
+        _weakCache.Clear();
     }
 }

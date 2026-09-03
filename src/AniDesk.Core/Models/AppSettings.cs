@@ -11,4 +11,7 @@ public class AppSettings
     public string ThemeAccent { get; set; } = "default";
     public string SelectedAspectRatio { get; set; } = "All";
     public string SelectedMinQuality { get; set; } = "All";
+    public string PanicWallpaperPath { get; set; } = string.Empty;
+    public bool MinimizeToTrayOnClose { get; set; } = true;
+    public string PanicHotkeyDisplay { get; set; } = "Win + Shift + H";
 }
