@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <AssemblyName>AniDesk</AssemblyName>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
