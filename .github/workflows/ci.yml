@@ -13,6 +13,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+      - name: Install dotnet-format
+        run: dotnet tool install -g dotnet-format
+      - name: Check formatting
+        run: dotnet format --verify-no-changes
       - name: Restore
         run: dotnet restore
       - name: Build
