@@ -123,7 +123,7 @@
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <ui:SymbolIcon Grid.Column="0" Symbol="Compass24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#38BDF8"/>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="CompassNorthwest24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#38BDF8"/>
                                             <TextBlock Grid.Column="1"
                                                        Text="Explore"
                                                        FontSize="13"
