@@ -241,10 +241,11 @@
 
                             <!-- Monitor fallback combobox -->
                             <ComboBox
+                                Style="{StaticResource AniDeskCleanComboBoxStyle}"
                                 ItemsSource="{Binding Monitors}"
                                 SelectedItem="{Binding SelectedMonitor}"
                                 DisplayMemberPath="DisplayName"
-                                Height="32"
+                                Height="36"
                                 Margin="0,6,0,14" />
 
                             <!-- Status notification message -->

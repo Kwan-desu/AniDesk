@@ -136,6 +136,7 @@ public partial class MainViewModel : ObservableObject
                 CurrentViewModel = FavoritesVM;
                 break;
             case "Downloads":
+                DownloadsVM.RefreshDownloads();
                 CurrentViewModel = DownloadsVM;
                 break;
             case "Settings":

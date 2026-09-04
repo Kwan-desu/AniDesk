@@ -122,13 +122,13 @@
                     <!-- Target Display Selector -->
                     <TextBlock Text="APPLY TO DISPLAY" FontSize="10" FontWeight="Bold" Foreground="#656E82" Margin="0,0,0,4" />
                     <ComboBox
+                        Style="{StaticResource AniDeskCleanComboBoxStyle}"
                         ItemsSource="{Binding Monitors}"
                         SelectedItem="{Binding SelectedMonitor}"
                         Height="38"
                         MinHeight="38"
                         VerticalContentAlignment="Center"
                         FontSize="12"
-                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                         Margin="0,0,0,12">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>

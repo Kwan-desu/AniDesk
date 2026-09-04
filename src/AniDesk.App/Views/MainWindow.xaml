@@ -24,6 +24,10 @@
         <KeyBinding Modifiers="Control" Key="R" Command="{Binding ExploreVM.SearchCommand}" />
     </ui:FluentWindow.InputBindings>
 
+    <ui:FluentWindow.Resources>
+        <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource AniDeskCleanComboBoxStyle}" />
+    </ui:FluentWindow.Resources>
+
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" /> <!-- TitleBar -->
@@ -95,117 +99,184 @@
                         </Grid>
 
                         <!-- Explore -->
-                        <ui:Button
+                        <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Explore"
+                            Height="40"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
                             Margin="0,0,0,4"
-                            Padding="12,8"
-                            FontSize="13"
-                            FontWeight="SemiBold"
-                            Icon="Compass24"
-                            Content="Explore"
+                            Padding="0"
+                            Cursor="Hand"
                             ToolTip="Explore Wallpapers"
-                            BorderThickness="3,0,0,0"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}">
-                            <ui:Button.Style>
-                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
-                                            <Setter Property="Content" Value="{x:Null}"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                            <Setter Property="Padding" Value="0,8"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ui:Button.Style>
-                        </ui:Button>
+                            BorderThickness="3,0,0,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6"
+                                            SnapsToDevicePixels="True">
+                                        <Grid Margin="10,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="Compass24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#38BDF8"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="Explore"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#FFFFFF"
+                                                       VerticalAlignment="Center"
+                                                       Margin="8,0,0,0"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.85" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
 
                         <!-- Popular -->
-                        <ui:Button
+                        <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Popular"
+                            Height="40"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
                             Margin="0,0,0,4"
-                            Padding="12,8"
-                            FontSize="13"
-                            Icon="ArrowTrending24"
-                            Content="Popular"
+                            Padding="0"
+                            Cursor="Hand"
                             ToolTip="Popular Wallpapers"
-                            BorderThickness="3,0,0,0"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}">
-                            <ui:Button.Style>
-                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
-                                            <Setter Property="Content" Value="{x:Null}"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                            <Setter Property="Padding" Value="0,8"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ui:Button.Style>
-                        </ui:Button>
+                            BorderThickness="3,0,0,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6"
+                                            SnapsToDevicePixels="True">
+                                        <Grid Margin="10,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="ArrowTrending24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#F59E0B"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="Popular"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#FFFFFF"
+                                                       VerticalAlignment="Center"
+                                                       Margin="8,0,0,0"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.85" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
 
                         <!-- Favorites -->
-                        <ui:Button
+                        <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Favorites"
+                            Height="40"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
                             Margin="0,0,0,4"
-                            Padding="12,8"
-                            FontSize="13"
-                            Icon="Star24"
-                            Content="Favorites"
+                            Padding="0"
+                            Cursor="Hand"
                             ToolTip="Favorite Wallpapers"
-                            BorderThickness="3,0,0,0"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}">
-                            <ui:Button.Style>
-                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
-                                            <Setter Property="Content" Value="{x:Null}"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                            <Setter Property="Padding" Value="0,8"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ui:Button.Style>
-                        </ui:Button>
+                            BorderThickness="3,0,0,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6"
+                                            SnapsToDevicePixels="True">
+                                        <Grid Margin="10,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="Star24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#EC4899"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="Favorites"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#FFFFFF"
+                                                       VerticalAlignment="Center"
+                                                       Margin="8,0,0,0"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.85" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
 
                         <!-- Downloads -->
-                        <ui:Button
+                        <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Downloads"
+                            Height="40"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
                             Margin="0,0,0,4"
-                            Padding="12,8"
-                            FontSize="13"
-                            Icon="ArrowDownload24"
-                            Content="Downloads"
+                            Padding="0"
+                            Cursor="Hand"
                             ToolTip="Downloaded Wallpapers"
-                            BorderThickness="3,0,0,0"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}">
-                            <ui:Button.Style>
-                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
-                                            <Setter Property="Content" Value="{x:Null}"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                            <Setter Property="Padding" Value="0,8"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ui:Button.Style>
-                        </ui:Button>
+                            BorderThickness="3,0,0,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6"
+                                            SnapsToDevicePixels="True">
+                                        <Grid Margin="10,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="ArrowDownload24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#10B981"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="Downloads"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#FFFFFF"
+                                                       VerticalAlignment="Center"
+                                                       Margin="8,0,0,0"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.85" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
 
                     <!-- PREFERENCES & SAFETY GROUP (Bottom Rail) -->
@@ -271,31 +342,48 @@
                         </Border>
 
                         <!-- Settings Nav -->
-                        <ui:Button
+                        <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Settings"
+                            Height="40"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            Padding="12,8"
-                            FontSize="13"
-                            Icon="Settings24"
-                            Content="Settings"
+                            Padding="0"
+                            Cursor="Hand"
                             ToolTip="Settings"
-                            BorderThickness="3,0,0,0"
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}">
-                            <ui:Button.Style>
-                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
-                                            <Setter Property="Content" Value="{x:Null}"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                            <Setter Property="Padding" Value="0,8"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ui:Button.Style>
-                        </ui:Button>
+                            BorderThickness="3,0,0,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6"
+                                            SnapsToDevicePixels="True">
+                                        <Grid Margin="10,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="Settings24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#94A3B8"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="Settings"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#FFFFFF"
+                                                       VerticalAlignment="Center"
+                                                       Margin="8,0,0,0"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.85" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>

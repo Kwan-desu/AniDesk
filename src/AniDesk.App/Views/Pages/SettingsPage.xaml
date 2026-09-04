@@ -47,23 +47,23 @@
 
                         <!-- Modifier Combo -->
                         <ComboBox
+                            Style="{StaticResource AniDeskCleanComboBoxStyle}"
                             Grid.Column="0"
                             ItemsSource="{Binding AvailablePanicModifiers}"
                             SelectedItem="{Binding SelectedPanicModifier, Mode=TwoWay}"
                             Height="38"
                             VerticalContentAlignment="Center"
-                            FontSize="12"
-                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                            FontSize="12"/>
 
                         <!-- Key Combo -->
                         <ComboBox
+                            Style="{StaticResource AniDeskCleanComboBoxStyle}"
                             Grid.Column="2"
                             ItemsSource="{Binding AvailablePanicKeys}"
                             SelectedItem="{Binding SelectedPanicKey, Mode=TwoWay}"
                             Height="38"
                             VerticalContentAlignment="Center"
-                            FontSize="12"
-                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                            FontSize="12"/>
 
                         <!-- Apply Button -->
                         <Button
@@ -146,12 +146,12 @@
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Wallpaper Source" FontSize="12" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,4"/>
                             <ComboBox
+                                Style="{StaticResource AniDeskCleanComboBoxStyle}"
                                 ItemsSource="{Binding AvailableDynamicSources}"
                                 SelectedItem="{Binding SelectedDynamicSource, Mode=TwoWay}"
                                 Height="38"
                                 VerticalContentAlignment="Center"
-                                FontSize="12"
-                                ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                                FontSize="12"/>
                         </StackPanel>
 
                         <!-- Interval Column -->

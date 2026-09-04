@@ -82,7 +82,7 @@
             <SolidColorBrush x:Key="ApplicationBackgroundBrush" Color="Transparent" />
 
             <!-- Global Dark Modern ComboBox Style (Deep Slate Surface, Zero White Flash) -->
-            <Style TargetType="{x:Type ComboBox}">
+            <Style x:Key="AniDeskCleanComboBoxStyle" TargetType="{x:Type ComboBox}">
                 <Setter Property="MinHeight" Value="38" />
                 <Setter Property="Foreground" Value="#FFFFFF" />
                 <Setter Property="Background" Value="#161B27" />
@@ -189,6 +189,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource AniDeskCleanComboBoxStyle}" />
 
             <!-- Global Dark Modern ComboBoxItem Style -->
             <Style TargetType="{x:Type ComboBoxItem}">

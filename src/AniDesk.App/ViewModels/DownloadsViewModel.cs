@@ -37,29 +37,85 @@ public partial class DownloadsViewModel : ObservableObject
     public void RefreshDownloads()
     {
         LocalWallpapers.Clear();
-        string folder = _storageService.GetDownloadDirectory();
-        if (Directory.Exists(folder))
+        var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        string[] extensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"];
+
+        var foldersToScan = new List<string>();
+
+        // 1. Storage service configured download directory
+        string configuredFolder = _storageService.GetDownloadDirectory();
+        if (!string.IsNullOrWhiteSpace(configuredFolder) && Directory.Exists(configuredFolder))
         {
-            string[] extensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp"];
+            foldersToScan.Add(configuredFolder);
+        }
+
+        // 2. Settings direct folder path if set
+        try
+        {
+            var settingsFolder = _storageService.LoadSettings().DownloadFolderPath;
+            if (!string.IsNullOrWhiteSpace(settingsFolder) && Directory.Exists(settingsFolder) && !foldersToScan.Contains(settingsFolder, StringComparer.OrdinalIgnoreCase))
+            {
+                foldersToScan.Add(settingsFolder);
+            }
+        }
+        catch { }
+
+        // 3. Fallback appdata downloads folder (%LocalAppData%\AniDesk\Downloads)
+        string appDataDownloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk", "Downloads");
+        if (Directory.Exists(appDataDownloads) && !foldersToScan.Contains(appDataDownloads, StringComparer.OrdinalIgnoreCase))
+        {
+            foldersToScan.Add(appDataDownloads);
+        }
+
+        var foundFiles = new List<FileInfo>();
+
+        foreach (var folder in foldersToScan)
+        {
             try
             {
-                var files = new DirectoryInfo(folder)
-                    .GetFiles()
-                    .Where(f => extensions.Contains(f.Extension.ToLowerInvariant()))
-                    .OrderByDescending(f => f.CreationTime);
+                var dirInfo = new DirectoryInfo(folder);
+                var files = dirInfo.EnumerateFiles("*.*", SearchOption.AllDirectories)
+                    .Where(f => extensions.Contains(f.Extension.ToLowerInvariant()));
 
                 foreach (var file in files)
                 {
-                    LocalWallpapers.Add(new LocalWallpaperItem
+                    if (seenPaths.Add(file.FullName))
                     {
-                        FilePath = file.FullName,
-                        FileSize = file.Length,
-                        CreatedAt = file.CreationTime
-                    });
+                        foundFiles.Add(file);
+                    }
                 }
             }
-            catch { }
+            catch
+            {
+                // In case AllDirectories encounters an unauthorized subfolder, fallback to top-directory
+                try
+                {
+                    var dirInfo = new DirectoryInfo(folder);
+                    var files = dirInfo.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly)
+                        .Where(f => extensions.Contains(f.Extension.ToLowerInvariant()));
+
+                    foreach (var file in files)
+                    {
+                        if (seenPaths.Add(file.FullName))
+                        {
+                            foundFiles.Add(file);
+                        }
+                    }
+                }
+                catch { }
+            }
         }
+
+        foreach (var file in foundFiles.OrderByDescending(f => f.CreationTime))
+        {
+            LocalWallpapers.Add(new LocalWallpaperItem
+            {
+                FilePath = file.FullName,
+                FileSize = file.Length,
+                CreatedAt = file.CreationTime
+            });
+        }
+
         HasDownloadedFiles = LocalWallpapers.Count > 0;
     }
 

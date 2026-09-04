@@ -214,6 +214,7 @@
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="SOURCE:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox
+                                Style="{StaticResource AniDeskCleanComboBoxStyle}"
                                 SelectedValue="{Binding SelectedSource}"
                                 SelectedValuePath="Tag"
                                 Height="38"
@@ -232,6 +233,7 @@
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="RATIO:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox
+                                Style="{StaticResource AniDeskCleanComboBoxStyle}"
                                 SelectedValue="{Binding SelectedAspectRatio}"
                                 SelectedValuePath="Tag"
                                 Height="38"
@@ -250,6 +252,7 @@
                         <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="QUALITY:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox
+                                Style="{StaticResource AniDeskCleanComboBoxStyle}"
                                 SelectedValue="{Binding SelectedMinQuality}"
                                 SelectedValuePath="Tag"
                                 Height="38"
