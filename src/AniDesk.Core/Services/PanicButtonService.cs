@@ -15,6 +15,7 @@ public sealed class PanicButtonService : IDisposable
     private IntPtr _targetWindowHwnd;
     private string _safeWallpaperPath;
     private bool _isPanicked;
+    private bool _wasWindowVisibleBeforePanic;
     private bool _isRegistered;
     private uint _currentModifiers;
     private uint _currentKey;
@@ -231,10 +232,18 @@ public sealed class PanicButtonService : IDisposable
 
                 if (!_isPanicked)
                 {
-                    // 1. Instantly hide window (<0.5ms)
+                    // 1. Instantly hide window (<0.5ms) ONLY if it was visible on screen
                     if (_targetWindowHwnd != IntPtr.Zero)
                     {
-                        NativeMethods.ShowWindowAsync(_targetWindowHwnd, NativeMethods.SW_HIDE);
+                        _wasWindowVisibleBeforePanic = NativeMethods.IsWindowVisible(_targetWindowHwnd) && !NativeMethods.IsIconic(_targetWindowHwnd);
+                        if (_wasWindowVisibleBeforePanic)
+                        {
+                            NativeMethods.ShowWindowAsync(_targetWindowHwnd, NativeMethods.SW_HIDE);
+                        }
+                    }
+                    else
+                    {
+                        _wasWindowVisibleBeforePanic = false;
                     }
 
                     // 2. Snapshot current active wallpaper(s)
@@ -314,12 +323,13 @@ public sealed class PanicButtonService : IDisposable
                         RevertFallbackWallpaper();
                     }
 
-                    // Restore window
-                    if (_targetWindowHwnd != IntPtr.Zero)
+                    // Restore window ONLY if it was visible before panic was triggered
+                    if (_targetWindowHwnd != IntPtr.Zero && _wasWindowVisibleBeforePanic)
                     {
                         NativeMethods.ShowWindowAsync(_targetWindowHwnd, NativeMethods.SW_RESTORE);
                         NativeMethods.SetForegroundWindow(_targetWindowHwnd);
                     }
+                    _wasWindowVisibleBeforePanic = false;
 
                     _isPanicked = false;
                 }
