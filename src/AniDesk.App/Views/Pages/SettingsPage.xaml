@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="AniDesk.App.Views.Pages.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -38,7 +38,7 @@
                     <DockPanel Margin="0,0,0,14" LastChildFill="False">
                         <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
                             <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Symbol="Keyboard24" FontSize="14" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <ui:SymbolIcon Symbol="Keyboard24" FontSize="14" Foreground="#A78BFA" Margin="0,0,6,0" VerticalAlignment="Center" />
                                 <TextBlock Text="Global Panic / Boss Key Shortcut" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" />
                             </StackPanel>
                             <TextBlock Text="Click the shortcut or edit icon to record your keyboard input" FontSize="11" Foreground="#94A3B8" Margin="20,2,0,0" />
@@ -166,7 +166,7 @@
                             Command="{Binding ShuffleNextWallpaperCommand}"
                             Height="34"
                             Padding="14,0"
-                            Background="#0078D4"
+                            Background="#7C3AED"
                             Foreground="#FFFFFF"
                             FontWeight="SemiBold"
                             FontSize="12">
@@ -250,7 +250,7 @@
                                  Background="#121622" Foreground="#FFFFFF" BorderBrush="#252F42" BorderThickness="1"
                                  Padding="10,0" VerticalContentAlignment="Center" FontSize="12" />
                         <Button Grid.Column="2" Content="Browse..." Height="38" Padding="16,0" Click="OnBrowseClicked" />
-                        <Button Grid.Column="4" Height="38" Padding="14,0" Background="#202636" BorderBrush="#2C374D" Foreground="#38BDF8" Click="OnOpenDownloadFolderClicked" ToolTip="Open in Windows Explorer">
+                        <Button Grid.Column="4" Height="38" Padding="14,0" Background="#202636" BorderBrush="#2C374D" Foreground="#A78BFA" Click="OnOpenDownloadFolderClicked" ToolTip="Open in Windows Explorer">
                             <StackPanel Orientation="Horizontal">
                                 <ui:SymbolIcon Symbol="FolderOpen24" Margin="0,0,6,0" FontSize="14" />
                                 <TextBlock Text="Open Folder" />

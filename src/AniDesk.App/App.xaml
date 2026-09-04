@@ -1,4 +1,4 @@
-<Application
+﻿<Application
     x:Class="AniDesk.App.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -70,17 +70,25 @@
             <SolidColorBrush x:Key="SidebarBackground" Color="#880F131D" />
             <SolidColorBrush x:Key="SurfaceCardBackground" Color="#99161B26" />
             <SolidColorBrush x:Key="SurfaceBorderSubtle" Color="#1FFFFFFF" />
-            <SolidColorBrush x:Key="AccentDefault" Color="#0078D4" />
-            <SolidColorBrush x:Key="AccentGlow" Color="#330078D4" />
+            <SolidColorBrush x:Key="AccentDefault" Color="#7C3AED" />
+            <SolidColorBrush x:Key="AccentGlow" Color="#337C3AED" />
             <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFF" />
             <SolidColorBrush x:Key="TextSecondary" Color="#9DA6B8" />
             <SolidColorBrush x:Key="TextTertiary" Color="#656E82" />
             <SolidColorBrush x:Key="SafeGreen" Color="#10B981" />
             <SolidColorBrush x:Key="SafeGreenBg" Color="#2010B981" />
-            <SolidColorBrush x:Key="NavActiveIndicatorBrush" Color="#0078D4" />
-            <SolidColorBrush x:Key="NavActiveBackgroundBrush" Color="#330078D4" />
+            <SolidColorBrush x:Key="NavActiveIndicatorBrush" Color="#7C3AED" />
+            <SolidColorBrush x:Key="NavActiveBackgroundBrush" Color="#337C3AED" />
             <SolidColorBrush x:Key="TranslucentNavRailBackground" Color="#880F131D" />
             <SolidColorBrush x:Key="ApplicationBackgroundBrush" Color="Transparent" />
+            <!-- wpf-ui system accent override → purple-violet -->
+            <Color x:Key="SystemAccentColor">#7C3AED</Color>
+            <Color x:Key="SystemAccentColorLight1">#9D5FF5</Color>
+            <Color x:Key="SystemAccentColorLight2">#B47EF8</Color>
+            <Color x:Key="SystemAccentColorLight3">#CAA2FA</Color>
+            <Color x:Key="SystemAccentColorDark1">#6029C5</Color>
+            <Color x:Key="SystemAccentColorDark2">#4B1E99</Color>
+            <Color x:Key="SystemAccentColorDark3">#36136E</Color>
 
             <!-- Global Dark Modern ComboBox Style (Unified Select Container) -->
             <Style x:Key="AniDeskCleanComboBoxStyle" TargetType="{x:Type ComboBox}">
@@ -133,11 +141,11 @@
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="Container" Property="Background" Value="#1C2333" />
-                                                    <Setter TargetName="Container" Property="BorderBrush" Value="#38BDF8" />
+                                                    <Setter TargetName="Container" Property="BorderBrush" Value="#A78BFA" />
                                                 </Trigger>
                                                 <Trigger Property="IsChecked" Value="True">
                                                     <Setter TargetName="Container" Property="Background" Value="#1A2234" />
-                                                    <Setter TargetName="Container" Property="BorderBrush" Value="#38BDF8" />
+                                                    <Setter TargetName="Container" Property="BorderBrush" Value="#A78BFA" />
                                                 </Trigger>
                                                 <Trigger Property="IsEnabled" Value="False">
                                                     <Setter TargetName="Container" Property="Opacity" Value="0.45" />
@@ -228,7 +236,7 @@
                                     <Setter TargetName="Chevron" Property="Stroke" Value="#E2E8F0" />
                                 </Trigger>
                                 <Trigger Property="IsDropDownOpen" Value="True">
-                                    <Setter TargetName="Chevron" Property="Stroke" Value="#38BDF8" />
+                                    <Setter TargetName="Chevron" Property="Stroke" Value="#A78BFA" />
                                     <Setter TargetName="Chevron" Property="RenderTransform">
                                         <Setter.Value>
                                             <RotateTransform Angle="180" />

@@ -72,6 +72,8 @@ public partial class ExploreViewModel : ObservableObject
 
     public event EventHandler<MoebooruPost>? PostSelected;
 
+    private bool _suppressFilterSave;
+
     public ExploreViewModel(
         IMoebooruService moebooruService,
         IContentSafetyService safetyService,
@@ -83,11 +85,13 @@ public partial class ExploreViewModel : ObservableObject
         _storageService = storageService;
         _cacheService = cacheService;
 
+        _suppressFilterSave = true;
         var s = _storageService.LoadSettings();
         _selectedSource = s.DefaultSource;
         _selectedAspectRatio = s.SelectedAspectRatio ?? "All";
         _selectedMinQuality = s.SelectedMinQuality ?? "All";
         _searchTags = s.LastTags ?? string.Empty;
+        _suppressFilterSave = false;
 
         _safetyService.SafetyStateChanged += (_, __) => _ = SearchAsync();
     }
@@ -95,7 +99,7 @@ public partial class ExploreViewModel : ObservableObject
     partial void OnSearchTagsChanged(string value)
     {
         _ = DebouncedSuggestAsync(value);
-        // Persist last used tags
+        if (_suppressFilterSave) return;
         try
         {
             var s = _storageService.LoadSettings();
@@ -107,6 +111,7 @@ public partial class ExploreViewModel : ObservableObject
 
     partial void OnSelectedSourceChanged(BooruSource value)
     {
+        if (_suppressFilterSave) return;
         try
         {
             var s = _storageService.LoadSettings();
@@ -118,6 +123,7 @@ public partial class ExploreViewModel : ObservableObject
 
     partial void OnSelectedAspectRatioChanged(string value)
     {
+        if (_suppressFilterSave) return;
         try
         {
             var s = _storageService.LoadSettings();
@@ -129,6 +135,7 @@ public partial class ExploreViewModel : ObservableObject
 
     partial void OnSelectedMinQualityChanged(string value)
     {
+        if (_suppressFilterSave) return;
         try
         {
             var s = _storageService.LoadSettings();

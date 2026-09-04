@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="AniDesk.App.Views.Controls.WallpaperCard"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -142,7 +142,7 @@
                         Grid.Column="1"
                         Height="26"
                         Padding="8,0"
-                        Background="#D90078D4"
+                        Background="#D97C3AED"
                         BorderBrush="#44FFFFFF"
                         BorderThickness="1"
                         Click="OnQuickSetClicked">

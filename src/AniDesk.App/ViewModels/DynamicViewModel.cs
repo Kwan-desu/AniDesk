@@ -105,66 +105,82 @@ public partial class DynamicViewModel : ObservableObject
 
         CurrentWallpaper = _dynamicService.CurrentWallpaper ?? string.Empty;
 
-        RefreshDownloads();
+        _ = RefreshDownloadsAsync();
         UpdatePoolSummary();
     }
 
-    public void RefreshDownloads()
+    public void RefreshDownloads() => _ = RefreshDownloadsAsync();
+
+    public async Task RefreshDownloadsAsync()
     {
-        var settings = _storageService.LoadSettings();
-        var selectedSet = new HashSet<string>(settings.DynamicSelectedDownloadFiles ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+        // Snapshot settings and paths off-thread to avoid lock contention with LocalStorageService
+        var (selectedSet, downloadFolderPath, appDataDownloads) = await Task.Run(() =>
+        {
+            var s = _storageService.LoadSettings();
+            var sel = new HashSet<string>(s.DynamicSelectedDownloadFiles ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+            string dlPath = string.Empty;
+            try { dlPath = _storageService.GetDownloadDirectory(); } catch { }
+            string appData = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "AniDesk", "Downloads");
+            return (sel, s.DownloadFolderPath ?? string.Empty, appData);
+        });
+
         string[] validExtensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp"];
 
-        // Collect all unique directories to scan (same logic as DownloadsViewModel)
-        var foldersToScan = new List<string>();
-        var seenFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        void TryAddFolder(string? path)
+        // Scan directories on background thread — no UI-thread lock involvement
+        var allFiles = await Task.Run(() =>
         {
-            if (!string.IsNullOrWhiteSpace(path) && Directory.Exists(path) && seenFolders.Add(path))
-                foldersToScan.Add(path);
-        }
+            var foldersToScan = new List<string>();
+            var seenFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        TryAddFolder(_storageService.GetDownloadDirectory());
-        TryAddFolder(settings.DownloadFolderPath);
-        TryAddFolder(Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "AniDesk", "Downloads"));
-
-        DownloadedWallpapers.Clear();
-
-        var seenFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var allFiles = new List<FileInfo>();
-
-        foreach (var folder in foldersToScan)
-        {
-            try
+            void TryAdd(string? path)
             {
-                foreach (var file in Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories))
-                {
-                    if (validExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()) && seenFiles.Add(file))
-                        allFiles.Add(new FileInfo(file));
-                }
+                if (!string.IsNullOrWhiteSpace(path) && Directory.Exists(path) && seenFolders.Add(path))
+                    foldersToScan.Add(path);
             }
-            catch
+
+            TryAdd(downloadFolderPath);
+            TryAdd(appDataDownloads);
+
+            var seenFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var result = new List<FileInfo>();
+
+            foreach (var folder in foldersToScan)
             {
                 try
                 {
-                    foreach (var file in Directory.EnumerateFiles(folder))
+                    foreach (var file in Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories))
                     {
                         if (validExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()) && seenFiles.Add(file))
-                            allFiles.Add(new FileInfo(file));
+                            result.Add(new FileInfo(file));
                     }
                 }
-                catch { }
+                catch
+                {
+                    try
+                    {
+                        foreach (var file in Directory.EnumerateFiles(folder))
+                        {
+                            if (validExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()) && seenFiles.Add(file))
+                                result.Add(new FileInfo(file));
+                        }
+                    }
+                    catch { }
+                }
             }
-        }
 
-        allFiles.Sort((a, b) => b.LastWriteTimeUtc.CompareTo(a.LastWriteTimeUtc));
+            result.Sort((a, b) => b.LastWriteTimeUtc.CompareTo(a.LastWriteTimeUtc));
+            return result;
+        });
+
+        // Back on UI thread — update ObservableCollections
+        DownloadedWallpapers.Clear();
 
         TotalDownloadsCount = allFiles.Count;
         HasDownloadedFiles = allFiles.Count > 0;
 
+        string currentWp = CurrentWallpaper;
         foreach (var fi in allFiles)
         {
             string ext = fi.Extension.TrimStart('.').ToUpperInvariant();
@@ -178,7 +194,7 @@ public partial class DynamicViewModel : ObservableObject
                 FileSizeText = size,
                 ExtensionBadge = ext,
                 IsSelectedInCarousel = selected,
-                IsCurrentlyActive = string.Equals(fi.FullName, CurrentWallpaper, StringComparison.OrdinalIgnoreCase)
+                IsCurrentlyActive = string.Equals(fi.FullName, currentWp, StringComparison.OrdinalIgnoreCase)
             });
         }
 
@@ -382,9 +398,9 @@ public partial class DynamicViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void RefreshPool()
+    private async Task RefreshPool()
     {
-        RefreshDownloads();
+        await RefreshDownloadsAsync();
     }
 
     private static string FormatFileSize(long bytes)

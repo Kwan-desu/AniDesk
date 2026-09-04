@@ -1,4 +1,4 @@
-<ui:FluentWindow
+﻿<ui:FluentWindow
     x:Class="AniDesk.App.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -129,7 +129,7 @@
                                                        Symbol="CompassNorthwest24" FontSize="18"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
-                                                       Foreground="#38BDF8"
+                                                       Foreground="#A78BFA"
                                                        Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
                                         <!-- Expanded row (icon + label) -->
                                         <Grid x:Name="ExpandedRow"
@@ -139,7 +139,7 @@
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <ui:SymbolIcon Grid.Column="0" Symbol="CompassNorthwest24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#38BDF8"/>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="CompassNorthwest24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#A78BFA"/>
                                             <TextBlock Grid.Column="1"
                                                        Text="Explore"
                                                        FontSize="13"
@@ -151,8 +151,8 @@
                                     </Grid>
                                     <ControlTemplate.Triggers>
                                         <DataTrigger Binding="{Binding DataContext.CurrentNavView, RelativeSource={RelativeSource AncestorType=Window}}" Value="Explore">
-                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1E38BDF8" />
-                                            <Setter TargetName="ActivePill" Property="Fill" Value="#38BDF8" />
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1EA78BFA" />
+                                            <Setter TargetName="ActivePill" Property="Fill" Value="#A78BFA" />
                                         </DataTrigger>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="BgHighlight" Property="Background" Value="#12FFFFFF" />
