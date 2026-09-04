@@ -117,19 +117,13 @@
                                                     CornerRadius="7">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="32" />
                                                         <ColumnDefinition Width="1" />
-                                                        <ColumnDefinition Width="30" />
+                                                        <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
 
-                                                    <!-- Left content segment background -->
-                                                    <Border x:Name="LeftCell" Grid.Column="0" Background="Transparent" CornerRadius="6,0,0,6" />
-
-                                                    <!-- Vertical divider line separating text from chevron (like VS Code pill) -->
-                                                    <Border x:Name="Divider" Grid.Column="1" Background="#2D3546" Margin="0,5" />
-
-                                                    <!-- Right chevron segment -->
-                                                    <Border x:Name="RightCell" Grid.Column="2" Background="Transparent" CornerRadius="0,6,6,0">
+                                                    <!-- Left chevron segment ('v' at the left) -->
+                                                    <Border x:Name="LeftCell" Grid.Column="0" Background="Transparent" CornerRadius="6,0,0,6">
                                                         <Path x:Name="ChevronArrow"
                                                               HorizontalAlignment="Center"
                                                               VerticalAlignment="Center"
@@ -141,6 +135,12 @@
                                                               StrokeLineJoin="Round"
                                                               SnapsToDevicePixels="True" />
                                                     </Border>
+
+                                                    <!-- Vertical divider line separating chevron from text -->
+                                                    <Border x:Name="Divider" Grid.Column="1" Background="#2D3546" Margin="0,5" />
+
+                                                    <!-- Right content segment background -->
+                                                    <Border x:Name="RightCell" Grid.Column="2" Background="Transparent" CornerRadius="0,6,6,0" />
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
@@ -148,14 +148,14 @@
                                                     <Setter TargetName="OuterBorder" Property="Background" Value="#1F2535" />
                                                     <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#0078D4" />
                                                     <Setter TargetName="Divider" Property="Background" Value="#3B465D" />
-                                                    <Setter TargetName="RightCell" Property="Background" Value="#252D3F" />
+                                                    <Setter TargetName="LeftCell" Property="Background" Value="#252D3F" />
                                                     <Setter TargetName="ChevronArrow" Property="Stroke" Value="#FFFFFF" />
                                                 </Trigger>
                                                 <Trigger Property="IsChecked" Value="True">
                                                     <Setter TargetName="OuterBorder" Property="Background" Value="#1A2234" />
                                                     <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#0078D4" />
                                                     <Setter TargetName="Divider" Property="Background" Value="#0078D4" />
-                                                    <Setter TargetName="RightCell" Property="Background" Value="#0078D4" />
+                                                    <Setter TargetName="LeftCell" Property="Background" Value="#0078D4" />
                                                     <Setter TargetName="ChevronArrow" Property="Stroke" Value="#FFFFFF" />
                                                 </Trigger>
                                                 <Trigger Property="IsEnabled" Value="False">
@@ -166,14 +166,14 @@
                                     </ToggleButton.Template>
                                 </ToggleButton>
 
-                                <!-- Layer 2: Selected content isolated strictly in the left zone -->
-                                <Grid Margin="1,1,32,1" IsHitTestVisible="False">
+                                <!-- Layer 2: Selected content isolated strictly on the RIGHT of the 'v' and divider with generous padding -->
+                                <Grid Margin="34,1,6,1" IsHitTestVisible="False">
                                     <ContentPresenter
                                         x:Name="ContentSite"
                                         Content="{TemplateBinding SelectionBoxItem}"
                                         ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                         ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                        Margin="10,0,8,0"
+                                        Margin="12,0,8,0"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Left" />
                                 </Grid>

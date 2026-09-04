@@ -221,7 +221,7 @@
                                 MinHeight="38"
                                 VerticalContentAlignment="Center"
                                 FontSize="12"
-                                Width="230">
+                                Width="250">
                                 <ComboBoxItem Content="All Sources (Combined)" Tag="{x:Static models:BooruSource.All}" />
                                 <ComboBoxItem Content="yande.re" Tag="{x:Static models:BooruSource.Yandere}" />
                                 <ComboBoxItem Content="konachan.net (SFW)" Tag="{x:Static models:BooruSource.KonachanNet}" />
@@ -240,7 +240,7 @@
                                 MinHeight="38"
                                 VerticalContentAlignment="Center"
                                 FontSize="12"
-                                Width="170">
+                                Width="185">
                                 <ComboBoxItem Content="All Orientations" Tag="All" />
                                 <ComboBoxItem Content="16:9 Landscape" Tag="16:9"/>
                                 <ComboBoxItem Content="21:9 Ultrawide" Tag="21:9"/>
@@ -259,7 +259,7 @@
                                 MinHeight="38"
                                 VerticalContentAlignment="Center"
                                 FontSize="12"
-                                Width="150">
+                                Width="160">
                                 <ComboBoxItem Content="All Qualities" Tag="All" />
                                 <ComboBoxItem Content="4K UHD+" Tag="4K"/>
                                 <ComboBoxItem Content="2K QHD+" Tag="2K"/>
