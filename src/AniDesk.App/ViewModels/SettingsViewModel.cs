@@ -204,6 +204,25 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void UpdateCustomHotkey((uint Modifiers, uint VirtualKey, string Display) hotkeyInfo)
+    {
+        UpdateCustomHotkey(hotkeyInfo.Modifiers, hotkeyInfo.VirtualKey, hotkeyInfo.Display);
+    }
+
+    public void UpdateCustomHotkey(uint modifiers, uint virtualKey, string display)
+    {
+        PanicHotkeyDisplay = display;
+
+        var settings = _storageService.LoadSettings();
+        settings.PanicHotkeyDisplay = display;
+        settings.PanicModifiers = modifiers;
+        settings.PanicKey = virtualKey;
+        _storageService.SaveSettings(settings);
+
+        _panicService?.UpdateHotkey(modifiers, virtualKey);
+    }
+
+    [RelayCommand]
     public void ApplyCustomHotkey()
     {
         uint mod = SelectedPanicModifier switch
@@ -238,15 +257,7 @@ public partial class SettingsViewModel : ObservableObject
         };
 
         string display = $"{SelectedPanicModifier} + {SelectedPanicKey}";
-        PanicHotkeyDisplay = display;
-
-        var settings = _storageService.LoadSettings();
-        settings.PanicHotkeyDisplay = display;
-        settings.PanicModifiers = mod;
-        settings.PanicKey = vk;
-        _storageService.SaveSettings(settings);
-
-        _panicService?.UpdateHotkey(mod, vk);
+        UpdateCustomHotkey(mod, vk, display);
     }
 
     [RelayCommand]

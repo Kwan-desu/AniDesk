@@ -274,4 +274,22 @@ public partial class SettingsPage : UserControl
         _cacheService.ClearCache();
         UpdateCacheSizeText();
     }
+
+    private void OnPanicHotkeyRecorded(object? sender, (uint Modifiers, uint VirtualKey, string Display) e)
+    {
+        if (DataContext is ViewModels.SettingsViewModel vm)
+        {
+            vm.UpdateCustomHotkey(e.Modifiers, e.VirtualKey, e.Display);
+        }
+        else if (_panicService != null)
+        {
+            var settings = _storageService.LoadSettings();
+            settings.PanicHotkeyDisplay = e.Display;
+            settings.PanicModifiers = e.Modifiers;
+            settings.PanicKey = e.VirtualKey;
+            _storageService.SaveSettings(settings);
+
+            _panicService.UpdateHotkey(e.Modifiers, e.VirtualKey);
+        }
+    }
 }

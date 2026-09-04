@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:AniDesk.App.ViewModels"
+    xmlns:controls="clr-namespace:AniDesk.App.Views.Controls"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance vm:SettingsViewModel}">
 
@@ -33,64 +34,24 @@
 
                     <Separator Background="#1E2536" Margin="0,0,0,12"/>
 
-                    <!-- Customizable Hotkey Configuration -->
-                    <TextBlock Text="Custom Global Panic Shortcut" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,2"/>
-                    <TextBlock Text="Choose any Windows modifier combo and key to instantly trigger emergency sanitization:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,10"/>
+                    <!-- Customizable Hotkey Configuration (PowerToys-Style Interactive Shortcut Recorder) -->
+                    <DockPanel Margin="0,0,0,14" LastChildFill="False">
+                        <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Keyboard24" FontSize="14" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Global Panic / Boss Key Shortcut" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock Text="Click the shortcut or edit icon to record your keyboard input" FontSize="11" Foreground="#94A3B8" Margin="20,2,0,0" />
+                        </StackPanel>
 
-                    <Grid Margin="0,0,0,14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Modifier Combo -->
-                        <ComboBox
-                            Style="{StaticResource AniDeskCleanComboBoxStyle}"
-                            Grid.Column="0"
-                            ItemsSource="{Binding AvailablePanicModifiers}"
-                            SelectedItem="{Binding SelectedPanicModifier, Mode=TwoWay}"
-                            Height="38"
-                            VerticalContentAlignment="Center"
-                            FontSize="12"/>
-
-                        <!-- Key Combo -->
-                        <ComboBox
-                            Style="{StaticResource AniDeskCleanComboBoxStyle}"
-                            Grid.Column="2"
-                            ItemsSource="{Binding AvailablePanicKeys}"
-                            SelectedItem="{Binding SelectedPanicKey, Mode=TwoWay}"
-                            Height="38"
-                            VerticalContentAlignment="Center"
-                            FontSize="12"/>
-
-                        <!-- Apply Button -->
-                        <Button
-                            Grid.Column="4"
-                            Command="{Binding ApplyCustomHotkeyCommand}"
-                            Content="Set Shortcut"
-                            Height="38"
-                            Padding="14,0"
-                            Background="#0078D4"
-                            Foreground="#FFFFFF"
-                            FontWeight="SemiBold"
-                            FontSize="12"/>
-
-                        <!-- Current Registered Display Badge -->
-                        <Border
-                            Grid.Column="5"
-                            HorizontalAlignment="Right"
-                            Background="#1E273A"
-                            BorderBrush="#334155"
-                            BorderThickness="1"
-                            CornerRadius="6"
-                            Padding="12,6">
-                            <TextBlock Text="{Binding PanicHotkeyDisplay}" FontSize="12.5" FontWeight="Bold" Foreground="#38BDF8" />
-                        </Border>
-                    </Grid>
+                        <!-- Interactive Shortcut Recorder -->
+                        <controls:ShortcutRecorderControl
+                            DockPanel.Dock="Right"
+                            x:Name="PanicShortcutRecorder"
+                            HotkeyDisplay="{Binding PanicHotkeyDisplay, Mode=TwoWay}"
+                            VerticalAlignment="Center"
+                            HotkeyRecorded="OnPanicHotkeyRecorded" />
+                    </DockPanel>
 
                     <Separator Background="#1E2536" Margin="0,0,0,12"/>
 

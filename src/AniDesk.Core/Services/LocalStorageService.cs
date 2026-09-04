@@ -32,9 +32,9 @@ public class LocalStorageService : ILocalStorageService
     public event EventHandler<string>? DownloadDirectoryChanged;
     private string _lastDownloadDir = string.Empty;
 
-    public LocalStorageService()
+    public LocalStorageService(string? baseDirectory = null)
     {
-        _appDataFolder = Path.Combine(
+        _appDataFolder = baseDirectory ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "AniDesk"
         );
