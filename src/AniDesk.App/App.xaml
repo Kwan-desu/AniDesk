@@ -92,6 +92,7 @@
                 <Setter Property="VerticalContentAlignment" Value="Center" />
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
                 <Setter Property="FontSize" Value="12" />
+                <Setter Property="MaxDropDownHeight" Value="320" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
@@ -107,13 +108,16 @@
                                     Focusable="False"
                                     Padding="0"
                                     ClickMode="Press"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
                                     IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ToggleButton.Template>
                                         <ControlTemplate TargetType="{x:Type ToggleButton}">
                                             <Border x:Name="Container"
-                                                    Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"
-                                                    BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}"
-                                                    BorderThickness="1"
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
                                                     CornerRadius="7" />
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
@@ -146,6 +150,7 @@
                                         Content="{TemplateBinding SelectionBoxItem}"
                                         ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                         ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                        ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Left"
                                         Margin="0,0,8,0" />
@@ -170,18 +175,19 @@
                                     </Path>
                                 </Grid>
 
-                                <!-- Popup dropdown menu (Must be named PART_Popup for full WPF event/mouse capture wiring) -->
+                                <!-- Popup dropdown menu (Must have PlacementTarget set to TemplatedParent) -->
                                 <Popup
                                     x:Name="PART_Popup"
                                     Placement="Bottom"
-                                    IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                    PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                    IsOpen="{TemplateBinding IsDropDownOpen}"
                                     AllowsTransparency="True"
                                     Focusable="False"
                                     PopupAnimation="Slide">
                                     <Grid x:Name="DropDown"
                                           SnapsToDevicePixels="True"
                                           MinWidth="{TemplateBinding ActualWidth}"
-                                          MaxHeight="260">
+                                          MaxHeight="{TemplateBinding MaxDropDownHeight}">
                                         <Border
                                             x:Name="DropDownBorder"
                                             Background="#141924"
@@ -194,7 +200,7 @@
                                                 <DropShadowEffect BlurRadius="18" ShadowDepth="4" Direction="270" Color="#000000" Opacity="0.55" />
                                             </Border.Effect>
                                             <ScrollViewer x:Name="DropDownScrollViewer" SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Disabled">
-                                                <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                                                <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                             </ScrollViewer>
                                         </Border>
                                     </Grid>
