@@ -122,28 +122,66 @@ public partial class App : Application
             _panicService.IsEnabled = savedSettings.EnableEmergencyDesktop;
 
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-            var helper = new System.Windows.Interop.WindowInteropHelper(mainWindow);
-            _panicService.SetTargetWindow(helper.EnsureHandle());
+                        // Verbose startup tracing for troubleshooting UI not showing
+                        try
+                        {
+                            string verboseLogDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk");
+                            Directory.CreateDirectory(verboseLogDir);
+                            File.AppendAllText(Path.Combine(verboseLogDir, "startup_verbose.log"), $"[{DateTime.Now}] Obtained MainWindow instance\n");
+                        }
+                        catch { }
 
-            var dynamicService = _host.Services.GetRequiredService<IDynamicWallpaperService>();
-            dynamicService.Start();
+                        var helper = new System.Windows.Interop.WindowInteropHelper(mainWindow);
+                        _panicService.SetTargetWindow(helper.EnsureHandle());
 
-            _trayManager = new TrayIconManager(
-                mainWindow,
-                _panicService,
-                _hotkeySink.Handle,
-                _host.Services.GetService<IContentSafetyService>(),
-                dynamicService
-            );
+                        var dynamicService = _host.Services.GetRequiredService<IDynamicWallpaperService>();
+                        dynamicService.Start();
 
-            if (!isDaemon)
-            {
-                mainWindow.Show();
-            }
-            else
-            {
-                AppSuspensionManager.Hibernate();
-            }
+                        _trayManager = new TrayIconManager(
+                            mainWindow,
+                            _panicService,
+                            _hotkeySink.Handle,
+                            _host.Services.GetService<IContentSafetyService>(),
+                            dynamicService
+                        );
+
+                        try
+                        {
+                            string verboseLogDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk");
+                            File.AppendAllText(Path.Combine(verboseLogDir, "startup_verbose.log"), $"[{DateTime.Now}] TrayManager created, isDaemon={isDaemon}\n");
+                        }
+                        catch { }
+
+                        if (!isDaemon)
+                        {
+                            try
+                            {
+                                try
+                                {
+                                    string verboseLogDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk");
+                                    File.AppendAllText(Path.Combine(verboseLogDir, "startup_verbose.log"), $"[{DateTime.Now}] About to call mainWindow.Show()\n");
+                                }
+                                catch { }
+
+                                mainWindow.Show();
+
+                                try
+                                {
+                                    string verboseLogDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk");
+                                    File.AppendAllText(Path.Combine(verboseLogDir, "startup_verbose.log"), $"[{DateTime.Now}] mainWindow.Show() called\n");
+                                }
+                                catch { }
+                            }
+                            catch (Exception ex)
+                            {
+                                try { File.AppendAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk", "startup_verbose.log"), $"[{DateTime.Now}] Exception showing mainWindow: {ex}\n"); } catch { }
+                                throw;
+                            }
+                        }
+                        else
+                        {
+                            AppSuspensionManager.Hibernate();
+                        }
 
             base.OnStartup(e);
         }
