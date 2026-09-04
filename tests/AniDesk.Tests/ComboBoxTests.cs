@@ -298,4 +298,35 @@ public class ComboBoxTests
             }
         });
     }
+
+    [Fact]
+    public void ExplorePage_SearchBoxContainer_AndFilterGrid_ValidateStructure()
+    {
+        RunOnUI((resources) =>
+        {
+            var page = new AniDesk.App.Views.Pages.ExplorePage();
+            var window = new Window { Content = page, Width = 1100, Height = 700 };
+            window.Show();
+
+            try
+            {
+                page.UpdateLayout();
+                var searchContainer = (Border)page.FindName("SearchBoxContainer");
+                Assert.NotNull(searchContainer);
+                Assert.NotNull(searchContainer.Style);
+
+                var searchBox = (TextBox)page.FindName("SearchBox");
+                Assert.NotNull(searchBox);
+
+                // Focus search box
+                searchBox.Focus();
+                page.UpdateLayout();
+                Assert.True(searchContainer.IsKeyboardFocusWithin, "SearchBoxContainer must have IsKeyboardFocusWithin=True when SearchBox is focused");
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
 }

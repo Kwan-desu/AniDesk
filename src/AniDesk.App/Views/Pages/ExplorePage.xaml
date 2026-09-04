@@ -57,10 +57,8 @@
                         </Border>
 
                         <Grid Grid.Column="1">
-                            <!-- Glowing Search Container (matching ComboBox glow) -->
+                            <!-- Glowing Search Container (matching ComboBox glow, no local properties blocking style triggers) -->
                             <Border x:Name="SearchBoxContainer"
-                                    Background="#161B26"
-                                    BorderBrush="#2A3447"
                                     BorderThickness="1"
                                     CornerRadius="7"
                                     Height="38"
@@ -75,7 +73,7 @@
                                                 <Setter Property="BorderBrush" Value="#38BDF8" />
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
-                                                        <DropShadowEffect Color="#38BDF8" BlurRadius="10" Opacity="0.35" ShadowDepth="0" />
+                                                        <DropShadowEffect Color="#38BDF8" BlurRadius="10" Opacity="0.4" ShadowDepth="0" />
                                                     </Setter.Value>
                                                 </Setter>
                                             </Trigger>
@@ -84,7 +82,7 @@
                                                 <Setter Property="BorderBrush" Value="#38BDF8" />
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
-                                                        <DropShadowEffect Color="#38BDF8" BlurRadius="14" Opacity="0.5" ShadowDepth="0" />
+                                                        <DropShadowEffect Color="#38BDF8" BlurRadius="14" Opacity="0.55" ShadowDepth="0" />
                                                     </Setter.Value>
                                                 </Setter>
                                             </Trigger>
@@ -284,16 +282,35 @@
                     </Button>
                 </Grid>
 
-                <!-- Expandable filter bar (Responsive WrapPanel: never cut off on any window scale) -->
+                <!-- Expandable filter bar (Auto-scales 100% across the full width with zero blank space) -->
                 <Border
                     Visibility="{Binding IsFilterOpen, Converter={StaticResource BoolToVis}}"
                     Background="#161B27" BorderBrush="#262E40" BorderThickness="1"
-                    CornerRadius="8" Margin="0,10,0,0" Padding="14,8">
-                    <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <!-- Source Dropdown -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4,16,4">
-                            <TextBlock Text="SOURCE:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    CornerRadius="8" Margin="0,10,0,0" Padding="14,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <!-- Source: 1.35x star proportion -->
+                            <ColumnDefinition Width="1.35*" MinWidth="180" />
+                            <ColumnDefinition Width="14" />
+                            <!-- Ratio: 1x star proportion -->
+                            <ColumnDefinition Width="1*" MinWidth="140" />
+                            <ColumnDefinition Width="14" />
+                            <!-- Quality: 1x star proportion -->
+                            <ColumnDefinition Width="1*" MinWidth="135" />
+                            <ColumnDefinition Width="16" />
+                            <!-- Apply Button: Auto width on far right -->
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Source Dropdown (Auto-scaling) -->
+                        <Grid Grid.Column="0" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="SOURCE:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox
+                                Grid.Column="1"
                                 Style="{StaticResource AniDeskCleanComboBoxStyle}"
                                 SelectedValue="{Binding SelectedSource}"
                                 SelectedValuePath="Tag"
@@ -301,18 +318,23 @@
                                 MinHeight="38"
                                 VerticalContentAlignment="Center"
                                 FontSize="12"
-                                Width="205">
+                                HorizontalAlignment="Stretch">
                                 <ComboBoxItem Content="All Sources (Combined)" Tag="{x:Static models:BooruSource.All}" />
                                 <ComboBoxItem Content="yande.re" Tag="{x:Static models:BooruSource.Yandere}" />
                                 <ComboBoxItem Content="konachan.net (SFW)" Tag="{x:Static models:BooruSource.KonachanNet}" />
                                 <ComboBoxItem Content="konachan.com (NSFW)" Tag="{x:Static models:BooruSource.KonachanCom}" />
                             </ComboBox>
-                        </StackPanel>
+                        </Grid>
 
-                        <!-- Ratio Dropdown -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4,16,4">
-                            <TextBlock Text="RATIO:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <!-- Ratio Dropdown (Auto-scaling) -->
+                        <Grid Grid.Column="2" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="RATIO:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox
+                                Grid.Column="1"
                                 Style="{StaticResource AniDeskCleanComboBoxStyle}"
                                 SelectedValue="{Binding SelectedAspectRatio}"
                                 SelectedValuePath="Tag"
@@ -320,18 +342,23 @@
                                 MinHeight="38"
                                 VerticalContentAlignment="Center"
                                 FontSize="12"
-                                Width="155">
+                                HorizontalAlignment="Stretch">
                                 <ComboBoxItem Content="All Orientations" Tag="All" />
                                 <ComboBoxItem Content="16:9 Landscape" Tag="16:9"/>
                                 <ComboBoxItem Content="21:9 Ultrawide" Tag="21:9"/>
                                 <ComboBoxItem Content="Landscape (Any)" Tag="Landscape"/>
                             </ComboBox>
-                        </StackPanel>
+                        </Grid>
 
-                        <!-- Quality Dropdown -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4,16,4">
-                            <TextBlock Text="QUALITY:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <!-- Quality Dropdown (Auto-scaling) -->
+                        <Grid Grid.Column="4" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="QUALITY:" FontSize="10.5" FontWeight="Bold" Foreground="#8F9BB3" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox
+                                Grid.Column="1"
                                 Style="{StaticResource AniDeskCleanComboBoxStyle}"
                                 SelectedValue="{Binding SelectedMinQuality}"
                                 SelectedValuePath="Tag"
@@ -339,22 +366,23 @@
                                 MinHeight="38"
                                 VerticalContentAlignment="Center"
                                 FontSize="12"
-                                Width="145">
+                                HorizontalAlignment="Stretch">
                                 <ComboBoxItem Content="All Qualities" Tag="All" />
                                 <ComboBoxItem Content="4K UHD+" Tag="4K"/>
                                 <ComboBoxItem Content="2K QHD+" Tag="2K"/>
                                 <ComboBoxItem Content="FHD 1080p+" Tag="FHD"/>
                             </ComboBox>
-                        </StackPanel>
+                        </Grid>
 
-                        <!-- Apply Button -->
+                        <!-- Apply Button (Anchored to right) -->
                         <Button
+                            Grid.Column="6"
                             Command="{Binding ApplyFiltersCommand}"
-                            Height="38" Padding="18,0" Margin="0,4,0,4"
+                            Height="38" Padding="20,0"
                             Background="#0078D4" Foreground="#FFFFFF"
                             FontWeight="SemiBold" Content="Apply Filters"
                             Cursor="Hand"/>
-                    </WrapPanel>
+                    </Grid>
                 </Border>
             </StackPanel>
         </Border>
