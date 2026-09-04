@@ -13,6 +13,7 @@ public interface ILocalStorageService
     bool RemoveFavorite(long postId);
     bool IsFavorite(long postId);
     string GetDownloadDirectory();
+    event EventHandler<string>? DownloadDirectoryChanged;
 }
 
 public class LocalStorageService : ILocalStorageService
@@ -27,6 +28,9 @@ public class LocalStorageService : ILocalStorageService
         WriteIndented = true,
         PropertyNameCaseInsensitive = true
     };
+
+    public event EventHandler<string>? DownloadDirectoryChanged;
+    private string _lastDownloadDir = string.Empty;
 
     public LocalStorageService()
     {
@@ -82,6 +86,13 @@ public class LocalStorageService : ILocalStorageService
             {
                 string json = JsonSerializer.Serialize(settings, _jsonOptions);
                 File.WriteAllText(_settingsFile, json);
+
+                string currentDir = GetDownloadDirectory();
+                if (!string.Equals(_lastDownloadDir, currentDir, StringComparison.OrdinalIgnoreCase))
+                {
+                    _lastDownloadDir = currentDir;
+                    DownloadDirectoryChanged?.Invoke(this, currentDir);
+                }
             }
             catch
             {
@@ -179,9 +190,20 @@ public class LocalStorageService : ILocalStorageService
     public string GetDownloadDirectory()
     {
         var settings = LoadSettings();
-        if (!string.IsNullOrWhiteSpace(settings.DownloadFolderPath) && Directory.Exists(settings.DownloadFolderPath))
+        if (!string.IsNullOrWhiteSpace(settings.DownloadFolderPath))
         {
-            return settings.DownloadFolderPath;
+            try
+            {
+                if (!Directory.Exists(settings.DownloadFolderPath))
+                {
+                    Directory.CreateDirectory(settings.DownloadFolderPath);
+                }
+                return settings.DownloadFolderPath;
+            }
+            catch
+            {
+                // Fallback to default if custom directory is invalid or inaccessible
+            }
         }
 
         string defaultFolder = GetDefaultDownloadFolder();

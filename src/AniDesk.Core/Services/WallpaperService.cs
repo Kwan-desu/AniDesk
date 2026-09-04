@@ -228,6 +228,7 @@ public class WallpaperService : IWallpaperService
             string ext = Path.GetExtension(uri.AbsolutePath);
             if (string.IsNullOrWhiteSpace(ext)) ext = ".jpg";
             string targetFile = Path.Combine(_wallpaperFolder, $"current_wallpaper_{Guid.NewGuid():N}{ext}");
+            string tempFile = $"{targetFile}.download";
 
             try
             {
@@ -238,13 +239,29 @@ public class WallpaperService : IWallpaperService
             }
             catch { }
 
-            using var response = await _httpClient.GetAsync(pathOrUrl, HttpCompletionOption.ResponseHeadersRead);
+            using var response = await _httpClient.GetAsync(pathOrUrl, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            using var fileStream = new FileStream(targetFile, FileMode.Create, FileAccess.Write, FileShare.None);
-            await response.Content.CopyToAsync(fileStream);
+            try
+            {
+                await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 81920, useAsync: true))
+                {
+                    await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
+                    await fileStream.FlushAsync().ConfigureAwait(false);
+                }
 
-            return targetFile;
+                if (File.Exists(targetFile))
+                {
+                    try { File.Delete(targetFile); } catch { }
+                }
+                File.Move(tempFile, targetFile);
+                return targetFile;
+            }
+            catch
+            {
+                try { if (File.Exists(tempFile)) File.Delete(tempFile); } catch { }
+                throw;
+            }
         }
 
         return pathOrUrl;

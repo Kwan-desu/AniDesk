@@ -31,5 +31,6 @@ public enum DownloadStatus
     Queued,
     Downloading,
     Completed,
-    Failed
+    Failed,
+    Cancelled
 }

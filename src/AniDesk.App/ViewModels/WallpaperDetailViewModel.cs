@@ -30,6 +30,15 @@ public partial class WallpaperDetailViewModel : ObservableObject
     private bool _isBusy;
 
     [ObservableProperty]
+    private bool _isDownloadingOriginal;
+
+    [ObservableProperty]
+    private double _downloadProgressPercent;
+
+    [ObservableProperty]
+    private string _activeDownloadId = string.Empty;
+
+    [ObservableProperty]
     private string _statusMessage = string.Empty;
 
     [ObservableProperty]
@@ -46,6 +55,33 @@ public partial class WallpaperDetailViewModel : ObservableObject
         _wallpaperService = wallpaperService;
         _downloadService = downloadService;
         _storageService = storageService;
+
+        _downloadService.DownloadProgressChanged += (s, e) =>
+        {
+            if (e.Item.Post?.Id == Post?.Id || e.Item.Id == ActiveDownloadId)
+            {
+                DownloadProgressPercent = Math.Round(e.Progress, 0);
+            }
+        };
+
+        _downloadService.DownloadCompleted += (s, e) =>
+        {
+            if (e.Item.Post?.Id == Post?.Id || e.Item.Id == ActiveDownloadId)
+            {
+                IsDownloadingOriginal = false;
+                if (e.Success)
+                {
+                    StatusMessage = "✓ Download completed!";
+                    IsStatusSuccess = true;
+                    WallpaperApplied?.Invoke(this, $"Original wallpaper downloaded: {e.Item.FileName}");
+                }
+                else if (e.ErrorMessage != "Cancelled")
+                {
+                    StatusMessage = $"⚠ Download failed: {e.ErrorMessage}";
+                    IsStatusSuccess = false;
+                }
+            }
+        };
 
         LoadMonitors();
     }
@@ -145,34 +181,35 @@ public partial class WallpaperDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task DownloadOriginalAsync()
     {
-        if (Post == null || IsBusy) return;
+        if (Post == null || IsDownloadingOriginal) return;
 
-        IsBusy = true;
-        StatusMessage = "Downloading original wallpaper...";
+        IsDownloadingOriginal = true;
+        DownloadProgressPercent = 0;
+        StatusMessage = "Starting download in background...";
+        IsStatusSuccess = true;
 
         try
         {
             var item = await _downloadService.DownloadPostAsync(Post);
-            if (item.Status == DownloadStatus.Completed)
-            {
-                StatusMessage = "✓ Download completed!";
-                IsStatusSuccess = true;
-                WallpaperApplied?.Invoke(this, "Original wallpaper downloaded successfully!");
-            }
-            else
-            {
-                StatusMessage = $"⚠ Download failed: {item.ErrorMessage}";
-                IsStatusSuccess = false;
-            }
+            ActiveDownloadId = item.Id;
+            StatusMessage = "Downloading in background... (0%)";
         }
         catch (Exception ex)
         {
+            IsDownloadingOriginal = false;
             StatusMessage = $"Download error: {ex.Message}";
             IsStatusSuccess = false;
         }
-        finally
+    }
+
+    [RelayCommand]
+    private void CancelCurrentDownload()
+    {
+        if (!string.IsNullOrWhiteSpace(ActiveDownloadId))
         {
-            IsBusy = false;
+            _downloadService.CancelDownload(ActiveDownloadId);
+            IsDownloadingOriginal = false;
+            StatusMessage = "Download cancelled.";
         }
     }
 

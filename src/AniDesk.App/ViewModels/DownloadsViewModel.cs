@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AniDesk.Core.Services;
@@ -18,7 +20,9 @@ public partial class DownloadsViewModel : ObservableObject
     public ObservableCollection<DownloadItem> Downloads => _downloadService.Downloads;
     public ObservableCollection<LocalWallpaperItem> LocalWallpapers { get; } = new();
 
-    public bool HasActiveDownloads => Downloads.Count > 0;
+    public bool HasQueueItems => Downloads.Count > 0;
+    public bool HasActiveDownloads => Downloads.Any(d => d.Status is DownloadStatus.Downloading or DownloadStatus.Queued);
+    public bool HasCompletedDownloads => Downloads.Any(d => d.Status is DownloadStatus.Completed or DownloadStatus.Failed or DownloadStatus.Cancelled);
 
     [ObservableProperty]
     private bool _hasDownloadedFiles;
@@ -36,16 +40,58 @@ public partial class DownloadsViewModel : ObservableObject
         _storageService = storageService;
         _wallpaperService = wallpaperService;
 
-        _downloadService.Downloads.CollectionChanged += (s, e) => OnPropertyChanged(nameof(HasActiveDownloads));
+        _downloadService.Downloads.CollectionChanged += (s, e) =>
+        {
+            OnPropertyChanged(nameof(HasQueueItems));
+            OnPropertyChanged(nameof(HasActiveDownloads));
+            OnPropertyChanged(nameof(HasCompletedDownloads));
+        };
 
-        // Fire-and-forget: kick off initial background scan on startup
+        _downloadService.DownloadCompleted += OnDownloadCompleted;
+        _storageService.DownloadDirectoryChanged += OnDownloadDirectoryChanged;
+
+        // Kick off initial scan
+        _ = RefreshDownloads();
+    }
+
+    private void OnDownloadCompleted(object? sender, DownloadCompletedEventArgs e)
+    {
+        if (!e.Success || string.IsNullOrWhiteSpace(e.Item?.TargetFilePath)) return;
+
+        var app = Application.Current;
+        if (app?.Dispatcher != null && !app.Dispatcher.HasShutdownStarted)
+        {
+            app.Dispatcher.BeginInvoke(() =>
+            {
+                var existing = LocalWallpapers.FirstOrDefault(w => string.Equals(w.FilePath, e.Item.TargetFilePath, StringComparison.OrdinalIgnoreCase));
+                if (existing == null && File.Exists(e.Item.TargetFilePath))
+                {
+                    var fi = new FileInfo(e.Item.TargetFilePath);
+                    LocalWallpapers.Insert(0, new LocalWallpaperItem
+                    {
+                        FilePath = fi.FullName,
+                        FileSize = fi.Length,
+                        CreatedAt = fi.CreationTime
+                    });
+                    HasDownloadedFiles = true;
+                    OnPropertyChanged(nameof(WallpaperCountText));
+                }
+                OnPropertyChanged(nameof(HasQueueItems));
+                OnPropertyChanged(nameof(HasActiveDownloads));
+                OnPropertyChanged(nameof(HasCompletedDownloads));
+            });
+        }
+    }
+
+    private void OnDownloadDirectoryChanged(object? sender, string newDirectory)
+    {
+        CurrentDownloadFolderPath = newDirectory;
         _ = RefreshDownloads();
     }
 
     [RelayCommand]
     public async Task RefreshDownloads()
     {
-        // Prevent concurrent refreshes
         if (_isRefreshing) return;
         _isRefreshing = true;
 
@@ -53,13 +99,12 @@ public partial class DownloadsViewModel : ObservableObject
         {
             string[] extensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"];
 
-            // Run ALL file system operations on a thread pool thread to avoid UI lag
             var (foundFiles, primaryFolder) = await Task.Run(() =>
             {
                 var foldersToScan = new List<string>();
                 var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                // 1. Storage service configured download directory
+                // 1. Configured folder
                 try
                 {
                     string configuredFolder = _storageService.GetDownloadDirectory();
@@ -68,7 +113,7 @@ public partial class DownloadsViewModel : ObservableObject
                 }
                 catch { }
 
-                // 2. Settings direct folder path if set
+                // 2. Settings direct path if distinct
                 try
                 {
                     var settingsFolder = _storageService.LoadSettings().DownloadFolderPath;
@@ -78,7 +123,7 @@ public partial class DownloadsViewModel : ObservableObject
                 }
                 catch { }
 
-                // 3. Fallback appdata downloads folder
+                // 3. AppData downloads folder
                 string appDataDownloads = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk", "Downloads");
                 if (Directory.Exists(appDataDownloads)
@@ -115,25 +160,72 @@ public partial class DownloadsViewModel : ObservableObject
                 return (result.OrderByDescending(f => f.CreationTime).ToList(), foldersToScan.FirstOrDefault() ?? string.Empty);
             });
 
-            // Back on UI thread — batch update collection
-            LocalWallpapers.Clear();
+            // Incremental differential reconciliation — preserve existing items and loaded previews
+            var foundMap = new Dictionary<string, FileInfo>(foundFiles.Count, StringComparer.OrdinalIgnoreCase);
             foreach (var file in foundFiles)
             {
-                LocalWallpapers.Add(new LocalWallpaperItem
+                foundMap[file.FullName] = file;
+            }
+
+            // Remove deleted files (iterate backwards)
+            for (int i = LocalWallpapers.Count - 1; i >= 0; i--)
+            {
+                if (!foundMap.ContainsKey(LocalWallpapers[i].FilePath))
                 {
-                    FilePath = file.FullName,
-                    FileSize = file.Length,
-                    CreatedAt = file.CreationTime
-                });
+                    LocalWallpapers.RemoveAt(i);
+                }
+            }
+
+            var existingPaths = new HashSet<string>(LocalWallpapers.Count, StringComparer.OrdinalIgnoreCase);
+            foreach (var item in LocalWallpapers)
+            {
+                existingPaths.Add(item.FilePath);
+            }
+
+            // Insert newly discovered files (sorted newest first)
+            int insertIndex = 0;
+            foreach (var file in foundFiles)
+            {
+                if (!existingPaths.Contains(file.FullName))
+                {
+                    LocalWallpapers.Insert(insertIndex, new LocalWallpaperItem
+                    {
+                        FilePath = file.FullName,
+                        FileSize = file.Length,
+                        CreatedAt = file.CreationTime
+                    });
+                }
+                insertIndex++;
             }
 
             HasDownloadedFiles = LocalWallpapers.Count > 0;
             OnPropertyChanged(nameof(WallpaperCountText));
             CurrentDownloadFolderPath = primaryFolder;
+            OnPropertyChanged(nameof(HasQueueItems));
+            OnPropertyChanged(nameof(HasActiveDownloads));
+            OnPropertyChanged(nameof(HasCompletedDownloads));
         }
         finally
         {
             _isRefreshing = false;
+        }
+    }
+
+    [RelayCommand]
+    private void ClearCompletedDownloads()
+    {
+        _downloadService.ClearCompleted();
+        OnPropertyChanged(nameof(HasQueueItems));
+        OnPropertyChanged(nameof(HasActiveDownloads));
+        OnPropertyChanged(nameof(HasCompletedDownloads));
+    }
+
+    [RelayCommand]
+    private void CancelDownload(DownloadItem? item)
+    {
+        if (item != null)
+        {
+            _downloadService.CancelDownload(item.Id);
         }
     }
 
@@ -192,6 +284,7 @@ public partial class DownloadsViewModel : ObservableObject
                 File.Delete(item.FilePath);
                 LocalWallpapers.Remove(item);
                 HasDownloadedFiles = LocalWallpapers.Count > 0;
+                OnPropertyChanged(nameof(WallpaperCountText));
             }
             catch { }
         }
@@ -204,6 +297,15 @@ public class LocalWallpaperItem
     public string FileName => Path.GetFileName(FilePath);
     public long FileSize { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    public string FormatBadge
+    {
+        get
+        {
+            string ext = Path.GetExtension(FilePath).TrimStart('.').ToUpperInvariant();
+            return string.IsNullOrWhiteSpace(ext) ? "IMG" : ext;
+        }
+    }
 
     public string FormattedFileSize
     {

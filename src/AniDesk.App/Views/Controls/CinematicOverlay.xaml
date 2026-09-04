@@ -361,22 +361,79 @@
                                 </Button>
                             </Grid>
 
-                            <!-- Tertiary Row: Download Original Full-Res -->
-                            <Button
-                                Command="{Binding DownloadOriginalCommand}"
-                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
-                                Height="30"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Foreground="#94A3B8"
-                                FontSize="11.5"
-                                HorizontalAlignment="Stretch"
-                                Cursor="Hand">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="ArrowDownload24" Margin="0,0,6,0" FontSize="13" />
-                                    <TextBlock Text="Download Original Full-Res File" />
-                                </StackPanel>
-                            </Button>
+                            <!-- Tertiary Row: Morphing Action Capsule (Download Original) -->
+                            <Grid Height="32" Margin="0,2,0,0">
+                                <!-- Idle State -->
+                                <Button
+                                    Command="{Binding DownloadOriginalCommand}"
+                                    Visibility="{Binding IsDownloadingOriginal, Converter={StaticResource InverseBoolToVis}}"
+                                    Height="32"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Foreground="#94A3B8"
+                                    FontSize="11.5"
+                                    HorizontalAlignment="Stretch"
+                                    Cursor="Hand">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <ui:SymbolIcon Symbol="ArrowDownload24" Margin="0,0,6,0" FontSize="13" Foreground="#38BDF8" />
+                                        <TextBlock Text="Download Original Full-Res File" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Downloading Active State Capsule -->
+                                <Border
+                                    Visibility="{Binding IsDownloadingOriginal, Converter={StaticResource BoolToVis}}"
+                                    Background="#141C2A"
+                                    BorderBrush="#253852"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="10,0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Mini Progress Indicator -->
+                                        <ui:ProgressRing
+                                            Grid.Column="0"
+                                            IsIndeterminate="False"
+                                            Progress="{Binding DownloadProgressPercent}"
+                                            Width="16" Height="16"
+                                            BorderThickness="2"
+                                            Foreground="#38BDF8"
+                                            Margin="0,0,8,0"
+                                            VerticalAlignment="Center" />
+
+                                        <!-- Progress Percentage Label -->
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Text="{Binding DownloadProgressPercent, StringFormat='Downloading... {0:F0}%'}"
+                                            FontSize="11.5"
+                                            FontWeight="SemiBold"
+                                            Foreground="#38BDF8"
+                                            VerticalAlignment="Center"
+                                            TextTrimming="CharacterEllipsis" />
+
+                                        <!-- Cancel Button -->
+                                        <Button
+                                            Grid.Column="2"
+                                            Command="{Binding CancelCurrentDownloadCommand}"
+                                            Width="22" Height="22"
+                                            Padding="0"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Foreground="#EF4444"
+                                            ToolTip="Cancel Download"
+                                            VerticalAlignment="Center">
+                                            <ui:SymbolIcon Symbol="Dismiss24" FontSize="12" />
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </Grid>
                         </StackPanel>
                     </Border>
                 </Grid>

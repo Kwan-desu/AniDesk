@@ -17,6 +17,7 @@
             <converters:NullToVisibilityConverter x:Key="NullToVis" />
             <converters:InverseBooleanConverter x:Key="InverseBool" />
             <converters:EqualityToVisibilityConverter x:Key="EqualityToVis" />
+            <converters:EqualityToVisibilityConverter x:Key="InverseEqualityToVis" Inverse="True" />
             <converters:WidthToSixteenNineHeightConverter x:Key="W169H" />
             <converters:WidthToColumnCountConverter x:Key="WToColumns" />
             <converters:AspectRatioConverter x:Key="AspectRatioConverter" />

@@ -12,16 +12,19 @@
 
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" /> <!-- Row 0: Header Toolbar -->
+            <RowDefinition Height="Auto" /> <!-- Row 1: Active Downloads Queue (Isolated Layout) -->
+            <RowDefinition Height="*" />    <!-- Row 2: Downloaded Wallpapers Gallery -->
         </Grid.RowDefinitions>
 
-        <!-- Downloads Header -->
+        <!-- ══════════════════════════════════════════════════════════════
+             ROW 0: DOWNLOADS HEADER
+             ══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0" Background="#B311151F" BorderBrush="#1F283C" BorderThickness="0,0,0,1" Padding="24,14">
             <DockPanel LastChildFill="False">
                 <StackPanel DockPanel.Dock="Left">
                     <TextBlock Text="Downloads &amp; Local Wallpapers" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF" />
-                    <TextBlock Text="Quickly change your desktop or lock screen to any downloaded wallpaper." FontSize="11.5" Foreground="#9DA6B8" />
+                    <TextBlock Text="Quickly change your desktop or lock screen to any downloaded wallpaper." FontSize="11.5" Foreground="#9DA6B8" Margin="0,2,0,0" />
                     <!-- Folder path row -->
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                         <ui:SymbolIcon Symbol="Folder24" FontSize="12" Foreground="#64748B" Margin="0,0,5,0" VerticalAlignment="Center" />
@@ -31,7 +34,7 @@
                             Foreground="#64748B"
                             VerticalAlignment="Center"
                             TextTrimming="CharacterEllipsis"
-                            MaxWidth="420" />
+                            MaxWidth="450" />
                         <Border
                             Background="#1438BDF8"
                             BorderBrush="#2638BDF8"
@@ -45,7 +48,7 @@
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button
                         Command="{Binding RefreshDownloadsCommand}"
                         Width="36" Height="34"
@@ -73,23 +76,51 @@
             </DockPanel>
         </Border>
 
-        <!-- Downloads Content -->
-        <ScrollViewer Grid.Row="1" Padding="24,16">
+        <!-- ══════════════════════════════════════════════════════════════
+             ROW 1: ACTIVE DOWNLOADS QUEUE (ISOLATED ROW)
+             ══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="1"
+                Background="#0C1019"
+                BorderBrush="#1B2335"
+                BorderThickness="0,0,0,1"
+                Padding="24,12"
+                Visibility="{Binding HasQueueItems, Converter={StaticResource BoolToVis}}">
             <StackPanel>
-                <!-- Active Downloads Queue (if any) -->
-                <TextBlock Text="ACTIVE DOWNLOADS" FontSize="10.5" FontWeight="Bold" Foreground="#656E82" Margin="0,0,0,8"
-                           Visibility="{Binding HasActiveDownloads, Converter={StaticResource BoolToVis}}" />
+                <DockPanel LastChildFill="False" Margin="0,0,0,8">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <TextBlock Text="ACTIVE DOWNLOADS QUEUE" FontSize="11" FontWeight="Bold" Foreground="#94A3B8" VerticalAlignment="Center" />
+                    </StackPanel>
 
+                    <Button
+                        DockPanel.Dock="Right"
+                        Command="{Binding ClearCompletedDownloadsCommand}"
+                        Visibility="{Binding HasCompletedDownloads, Converter={StaticResource BoolToVis}}"
+                        Height="26"
+                        Padding="8,0"
+                        Background="#1A2234"
+                        BorderBrush="#2A374E"
+                        BorderThickness="1"
+                        Foreground="#94A3B8"
+                        FontSize="11">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Delete24" FontSize="11" Margin="0,0,4,0" />
+                            <TextBlock Text="Clear Finished" />
+                        </StackPanel>
+                    </Button>
+                </DockPanel>
+
+                <!-- Queue Items -->
                 <ItemsControl ItemsSource="{Binding Downloads}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border
-                                Background="#161B27"
-                                BorderBrush="#222838"
+                                Background="#141A26"
+                                BorderBrush="#20293D"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                Padding="14,10"
-                                Margin="0,0,0,8">
+                                Padding="12,8"
+                                Margin="0,0,0,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -103,46 +134,96 @@
                                         Width="64"
                                         Height="40"
                                         CornerRadius="4"
-                                        Background="#10141D"
+                                        Background="#0A0E17"
                                         ClipToBounds="True"
-                                        Margin="0,0,14,0">
-                                        <Image converters:AsyncImageLoader.ImageUrl="{Binding Post.ThumbnailUrl}" Stretch="UniformToFill" />
+                                        Margin="0,0,12,0">
+                                        <Image
+                                            converters:AsyncImageLoader.ImageUrl="{Binding Post.ThumbnailUrl}"
+                                            converters:AsyncImageLoader.DecodeWidth="128"
+                                            Stretch="UniformToFill"
+                                            RenderOptions.BitmapScalingMode="LowQuality" />
                                     </Border>
 
-                                    <!-- Info & Progress -->
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding FileName}" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock FontSize="11" Foreground="#9DA6B8" Margin="0,2,0,0">
+                                    <!-- Info, Speed & Progress -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock DockPanel.Dock="Left" Text="{Binding FileName}" FontSize="12" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" MaxWidth="360" />
+                                            <TextBlock DockPanel.Dock="Right" FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8"
+                                                       Visibility="{Binding Status, Converter={StaticResource EqualityToVis}, ConverterParameter='Downloading'}">
+                                                <Run Text="{Binding DownloadSpeedMbps, StringFormat='{}{0:F1} MB/s'}" />
+                                                <Run Text=" • " />
+                                                <Run Text="{Binding Progress, StringFormat='{}{0:F0}%'}" />
+                                            </TextBlock>
+                                        </DockPanel>
+
+                                        <TextBlock FontSize="10.5" Foreground="#64748B" Margin="0,2,0,0">
                                             <Run Text="{Binding Post.FormattedDimensions}" />
                                             <Run Text=" • " />
                                             <Run Text="{Binding Status}" />
                                         </TextBlock>
+
+                                        <!-- Glowing Progress Bar -->
                                         <ProgressBar
                                             Value="{Binding Progress}"
                                             Maximum="100"
-                                            Height="3"
-                                            Margin="0,4,0,0"
+                                            Height="4"
+                                            Foreground="#38BDF8"
+                                            Background="#1E273A"
+                                            BorderThickness="0"
+                                            Margin="0,5,0,0"
                                             Visibility="{Binding Status, Converter={StaticResource EqualityToVis}, ConverterParameter='Downloading'}" />
                                     </StackPanel>
 
-                                    <!-- Action -->
-                                    <Button
-                                        Grid.Column="2"
-                                        Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding TargetFilePath}"
-                                        Background="#202636"
-                                        BorderBrush="#2C3446"
-                                        Foreground="#E2E8F0"
-                                        FontSize="11.5"
-                                        Content="Open File" />
+                                    <!-- Actions (Cancel / Open) -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <!-- Cancel Button (when Downloading or Queued) -->
+                                        <Button
+                                            Command="{Binding DataContext.CancelDownloadCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding Status, Converter={StaticResource EqualityToVis}, ConverterParameter='Downloading'}"
+                                            Width="28" Height="28"
+                                            Padding="0"
+                                            Background="#1E2536"
+                                            BorderBrush="#2B364C"
+                                            Foreground="#EF4444"
+                                            ToolTip="Cancel Download">
+                                            <ui:SymbolIcon Symbol="Dismiss24" FontSize="12" />
+                                        </Button>
+
+                                        <!-- Open File Button (when Completed) -->
+                                        <Button
+                                            Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding TargetFilePath}"
+                                            Visibility="{Binding Status, Converter={StaticResource EqualityToVis}, ConverterParameter='Completed'}"
+                                            Height="28"
+                                            Padding="10,0"
+                                            Background="#1E2536"
+                                            BorderBrush="#2B364C"
+                                            Foreground="#38BDF8"
+                                            FontSize="11.5">
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:SymbolIcon Symbol="Open24" FontSize="11" Margin="0,0,4,0" />
+                                                <TextBlock Text="Open" />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
                                 </Grid>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+            </StackPanel>
+        </Border>
 
-                <!-- Downloaded Wallpapers Section Header -->
-                <TextBlock Text="DOWNLOADED WALLPAPERS" FontSize="10.5" FontWeight="Bold" Foreground="#656E82" Margin="0,16,0,10" />
+        <!-- ══════════════════════════════════════════════════════════════
+             ROW 2: DOWNLOADED WALLPAPERS GALLERY & EMPTY STATE
+             ══════════════════════════════════════════════════════════════ -->
+        <ScrollViewer Grid.Row="2" Padding="24,16" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Section Header -->
+                <DockPanel LastChildFill="False" Margin="0,0,0,12" Visibility="{Binding HasDownloadedFiles, Converter={StaticResource BoolToVis}}">
+                    <TextBlock DockPanel.Dock="Left" Text="DOWNLOADED WALLPAPERS" FontSize="11" FontWeight="Bold" Foreground="#64748B" VerticalAlignment="Center" />
+                </DockPanel>
 
                 <!-- Empty State -->
                 <Border
@@ -151,14 +232,14 @@
                     BorderBrush="#1E2536"
                     BorderThickness="1"
                     CornerRadius="10"
-                    Padding="40,36"
-                    Margin="0,4,0,0">
+                    Padding="40,40"
+                    Margin="0,8,0,0">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border Width="56" Height="56" CornerRadius="28" Background="#161E2E" BorderBrush="#253248" BorderThickness="1" Margin="0,0,0,14" HorizontalAlignment="Center">
-                            <ui:SymbolIcon Symbol="FolderZip24" FontSize="26" Foreground="#475569" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Width="60" Height="60" CornerRadius="30" Background="#161E2E" BorderBrush="#253248" BorderThickness="1" Margin="0,0,0,16" HorizontalAlignment="Center">
+                            <ui:SymbolIcon Symbol="FolderZip24" FontSize="28" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="No downloaded wallpapers found in this folder" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="Wallpapers you download from Explore or Favorites will appear here." FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,16"/>
+                        <TextBlock Text="No downloaded wallpapers found in this folder" FontSize="15" FontWeight="SemiBold" Foreground="#E2E8F0" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="Wallpapers you download from Explore or Favorites will automatically appear here." FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,20"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button Command="{Binding OpenDownloadFolderCommand}" Height="34" Padding="14,0" Margin="0,0,8,0" Background="#1F2535" BorderBrush="#2C3446" Foreground="#FFFFFF">
                                 <StackPanel Orientation="Horizontal">
@@ -176,10 +257,10 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Adaptive Responsive Thumbnail Grid -->
+                <!-- Adaptive Responsive Thumbnail Grid with Strict Layout Locks -->
                 <ItemsControl ItemsSource="{Binding LocalWallpapers}"
                               Visibility="{Binding HasDownloadedFiles, Converter={StaticResource BoolToVis}}"
-                              Margin="0,4,0,0">
+                              Margin="0,0,0,0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />
@@ -189,53 +270,71 @@
                         <DataTemplate>
                             <Border
                                 Width="280"
-                                Background="#161B27"
-                                BorderBrush="#252F42"
+                                Height="228"
+                                Background="#141924"
+                                BorderBrush="#222B3D"
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 ClipToBounds="True"
                                 Margin="0,0,14,14">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="158" /> <!-- 16:9 Thumbnail -->
-                                        <RowDefinition Height="Auto" /> <!-- Info & Actions Footer -->
+                                        <RowDefinition Height="158" /> <!-- 16:9 Aspect Ratio Thumbnail -->
+                                        <RowDefinition Height="70" />  <!-- Details & Quick Actions Footer -->
                                     </Grid.RowDefinitions>
 
-                                    <!-- 16:9 Aspect Ratio Thumbnail (UniformToFill) -->
-                                    <Border Grid.Row="0" Background="#0F131D" ClipToBounds="True">
-                                        <Image converters:AsyncImageLoader.ImageUrl="{Binding FilePath}" Stretch="UniformToFill" />
+                                    <!-- 16:9 Aspect Ratio Thumbnail with GPU bilinear filtering -->
+                                    <Border Grid.Row="0" Background="#0C1018" ClipToBounds="True">
+                                        <Image
+                                            converters:AsyncImageLoader.ImageUrl="{Binding FilePath}"
+                                            converters:AsyncImageLoader.DecodeWidth="360"
+                                            Stretch="UniformToFill"
+                                            RenderOptions.BitmapScalingMode="LowQuality" />
                                     </Border>
 
-                                    <!-- Top-Right File Size Badge -->
+                                    <!-- Top-Left Glass Format Badge -->
+                                    <Border Grid.Row="0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Margin="8"
+                                            Background="#CC0B0E17"
+                                            BorderBrush="#33FFFFFF"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="6,2">
+                                        <TextBlock Text="{Binding FormatBadge}" FontSize="10" FontWeight="Bold" Foreground="#38BDF8" />
+                                    </Border>
+
+                                    <!-- Top-Right Glass File Size Badge -->
                                     <Border Grid.Row="0"
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Top"
                                             Margin="8"
-                                            Background="#CC0B0E14"
-                                            BorderBrush="#40FFFFFF"
+                                            Background="#CC0B0E17"
+                                            BorderBrush="#33FFFFFF"
                                             BorderThickness="1"
                                             CornerRadius="4"
                                             Padding="6,2">
-                                        <TextBlock Text="{Binding FormattedFileSize}" FontSize="10.5" FontWeight="SemiBold" Foreground="#E2E8F0" />
+                                        <TextBlock Text="{Binding FormattedFileSize}" FontSize="10" FontWeight="Bold" Foreground="#E2E8F0" />
                                     </Border>
 
                                     <!-- Footer: Details & Quick Actions -->
-                                    <Border Grid.Row="1" Background="#141924" BorderBrush="#1E2536" BorderThickness="0,1,0,0" Padding="10,8">
+                                    <Border Grid.Row="1" Background="#10141E" BorderBrush="#1C2436" BorderThickness="0,1,0,0" Padding="10,8">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
                                             </Grid.RowDefinitions>
 
                                             <!-- File Name -->
-                                            <TextBlock Grid.Row="0" Text="{Binding FileName}" FontSize="11.5" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" Margin="0,0,0,6" />
+                                            <TextBlock Grid.Row="0" Text="{Binding FileName}" FontSize="11.5" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" Margin="0,0,0,4" />
 
-                                            <DockPanel Grid.Row="1" LastChildFill="False">
+                                            <DockPanel Grid.Row="1" LastChildFill="False" VerticalAlignment="Center">
                                                 <TextBlock DockPanel.Dock="Left" Text="{Binding FormattedDate}" FontSize="10.5" Foreground="#64748B" VerticalAlignment="Center" />
 
                                                 <!-- Action Buttons -->
-                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                                    <!-- Apply Wallpaper -->
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <!-- Apply Desktop Wallpaper -->
                                                     <Button
                                                         Command="{Binding DataContext.SetAsWallpaperCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding FilePath}"
@@ -249,44 +348,44 @@
                                                         <ui:SymbolIcon Symbol="Desktop24" FontSize="13" />
                                                     </Button>
 
-                                                    <!-- Lock Screen -->
+                                                    <!-- Set Lock Screen -->
                                                     <Button
                                                         Command="{Binding DataContext.SetAsLockScreenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding FilePath}"
                                                         Width="28" Height="26"
                                                         Margin="0,0,4,0"
                                                         Padding="0"
-                                                        Background="#1E2536"
-                                                        BorderBrush="#2C374D"
+                                                        Background="#1A2130"
+                                                        BorderBrush="#28344A"
                                                         BorderThickness="1"
                                                         Foreground="#E2E8F0"
                                                         ToolTip="Set as Lock Screen">
                                                         <ui:SymbolIcon Symbol="LockClosed24" FontSize="13" />
                                                     </Button>
 
-                                                    <!-- Open in Explorer / Viewer -->
+                                                    <!-- Open in Photo Viewer -->
                                                     <Button
                                                         Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding FilePath}"
                                                         Width="28" Height="26"
                                                         Margin="0,0,4,0"
                                                         Padding="0"
-                                                        Background="#1E2536"
-                                                        BorderBrush="#2C374D"
+                                                        Background="#1A2130"
+                                                        BorderBrush="#28344A"
                                                         BorderThickness="1"
                                                         Foreground="#E2E8F0"
                                                         ToolTip="Open in Default Photo Viewer">
                                                         <ui:SymbolIcon Symbol="Open24" FontSize="13" />
                                                     </Button>
 
-                                                    <!-- Delete -->
+                                                    <!-- Delete File -->
                                                     <Button
                                                         Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
                                                         Width="28" Height="26"
                                                         Padding="0"
-                                                        Background="#1E2536"
-                                                        BorderBrush="#2C374D"
+                                                        Background="#1A2130"
+                                                        BorderBrush="#28344A"
                                                         BorderThickness="1"
                                                         Foreground="#EF4444"
                                                         ToolTip="Delete File">

@@ -31,7 +31,26 @@ public partial class App : Application
             services.AddSingleton<IImageCacheService, ImageCacheService>();
             services.AddSingleton<IMoebooruService, MoebooruService>();
             services.AddSingleton<IWallpaperService, WallpaperService>();
-            services.AddSingleton<IDownloadService, DownloadService>();
+            services.AddSingleton<IDownloadService>(sp =>
+            {
+                var storage = sp.GetRequiredService<ILocalStorageService>();
+                var http = sp.GetRequiredService<HttpClient>();
+                return new DownloadService(storage, http, action =>
+                {
+                    var app = Current;
+                    if (app?.Dispatcher != null && !app.Dispatcher.HasShutdownStarted)
+                    {
+                        if (app.Dispatcher.CheckAccess())
+                            action();
+                        else
+                            app.Dispatcher.BeginInvoke(action);
+                    }
+                    else
+                    {
+                        action();
+                    }
+                });
+            });
             services.AddSingleton<IDynamicWallpaperService, DynamicWallpaperService>();
             services.AddSingleton(sp => _panicService!);
 
