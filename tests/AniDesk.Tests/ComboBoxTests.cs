@@ -255,4 +255,47 @@ public class ComboBoxTests
             }
         });
     }
+
+    [Fact]
+    public void ComboBox_MouseClick_TogglesDropDown()
+    {
+        RunOnUI((resources) =>
+        {
+            var style = (Style)resources["AniDeskCleanComboBoxStyle"];
+            var comboBox = new ComboBox
+            {
+                Style = style,
+                ItemsSource = new[] { "Option A", "Option B" },
+                SelectedIndex = 0,
+                Width = 200,
+                Height = 38
+            };
+
+            var window = new Window { Content = comboBox, Width = 400, Height = 300 };
+            window.Show();
+
+            try
+            {
+                comboBox.ApplyTemplate();
+                var toggleButton = (ToggleButton)comboBox.Template.FindName("toggleButton", comboBox);
+                Assert.NotNull(toggleButton);
+
+                Assert.False(comboBox.IsDropDownOpen);
+
+                // Simulate Left Mouse Down on ToggleButton
+                var downArgs = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
+                {
+                    RoutedEvent = UIElement.MouseLeftButtonDownEvent,
+                    Source = toggleButton
+                };
+                toggleButton.RaiseEvent(downArgs);
+
+                Assert.True(comboBox.IsDropDownOpen, "ComboBox should be open after MouseLeftButtonDown");
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
 }

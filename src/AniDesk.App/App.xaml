@@ -106,11 +106,14 @@
                         <ControlTemplate TargetType="{x:Type ComboBox}">
                             <Grid x:Name="MainGrid" SnapsToDevicePixels="True" UseLayoutRounding="True">
 
-                                <!-- Single Cohesive Container (ToggleButton) -->
+                                <!-- Single Cohesive Container (ToggleButton spanning 100% of ComboBox) -->
                                 <ToggleButton
                                     x:Name="toggleButton"
                                     Focusable="False"
                                     IsTabStop="False"
+                                    OverridesDefaultStyle="True"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
                                     Padding="0"
                                     ClickMode="Press"
                                     Background="{TemplateBinding Background}"
@@ -120,6 +123,8 @@
                                     <ToggleButton.Template>
                                         <ControlTemplate TargetType="{x:Type ToggleButton}">
                                             <Border x:Name="Container"
+                                                    HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch"
                                                     Background="{TemplateBinding Background}"
                                                     BorderBrush="{TemplateBinding BorderBrush}"
                                                     BorderThickness="{TemplateBinding BorderThickness}"
