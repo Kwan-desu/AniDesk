@@ -169,6 +169,11 @@ public partial class App : Application
                                 {
                                     string verboseLogDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AniDesk");
                                     File.AppendAllText(Path.Combine(verboseLogDir, "startup_verbose.log"), $"[{DateTime.Now}] mainWindow.Show() called\n");
+
+                                    // Attempt to record native HWND info
+                                    var hwnd = helper.Handle;
+                                    File.AppendAllText(Path.Combine(verboseLogDir, "startup_verbose.log"), $"[{DateTime.Now}] Window handle: {hwnd}\n");
+
                                 }
                                 catch { }
                             }
