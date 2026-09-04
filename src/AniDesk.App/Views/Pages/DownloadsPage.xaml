@@ -202,7 +202,7 @@
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
                                         <TextBlock Text="{Binding FileName}" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
                                         <TextBlock FontSize="11" Foreground="#9DA6B8" Margin="0,3,0,0">
-                                            <Run Text="{Binding FormattedFileSize}" />
+                                            <Run Text="{Binding FormattedFileSize, Mode=OneWay}" />
                                             <Run Text=" • " />
                                             <Run Text="{Binding FormattedDate}" />
                                         </TextBlock>
