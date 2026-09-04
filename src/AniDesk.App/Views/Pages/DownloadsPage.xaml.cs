@@ -1,4 +1,4 @@
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using AniDesk.App.ViewModels;
 
 namespace AniDesk.App.Views.Pages;

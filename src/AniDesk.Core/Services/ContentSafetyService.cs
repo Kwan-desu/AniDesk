@@ -1,4 +1,4 @@
-using AniDesk.Core.Models;
+﻿using AniDesk.Core.Models;
 
 namespace AniDesk.Core.Services;
 

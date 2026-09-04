@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using AniDesk.Core.Interop;
 using AniDesk.Core.Models;
 
@@ -42,22 +42,22 @@ public class WallpaperService : IWallpaperService
             {
                 uint count = desktopWallpaper.GetMonitorDevicePathCount();
 
-            for (uint i = 0; i < count; i++)
-            {
-                string devicePath = desktopWallpaper.GetMonitorDevicePathAt(i);
-                desktopWallpaper.GetMonitorRECT(devicePath, out var rect);
-
-                list.Add(new DisplayMonitorInfo
+                for (uint i = 0; i < count; i++)
                 {
-                    Index = (int)i,
-                    DeviceId = devicePath,
-                    DeviceName = $"Display {i + 1}",
-                    Width = rect.Width > 0 ? rect.Width : 1920,
-                    Height = rect.Height > 0 ? rect.Height : 1080,
-                    IsPrimary = (i == 0)
-                });
+                    string devicePath = desktopWallpaper.GetMonitorDevicePathAt(i);
+                    desktopWallpaper.GetMonitorRECT(devicePath, out var rect);
+
+                    list.Add(new DisplayMonitorInfo
+                    {
+                        Index = (int)i,
+                        DeviceId = devicePath,
+                        DeviceName = $"Display {i + 1}",
+                        Width = rect.Width > 0 ? rect.Width : 1920,
+                        Height = rect.Height > 0 ? rect.Height : 1080,
+                        IsPrimary = (i == 0)
+                    });
+                }
             }
-        }
         }
         catch
         {

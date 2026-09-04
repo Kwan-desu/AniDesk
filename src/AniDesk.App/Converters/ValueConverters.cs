@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -110,7 +110,7 @@ public class WidthToColumnCountConverter : IValueConverter
         {
             if (w >= 1600) return 5;
             if (w >= 1200) return 4;
-            if (w >= 800)  return 3;
+            if (w >= 800) return 3;
             return 2;
         }
         return 4;

@@ -1,0 +1,18 @@
+root = true
+
+[*.cs]
+charset = utf-8-bom
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{csproj,xml}]
+end_of_line = crlf
+
+[*.sln]
+end_of_line = crlf
+
+[*.{xaml,xml}]
+indent_style = space
+indent_size = 2
