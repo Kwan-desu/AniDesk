@@ -280,6 +280,64 @@
                             </Button.Template>
                         </Button>
 
+                        <!-- Downloads -->
+                        <Button
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Downloads"
+                            HorizontalAlignment="Stretch"
+                            Margin="0,0,0,2"
+                            Padding="0"
+                            Cursor="Hand"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="Downloads &amp; Local Wallpapers">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Grid Height="40" SnapsToDevicePixels="True">
+                                        <Border x:Name="BgHighlight"
+                                                Background="Transparent"
+                                                CornerRadius="6" />
+                                        <Rectangle x:Name="ActivePill"
+                                                   Width="3" Height="18"
+                                                   RadiusX="1.5" RadiusY="1.5"
+                                                   Fill="Transparent"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ui:SymbolIcon x:Name="NavIcon"
+                                                       Symbol="ArrowDownload24" FontSize="18"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#10B981"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+                                        <Grid x:Name="ExpandedRow"
+                                              Margin="10,0"
+                                              Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="ArrowDownload24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#10B981"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="Downloads"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#FFFFFF"
+                                                       VerticalAlignment="Center"
+                                                       Margin="8,0,0,0" />
+                                        </Grid>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.CurrentNavView, RelativeSource={RelativeSource AncestorType=Window}}" Value="Downloads">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1E10B981" />
+                                            <Setter TargetName="ActivePill" Property="Fill" Value="#10B981" />
+                                        </DataTrigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#12FFFFFF" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
 
                     <!-- PREFERENCES & SAFETY GROUP (Bottom Rail) -->
