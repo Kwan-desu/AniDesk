@@ -13,6 +13,7 @@ public partial class MainViewModel : ObservableObject
     public ExploreViewModel ExploreVM { get; }
     public FavoritesViewModel FavoritesVM { get; }
     public DownloadsViewModel DownloadsVM { get; }
+    public DynamicViewModel DynamicVM { get; }
     public SettingsViewModel SettingsVM { get; }
     public WallpaperDetailViewModel DetailVM { get; }
 
@@ -58,6 +59,7 @@ public partial class MainViewModel : ObservableObject
         ExploreViewModel exploreVM,
         FavoritesViewModel favoritesVM,
         DownloadsViewModel downloadsVM,
+        DynamicViewModel dynamicVM,
         SettingsViewModel settingsVM,
         WallpaperDetailViewModel detailVM,
         IContentSafetyService safetyService,
@@ -66,6 +68,7 @@ public partial class MainViewModel : ObservableObject
         ExploreVM = exploreVM;
         FavoritesVM = favoritesVM;
         DownloadsVM = downloadsVM;
+        DynamicVM = dynamicVM;
         SettingsVM = settingsVM;
         DetailVM = detailVM;
         _safetyService = safetyService;
@@ -140,7 +143,13 @@ public partial class MainViewModel : ObservableObject
                 _ = DownloadsVM.RefreshDownloads();
                 CurrentViewModel = DownloadsVM;
                 break;
+            case "Dynamic":
+                CurrentNavView = "Dynamic";
+                DynamicVM.LoadSettings();
+                CurrentViewModel = DynamicVM;
+                break;
             case "Settings":
+                CurrentNavView = "Settings";
                 SettingsVM.LoadSettings();
                 CurrentViewModel = SettingsVM;
                 break;

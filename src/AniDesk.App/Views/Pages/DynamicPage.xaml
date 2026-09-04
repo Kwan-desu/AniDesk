@@ -1,0 +1,398 @@
+<UserControl
+    x:Class="AniDesk.App.Views.Pages.DynamicPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:AniDesk.App.ViewModels"
+    xmlns:converters="clr-namespace:AniDesk.App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance vm:DynamicViewModel}">
+
+    <Grid Background="Transparent">
+        <ScrollViewer Padding="28,20,28,32" VerticalScrollBarVisibility="Auto">
+            <StackPanel MaxWidth="1180" HorizontalAlignment="Stretch">
+
+                <!-- ══════════════════════════════════════════════════════════════
+                     HEADER: TITLE & MASTER CONTROLS
+                     ══════════════════════════════════════════════════════════════ -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Title & Subtitle -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <Border Width="34" Height="34" CornerRadius="8" Background="#26A855F7" BorderBrush="#4DA855F7" BorderThickness="1" Margin="0,0,12,0">
+                                <ui:SymbolIcon Symbol="ArrowSync24" FontSize="18" Foreground="#C084FC" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Dynamic Wallpaper &amp; Auto Shuffle" FontSize="20" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="Automatically rotate your desktop wallpaper across curated downloaded images and your entire Favorites collection."
+                                   FontSize="12" Foreground="#94A3B8" Margin="46,0,0,0" />
+                    </StackPanel>
+
+                    <!-- Master Toggle & Shuffle Now Button -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Shuffle Now Button -->
+                        <Button
+                            Command="{Binding ShuffleNowAsyncCommand}"
+                            Height="38"
+                            Padding="16,0"
+                            Margin="0,0,14,0"
+                            Background="#7C3AED"
+                            BorderBrush="#9333EA"
+                            BorderThickness="1"
+                            Foreground="#FFFFFF"
+                            FontWeight="SemiBold"
+                            FontSize="12.5"
+                            Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#9333EA" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowSync24" FontSize="14" Margin="0,0,8,0" Foreground="#FFFFFF" />
+                                <TextBlock Text="Shuffle Now" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Dynamic Switch Card -->
+                        <Border Background="#161B27" BorderBrush="#222838" BorderThickness="1" CornerRadius="8" Padding="14,6">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Auto Shuffle" FontSize="12.5" FontWeight="SemiBold" Foreground="#E2E8F0" VerticalAlignment="Center" Margin="0,0,12,0" />
+                                <ui:ToggleSwitch IsChecked="{Binding IsEnabled, Mode=TwoWay}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ══════════════════════════════════════════════════════════════
+                     LIVE STATUS BAR & CAROUSEL FILMSTRIP
+                     ══════════════════════════════════════════════════════════════ -->
+                <Border Background="#141924" BorderBrush="#1F283C" BorderThickness="1" CornerRadius="10" Padding="18,14" Margin="0,0,0,20">
+                    <StackPanel>
+                        <!-- Status Bar Header -->
+                        <DockPanel LastChildFill="False" Margin="0,0,0,12">
+                            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                                <!-- Status Indicator Pill -->
+                                <Border Background="{Binding IsEnabled, Converter={StaticResource SfwBgConverter}}"
+                                        BorderBrush="{Binding IsEnabled, Converter={StaticResource SfwBorderConverter}}"
+                                        BorderThickness="1" CornerRadius="12" Padding="10,3" Margin="0,0,12,0">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="7" Height="7" Fill="#A855F7" Margin="0,0,6,0" />
+                                        <TextBlock Text="{Binding CountdownText}" FontSize="11.5" FontWeight="Bold" Foreground="#E2E8F0" />
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="{Binding PoolSummary}" FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center" />
+                            </StackPanel>
+
+                            <Button
+                                DockPanel.Dock="Right"
+                                Command="{Binding RefreshPoolCommand}"
+                                Height="30"
+                                Padding="10,0"
+                                Background="#1E2536"
+                                BorderBrush="#2C374D"
+                                Foreground="#38BDF8"
+                                FontSize="11.5"
+                                ToolTip="Refresh Pool">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="12" Margin="0,0,6,0" />
+                                    <TextBlock Text="Refresh Pool" />
+                                </StackPanel>
+                            </Button>
+                        </DockPanel>
+
+                        <!-- Live Filmstrip / Carousel Preview Strip -->
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,4,0,0">
+                            <ItemsControl ItemsSource="{Binding CarouselPreviewList}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="130" Height="82" CornerRadius="6" Background="#0F131C" BorderBrush="#1F2636" BorderThickness="1" Margin="0,0,10,0" ClipToBounds="True">
+                                            <Grid>
+                                                <Image
+                                                    converters:AsyncImageLoader.ImageUrl="{Binding}"
+                                                    converters:AsyncImageLoader.DecodeWidth="240"
+                                                    Stretch="UniformToFill"
+                                                    RenderOptions.BitmapScalingMode="LowQuality" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════════════════
+                     SHUFFLE CONFIGURATION CARD
+                     ══════════════════════════════════════════════════════════════ -->
+                <TextBlock Text="ROTATION PREFERENCES" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="0,0,0,8" />
+                <Border Background="#161B27" BorderBrush="#222838" BorderThickness="1" CornerRadius="8" Padding="18,16" Margin="0,0,0,24">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="28" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left Column: Interval Selection -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Shuffle Interval" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,4" />
+                            <TextBlock Text="How frequently your wallpaper changes automatically:" FontSize="11.5" Foreground="#94A3B8" Margin="0,0,0,12" />
+
+                            <!-- Preset Chips -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <Button Content="1 min" Command="{Binding SetIntervalCommand}" CommandParameter="1" Height="30" Padding="10,0" Margin="0,0,6,0" Background="#1E2536" BorderBrush="#2A3548" Foreground="#E2E8F0" FontSize="11.5" />
+                                <Button Content="5 mins" Command="{Binding SetIntervalCommand}" CommandParameter="5" Height="30" Padding="10,0" Margin="0,0,6,0" Background="#1E2536" BorderBrush="#2A3548" Foreground="#E2E8F0" FontSize="11.5" />
+                                <Button Content="15 mins" Command="{Binding SetIntervalCommand}" CommandParameter="15" Height="30" Padding="10,0" Margin="0,0,6,0" Background="#1E2536" BorderBrush="#2A3548" Foreground="#E2E8F0" FontSize="11.5" />
+                                <Button Content="30 mins" Command="{Binding SetIntervalCommand}" CommandParameter="30" Height="30" Padding="10,0" Margin="0,0,6,0" Background="#1E2536" BorderBrush="#2A3548" Foreground="#E2E8F0" FontSize="11.5" />
+                                <Button Content="1 hour" Command="{Binding SetIntervalCommand}" CommandParameter="60" Height="30" Padding="10,0" Margin="0,0,6,0" Background="#1E2536" BorderBrush="#2A3548" Foreground="#E2E8F0" FontSize="11.5" />
+                                <Button Content="2 hours" Command="{Binding SetIntervalCommand}" CommandParameter="120" Height="30" Padding="10,0" Background="#1E2536" BorderBrush="#2A3548" Foreground="#E2E8F0" FontSize="11.5" />
+                            </StackPanel>
+
+                            <!-- Interval Slider -->
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="60" />
+                                </Grid.ColumnDefinitions>
+                                <Slider
+                                    Grid.Column="0"
+                                    Minimum="1"
+                                    Maximum="120"
+                                    Value="{Binding IntervalMinutes, Mode=TwoWay}"
+                                    VerticalAlignment="Center" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Text="{Binding IntervalMinutes, StringFormat='{}{0}m'}"
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Foreground="#A855F7"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Right Column: Mode & Sources -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Rotation Options" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,4" />
+                            <TextBlock Text="Control how images are selected during the rotation cycle:" FontSize="11.5" Foreground="#94A3B8" Margin="0,0,0,12" />
+
+                            <!-- Shuffle Order Toggle -->
+                            <DockPanel LastChildFill="False" Margin="0,0,0,10">
+                                <StackPanel DockPanel.Dock="Left">
+                                    <TextBlock Text="Randomized Shuffle Order" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                                    <TextBlock Text="Picks wallpapers randomly without immediate repetition." FontSize="11" Foreground="#94A3B8" />
+                                </StackPanel>
+                                <ui:ToggleSwitch DockPanel.Dock="Right" IsChecked="{Binding IsShuffle, Mode=TwoWay}" />
+                            </DockPanel>
+
+                            <Separator Background="#1E2536" Margin="0,2,0,10" />
+
+                            <!-- Include All Favorites Toggle -->
+                            <DockPanel LastChildFill="False">
+                                <StackPanel DockPanel.Dock="Left">
+                                    <TextBlock Text="Include All in Favorites Section" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                                    <TextBlock Text="Automatically adds every starred favorite wallpaper into the shuffle carousel." FontSize="11" Foreground="#94A3B8" />
+                                </StackPanel>
+                                <ui:ToggleSwitch DockPanel.Dock="Right" IsChecked="{Binding IncludeAllFavorites, Mode=TwoWay}" />
+                            </DockPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════════════════
+                     CAROUSEL DOWNLOADED WALLPAPERS SELECTION GRID
+                     ══════════════════════════════════════════════════════════════ -->
+                <DockPanel LastChildFill="False" Margin="0,0,0,12">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="SELECT DOWNLOADED IMAGES FOR CAROUSEL" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="0,0,12,0" />
+                        <Border Background="#1E2536" CornerRadius="10" Padding="8,2" VerticalAlignment="Center">
+                            <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8">
+                                <Run Text="{Binding SelectedDownloadsCount}" />
+                                <Run Text=" / " />
+                                <Run Text="{Binding TotalDownloadsCount}" />
+                                <Run Text=" selected" />
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Quick Bulk Selection Buttons -->
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button
+                            Command="{Binding SelectAllDownloadsCommand}"
+                            Content="Select All"
+                            Height="30"
+                            Padding="12,0"
+                            Margin="0,0,8,0"
+                            Background="#1E2536"
+                            BorderBrush="#2B364C"
+                            Foreground="#E2E8F0"
+                            FontSize="11.5" />
+
+                        <Button
+                            Command="{Binding DeselectAllDownloadsCommand}"
+                            Content="Deselect All"
+                            Height="30"
+                            Padding="12,0"
+                            Background="#1E2536"
+                            BorderBrush="#2B364C"
+                            Foreground="#94A3B8"
+                            FontSize="11.5" />
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- Empty State if no downloaded wallpapers exist -->
+                <Border
+                    Visibility="{Binding HasDownloadedFiles, Converter={StaticResource InverseBoolToVis}}"
+                    Background="#121622"
+                    BorderBrush="#1E2536"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="40,36"
+                    Margin="0,0,0,20">
+                    <StackPanel HorizontalAlignment="Center">
+                        <ui:SymbolIcon Symbol="FolderZip24" FontSize="32" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,12" />
+                        <TextBlock Text="No downloaded wallpapers found" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0" HorizontalAlignment="Center" Margin="0,0,0,4" />
+                        <TextBlock Text="Download wallpapers from Explore or Favorites to curate them into your auto-shuffle carousel." FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Downloaded Wallpapers Grid with Interactive Selection Badges -->
+                <ItemsControl
+                    ItemsSource="{Binding DownloadedWallpapers}"
+                    Visibility="{Binding HasDownloadedFiles, Converter={StaticResource BoolToVis}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Width="264"
+                                Height="200"
+                                Background="#141924"
+                                BorderBrush="{Binding IsSelectedInCarousel, Converter={StaticResource SfwBorderConverter}}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                ClipToBounds="True"
+                                Margin="0,0,14,14">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="146" /> <!-- Thumbnail Preview -->
+                                        <RowDefinition Height="52" />  <!-- Details & Check Pill -->
+                                    </Grid.RowDefinitions>
+
+                                    <!-- 1. Thumbnail Preview Button -->
+                                    <Button
+                                        Grid.Row="0"
+                                        Command="{Binding DataContext.ToggleItemSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Padding="0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Cursor="Hand">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Grid Background="#0F131C">
+                                                    <Image
+                                                        converters:AsyncImageLoader.ImageUrl="{Binding FilePath}"
+                                                        converters:AsyncImageLoader.DecodeWidth="360"
+                                                        Stretch="UniformToFill"
+                                                        RenderOptions.BitmapScalingMode="LowQuality" />
+
+                                                    <!-- Top Glass Badges (Format on left, Selected check pill on right) -->
+                                                    <DockPanel LastChildFill="False" VerticalAlignment="Top" Margin="8,8,8,0">
+                                                        <!-- Format Badge -->
+                                                        <Border DockPanel.Dock="Left" Background="#B30B0F19" CornerRadius="4" Padding="6,2">
+                                                            <TextBlock Text="{Binding ExtensionBadge}" FontSize="10" FontWeight="Bold" Foreground="#E2E8F0" />
+                                                        </Border>
+
+                                                        <!-- Carousel Selection Pill -->
+                                                        <Border
+                                                            DockPanel.Dock="Right"
+                                                            Background="{Binding IsSelectedInCarousel, Converter={StaticResource SfwBgConverter}}"
+                                                            BorderBrush="{Binding IsSelectedInCarousel, Converter={StaticResource SfwBorderConverter}}"
+                                                            BorderThickness="1"
+                                                            CornerRadius="12"
+                                                            Padding="8,3">
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <ui:SymbolIcon
+                                                                    Symbol="Checkmark24"
+                                                                    FontSize="11"
+                                                                    Foreground="{Binding IsSelectedInCarousel, Converter={StaticResource SfwColorConverter}}"
+                                                                    Margin="0,0,4,0"
+                                                                    Visibility="{Binding IsSelectedInCarousel, Converter={StaticResource BoolToVis}}" />
+                                                                <TextBlock
+                                                                    Text="{Binding IsSelectedInCarousel, Converter={StaticResource SfwStatusConverter}}"
+                                                                    FontSize="10"
+                                                                    FontWeight="Bold"
+                                                                    Foreground="{Binding IsSelectedInCarousel, Converter={StaticResource SfwColorConverter}}" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DockPanel>
+
+                                                    <!-- Active Wallpaper Pill (bottom center of thumbnail) -->
+                                                    <Border
+                                                        Visibility="{Binding IsCurrentlyActive, Converter={StaticResource BoolToVis}}"
+                                                        Background="#CC7C3AED"
+                                                        CornerRadius="4"
+                                                        Padding="8,2"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Bottom"
+                                                        Margin="0,0,0,6">
+                                                        <TextBlock Text="ACTIVE WALLPAPER" FontSize="9.5" FontWeight="Bold" Foreground="#FFFFFF" />
+                                                    </Border>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+
+                                    <!-- 2. Card Bottom Bar: File Details & Checkbox -->
+                                    <Border Grid.Row="1" Background="#161B27" BorderBrush="#1F283C" BorderThickness="0,1,0,0" Padding="10,0">
+                                        <Grid VerticalAlignment="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- File Name & Size -->
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding FileName}" FontSize="11.5" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding FileSizeText}" FontSize="10.5" Foreground="#64748B" Margin="0,1,0,0" />
+                                            </StackPanel>
+
+                                            <!-- Checkbox to toggle inclusion -->
+                                            <CheckBox
+                                                Grid.Column="1"
+                                                IsChecked="{Binding IsSelectedInCarousel, Mode=TwoWay}"
+                                                VerticalAlignment="Center"
+                                                ToolTip="Include in Auto Shuffle Carousel" />
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

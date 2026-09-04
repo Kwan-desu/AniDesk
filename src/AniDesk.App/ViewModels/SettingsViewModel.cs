@@ -29,6 +29,9 @@ public partial class SettingsViewModel : ObservableObject
     private bool _minimizeToTrayOnClose = true;
 
     [ObservableProperty]
+    private bool _startMinimizedToTray;
+
+    [ObservableProperty]
     private string _panicHotkeyDisplay = "Win + Shift + H";
 
     [ObservableProperty]
@@ -99,6 +102,7 @@ public partial class SettingsViewModel : ObservableObject
         DownloadPath = _storageService.GetDownloadDirectory();
         PanicWallpaperPath = settings.PanicWallpaperPath;
         MinimizeToTrayOnClose = settings.MinimizeToTrayOnClose;
+        StartMinimizedToTray = settings.StartMinimizedToTray;
         PanicHotkeyDisplay = string.IsNullOrWhiteSpace(settings.PanicHotkeyDisplay) ? "Win + Shift + H" : settings.PanicHotkeyDisplay;
         IsCustomPanicWallpaper = !string.IsNullOrWhiteSpace(PanicWallpaperPath);
 
@@ -142,6 +146,13 @@ public partial class SettingsViewModel : ObservableObject
     {
         var settings = _storageService.LoadSettings();
         settings.MinimizeToTrayOnClose = value;
+        _storageService.SaveSettings(settings);
+    }
+
+    partial void OnStartMinimizedToTrayChanged(bool value)
+    {
+        var settings = _storageService.LoadSettings();
+        settings.StartMinimizedToTray = value;
         _storageService.SaveSettings(settings);
     }
 

@@ -193,6 +193,16 @@
 
                     <Separator Background="#1E2536" Margin="0,0,0,12"/>
 
+                    <DockPanel LastChildFill="False" Margin="0,0,0,12">
+                        <StackPanel DockPanel.Dock="Left" MaxWidth="520">
+                            <TextBlock Text="Start Minimized to System Tray" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                            <TextBlock Text="Launch AniDesk silently in the background tray without showing the main window on startup." FontSize="11.5" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="StartInTraySwitch" DockPanel.Dock="Right" Click="OnStartInTrayToggled"/>
+                    </DockPanel>
+
+                    <Separator Background="#1E2536" Margin="0,0,0,12"/>
+
                     <DockPanel LastChildFill="False">
                         <StackPanel DockPanel.Dock="Left" MaxWidth="520">
                             <TextBlock Text="Run Panic Daemon on Windows Startup" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" />

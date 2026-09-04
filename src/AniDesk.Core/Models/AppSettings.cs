@@ -18,10 +18,14 @@ public class AppSettings
     public uint PanicKey { get; set; } = 0x48; // 'H'
     public bool EnableEmergencyDesktop { get; set; } = true;
     public bool RunPanicDaemonOnStartup { get; set; } = false;
+    public bool StartMinimizedToTray { get; set; } = false;
+    public string LastKnownActiveWallpaper { get; set; } = string.Empty;
 
-    // Dynamic Wallpaper / Slideshow
+    // Dynamic Wallpaper / Slideshow Carousel
     public bool EnableDynamicWallpaper { get; set; } = false;
     public int DynamicWallpaperIntervalMinutes { get; set; } = 5;
-    public DynamicWallpaperSource DynamicSource { get; set; } = DynamicWallpaperSource.Favorites;
+    public DynamicWallpaperSource DynamicSource { get; set; } = DynamicWallpaperSource.Both;
     public bool DynamicShuffle { get; set; } = true;
+    public bool DynamicIncludeAllFavorites { get; set; } = true;
+    public List<string> DynamicSelectedDownloadFiles { get; set; } = new();
 }

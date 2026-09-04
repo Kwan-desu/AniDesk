@@ -58,12 +58,14 @@ public partial class App : Application
             services.AddSingleton<ExploreViewModel>();
             services.AddSingleton<FavoritesViewModel>();
             services.AddSingleton<DownloadsViewModel>();
+            services.AddSingleton<DynamicViewModel>();
             services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<WallpaperDetailViewModel>();
             services.AddSingleton<MainViewModel>();
 
             // Views
             services.AddSingleton<MainWindow>();
+            services.AddTransient<AniDesk.App.Views.Pages.DynamicPage>();
         })
         .Build();
 
@@ -155,7 +157,8 @@ public partial class App : Application
                 dynamicService
             );
 
-            if (!isDaemon)
+            bool shouldStartInTray = savedSettings.StartMinimizedToTray || isDaemon;
+            if (!shouldStartInTray)
             {
                 mainWindow.Show();
             }

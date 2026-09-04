@@ -338,6 +338,65 @@
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
+
+                        <!-- Auto Shuffle / Dynamic Wallpaper -->
+                        <Button
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Dynamic"
+                            HorizontalAlignment="Stretch"
+                            Margin="0,0,0,2"
+                            Padding="0"
+                            Cursor="Hand"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="Dynamic Wallpaper &amp; Auto Shuffle">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Grid Height="40" SnapsToDevicePixels="True">
+                                        <Border x:Name="BgHighlight"
+                                                Background="Transparent"
+                                                CornerRadius="6" />
+                                        <Rectangle x:Name="ActivePill"
+                                                   Width="3" Height="18"
+                                                   RadiusX="1.5" RadiusY="1.5"
+                                                   Fill="Transparent"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ui:SymbolIcon x:Name="NavIcon"
+                                                       Symbol="ArrowSync24" FontSize="18"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#A855F7"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+                                        <Grid x:Name="ExpandedRow"
+                                              Margin="10,0"
+                                              Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Grid.Column="0" Symbol="ArrowSync24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#A855F7"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="Auto Shuffle"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#FFFFFF"
+                                                       VerticalAlignment="Center"
+                                                       Margin="8,0,0,0" />
+                                        </Grid>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.CurrentNavView, RelativeSource={RelativeSource AncestorType=Window}}" Value="Dynamic">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1EA855F7" />
+                                            <Setter TargetName="ActivePill" Property="Fill" Value="#A855F7" />
+                                        </DataTrigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#12FFFFFF" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
 
                     <!-- PREFERENCES & SAFETY GROUP (Bottom Rail) -->
@@ -475,6 +534,9 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:DownloadsViewModel}">
                         <pages:DownloadsPage />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:DynamicViewModel}">
+                        <pages:DynamicPage />
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
                         <pages:SettingsPage />

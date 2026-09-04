@@ -151,17 +151,24 @@ public class WallpaperService : IWallpaperService
                     }
                 }
 
-                return true;
+                bool success = true;
+                PanicButtonService.RecordGlobalActiveWallpaper(localFilePath);
+                return success;
             }
             catch
             {
                 // Fallback to legacy SystemParametersInfo API
-                return Win32Helper.SystemParametersInfo(
+                bool fallbackSuccess = Win32Helper.SystemParametersInfo(
                     Win32Helper.SPI_SETDESKWALLPAPER,
                     0,
                     localFilePath,
                     Win32Helper.SPIF_UPDATEINIFILE | Win32Helper.SPIF_SENDCHANGE
                 );
+                if (fallbackSuccess)
+                {
+                    PanicButtonService.RecordGlobalActiveWallpaper(localFilePath);
+                }
+                return fallbackSuccess;
             }
             finally
             {

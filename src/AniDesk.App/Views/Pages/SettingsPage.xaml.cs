@@ -41,6 +41,7 @@ public partial class SettingsPage : UserControl
             SfwSwitch.IsChecked = settings.IsSfwShieldActive;
             DownloadPathBox.Text = _storageService.GetDownloadDirectory();
             TraySwitch.IsChecked = settings.MinimizeToTrayOnClose;
+            StartInTraySwitch.IsChecked = settings.StartMinimizedToTray;
             EnablePanicSwitch.IsChecked = settings.EnableEmergencyDesktop;
             StartupSwitch.IsChecked = settings.RunPanicDaemonOnStartup;
 
@@ -90,6 +91,17 @@ public partial class SettingsPage : UserControl
         {
             var settings = _storageService.LoadSettings();
             settings.MinimizeToTrayOnClose = TraySwitch.IsChecked.Value;
+            _storageService.SaveSettings(settings);
+        }
+    }
+
+    private void OnStartInTrayToggled(object sender, RoutedEventArgs e)
+    {
+        if (_isLoadingSettings || !IsLoaded || _storageService == null) return;
+        if (StartInTraySwitch.IsChecked.HasValue)
+        {
+            var settings = _storageService.LoadSettings();
+            settings.StartMinimizedToTray = StartInTraySwitch.IsChecked.Value;
             _storageService.SaveSettings(settings);
         }
     }

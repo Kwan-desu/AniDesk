@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,10 +11,14 @@ namespace AniDesk.Core.Services;
 public interface IDynamicWallpaperService : IDisposable
 {
     bool IsRunning { get; }
+    string? CurrentWallpaper { get; }
+    DateTime? NextRunTimeUtc { get; }
     void Start();
     void Stop();
     void UpdateSettings(AppSettings settings);
     Task<bool> TriggerNextAsync();
+    List<string> GetCandidates(AppSettings? settings = null);
+    List<string> GetCandidates(DynamicWallpaperSource source);
     event EventHandler<string>? WallpaperChanged;
 }
 
@@ -28,6 +32,8 @@ public sealed class DynamicWallpaperService : IDynamicWallpaperService
     private int _isProcessing;
 
     public bool IsRunning => _timer != null;
+    public string? CurrentWallpaper => _lastWallpaper;
+    public DateTime? NextRunTimeUtc { get; private set; }
     public event EventHandler<string>? WallpaperChanged;
 
     public DynamicWallpaperService(ILocalStorageService storageService, IWallpaperService wallpaperService)
@@ -47,6 +53,7 @@ public sealed class DynamicWallpaperService : IDynamicWallpaperService
 
         int minutes = Math.Clamp(settings.DynamicWallpaperIntervalMinutes, 1, 1440);
         var interval = TimeSpan.FromMinutes(minutes);
+        NextRunTimeUtc = DateTime.UtcNow.Add(interval);
 
         _timer?.Dispose();
         _timer = new Timer(async _ => await OnTimerTickAsync(), null, interval, interval);
@@ -56,6 +63,7 @@ public sealed class DynamicWallpaperService : IDynamicWallpaperService
     {
         _timer?.Dispose();
         _timer = null;
+        NextRunTimeUtc = null;
     }
 
     public void UpdateSettings(AppSettings settings)
@@ -72,6 +80,9 @@ public sealed class DynamicWallpaperService : IDynamicWallpaperService
 
     private async Task OnTimerTickAsync()
     {
+        var settings = _storageService.LoadSettings();
+        int minutes = Math.Clamp(settings.DynamicWallpaperIntervalMinutes, 1, 1440);
+        NextRunTimeUtc = DateTime.UtcNow.Add(TimeSpan.FromMinutes(minutes));
         await TriggerNextAsync();
     }
 
@@ -85,7 +96,7 @@ public sealed class DynamicWallpaperService : IDynamicWallpaperService
         try
         {
             var settings = _storageService.LoadSettings();
-            var candidates = GetCandidates(settings.DynamicSource);
+            var candidates = GetCandidates(settings);
 
             if (candidates.Count == 0)
             {
@@ -128,28 +139,43 @@ public sealed class DynamicWallpaperService : IDynamicWallpaperService
 
     public List<string> GetCandidates(DynamicWallpaperSource source)
     {
+        var settings = _storageService.LoadSettings();
+        settings.DynamicSource = source;
+        return GetCandidates(settings);
+    }
+
+    public List<string> GetCandidates(AppSettings? settings = null)
+    {
+        settings ??= _storageService.LoadSettings();
         var result = new List<string>();
 
-        // 1. Downloaded images
-        if (source is DynamicWallpaperSource.Downloads or DynamicWallpaperSource.Both)
+        // 1. Curated or All Downloaded Images for Carousel
+        string downloadDir = _storageService.GetDownloadDirectory();
+        if (Directory.Exists(downloadDir))
         {
-            string downloadDir = _storageService.GetDownloadDirectory();
-            if (Directory.Exists(downloadDir))
+            string[] validExtensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp"];
+            try
             {
-                string[] validExtensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp"];
-                try
+                var allDownloaded = Directory.GetFiles(downloadDir)
+                    .Where(f => validExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
+                    .ToList();
+
+                if (settings.DynamicSelectedDownloadFiles != null && settings.DynamicSelectedDownloadFiles.Count > 0)
                 {
-                    var files = Directory.GetFiles(downloadDir)
-                        .Where(f => validExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
-                        .ToList();
-                    result.AddRange(files);
+                    var selectedSet = new HashSet<string>(settings.DynamicSelectedDownloadFiles, StringComparer.OrdinalIgnoreCase);
+                    var curated = allDownloaded.Where(f => selectedSet.Contains(f) || selectedSet.Contains(Path.GetFileName(f))).ToList();
+                    result.AddRange(curated);
                 }
-                catch { }
+                else if (settings.DynamicSource is DynamicWallpaperSource.Downloads or DynamicWallpaperSource.Both)
+                {
+                    result.AddRange(allDownloaded);
+                }
             }
+            catch { }
         }
 
-        // 2. Favorite wallpapers
-        if (source is DynamicWallpaperSource.Favorites or DynamicWallpaperSource.Both)
+        // 2. All in Favorite Section
+        if (settings.DynamicIncludeAllFavorites || settings.DynamicSource is DynamicWallpaperSource.Favorites or DynamicWallpaperSource.Both)
         {
             try
             {

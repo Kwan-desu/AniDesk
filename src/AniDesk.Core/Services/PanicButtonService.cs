@@ -2,15 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading;
 using AniDesk.Core.Interop;
 
 namespace AniDesk.Core.Services;
 
+public class PanicStateData
+{
+    public bool IsPanicked { get; set; }
+    public Dictionary<string, string> PreviousWallpapers { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public string? FallbackPreviousWallpaper { get; set; }
+    public string? LastKnownActiveWallpaper { get; set; }
+    public bool WasWindowVisibleBeforePanic { get; set; }
+    public DateTime LastUpdatedUtc { get; set; } = DateTime.UtcNow;
+}
+
 public sealed class PanicButtonService : IDisposable
 {
     public const int PANIC_HOTKEY_ID = 0x9A01;
 
+    private static readonly object _stateLock = new();
+    private readonly string _stateFilePath;
     private readonly IntPtr _hotkeySinkHwnd;
     private IntPtr _targetWindowHwnd;
     private string _safeWallpaperPath;
@@ -20,11 +33,14 @@ public sealed class PanicButtonService : IDisposable
     private uint _currentModifiers;
     private uint _currentKey;
     private int _isTransitioning = 0;
+    private string? _lastKnownActiveWallpaper;
+    private string? _fallbackPreviousWallpaper;
     private readonly Dictionary<string, string> _previousWallpapers = new(StringComparer.OrdinalIgnoreCase);
 
     public bool IsPanicked => _isPanicked;
     public bool IsRegistered => _isRegistered;
     public string SafeWallpaperPath => _safeWallpaperPath;
+    public string? LastKnownActiveWallpaper => _lastKnownActiveWallpaper;
 
     private bool _isEnabled = true;
     public bool IsEnabled
@@ -53,11 +69,17 @@ public sealed class PanicButtonService : IDisposable
 
     public event EventHandler<bool>? PanicStateChanged;
 
-    public PanicButtonService(IntPtr hotkeySinkHwnd, IntPtr targetWindowHwnd = default, string? customSafePath = null)
+    public PanicButtonService(IntPtr hotkeySinkHwnd, IntPtr targetWindowHwnd = default, string? customSafePath = null, string? customStatePath = null)
     {
         _hotkeySinkHwnd = hotkeySinkHwnd;
         _targetWindowHwnd = targetWindowHwnd;
         _safeWallpaperPath = InitializeSafeWallpaper(customSafePath);
+        _stateFilePath = customStatePath ?? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "AniDesk", "panic_state.json"
+        );
+
+        LoadPersistedState();
     }
 
     public void SetTargetWindow(IntPtr targetHwnd)
@@ -215,6 +237,121 @@ public sealed class PanicButtonService : IDisposable
         return false;
     }
 
+    public void LoadPersistedState()
+    {
+        lock (_stateLock)
+        {
+            try
+            {
+                if (File.Exists(_stateFilePath))
+                {
+                    string json = File.ReadAllText(_stateFilePath);
+                    var state = JsonSerializer.Deserialize<PanicStateData>(json);
+                    if (state != null)
+                    {
+                        _isPanicked = state.IsPanicked;
+                        _wasWindowVisibleBeforePanic = state.WasWindowVisibleBeforePanic;
+                        _fallbackPreviousWallpaper = state.FallbackPreviousWallpaper;
+                        _lastKnownActiveWallpaper = state.LastKnownActiveWallpaper;
+
+                        _previousWallpapers.Clear();
+                        if (state.PreviousWallpapers != null)
+                        {
+                            foreach (var kvp in state.PreviousWallpapers)
+                            {
+                                if (!string.IsNullOrWhiteSpace(kvp.Value) && File.Exists(kvp.Value))
+                                {
+                                    _previousWallpapers[kvp.Key] = kvp.Value;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+    }
+
+    public void SavePersistedState()
+    {
+        lock (_stateLock)
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(_stateFilePath);
+                if (!string.IsNullOrEmpty(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                var state = new PanicStateData
+                {
+                    IsPanicked = _isPanicked,
+                    PreviousWallpapers = new Dictionary<string, string>(_previousWallpapers, StringComparer.OrdinalIgnoreCase),
+                    FallbackPreviousWallpaper = _fallbackPreviousWallpaper,
+                    LastKnownActiveWallpaper = _lastKnownActiveWallpaper,
+                    WasWindowVisibleBeforePanic = _wasWindowVisibleBeforePanic,
+                    LastUpdatedUtc = DateTime.UtcNow
+                };
+
+                string json = JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true });
+                string tempPath = _stateFilePath + ".tmp";
+                File.WriteAllText(tempPath, json);
+                File.Move(tempPath, _stateFilePath, overwrite: true);
+            }
+            catch { }
+        }
+    }
+
+    public void RecordActiveWallpaper(string wallpaperPath)
+    {
+        if (string.IsNullOrWhiteSpace(wallpaperPath) || !File.Exists(wallpaperPath)) return;
+        _lastKnownActiveWallpaper = wallpaperPath;
+        if (!_isPanicked)
+        {
+            SavePersistedState();
+        }
+    }
+
+    public static void RecordGlobalActiveWallpaper(string wallpaperPath)
+    {
+        if (string.IsNullOrWhiteSpace(wallpaperPath) || !File.Exists(wallpaperPath)) return;
+        try
+        {
+            string statePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "AniDesk", "panic_state.json"
+            );
+            lock (_stateLock)
+            {
+                PanicStateData state;
+                if (File.Exists(statePath))
+                {
+                    try
+                    {
+                        state = JsonSerializer.Deserialize<PanicStateData>(File.ReadAllText(statePath)) ?? new PanicStateData();
+                    }
+                    catch { state = new PanicStateData(); }
+                }
+                else
+                {
+                    state = new PanicStateData();
+                }
+
+                state.LastKnownActiveWallpaper = wallpaperPath;
+                state.LastUpdatedUtc = DateTime.UtcNow;
+
+                var dir = Path.GetDirectoryName(statePath);
+                if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+
+                string tmp = statePath + ".tmp";
+                File.WriteAllText(tmp, JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true }));
+                File.Move(tmp, statePath, true);
+            }
+        }
+        catch { }
+    }
+
     public void ExecuteEmergencyToggle()
     {
         // Atomic compare-exchange: drop re-entrant hotkey triggers during active transition
@@ -287,11 +424,27 @@ public sealed class PanicButtonService : IDisposable
                         ApplyFallbackSafeWallpaper();
                     }
 
+                    // If COM snapshot was empty or only safe wallpaper, fallback to last known active wallpaper
+                    if (_previousWallpapers.Count == 0 || _previousWallpapers.Values.All(v => string.IsNullOrWhiteSpace(v) || string.Equals(v, _safeWallpaperPath, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (!string.IsNullOrWhiteSpace(_lastKnownActiveWallpaper) && File.Exists(_lastKnownActiveWallpaper))
+                        {
+                            _previousWallpapers[string.Empty] = _lastKnownActiveWallpaper;
+                        }
+                    }
+
                     _isPanicked = true;
+                    SavePersistedState();
                 }
                 else
                 {
                     // REVERT / TOGGLE RESTORE
+                    // If _previousWallpapers is empty, restore from last known active wallpaper
+                    if (_previousWallpapers.Count == 0 && !string.IsNullOrWhiteSpace(_lastKnownActiveWallpaper) && File.Exists(_lastKnownActiveWallpaper))
+                    {
+                        _previousWallpapers[string.Empty] = _lastKnownActiveWallpaper;
+                    }
+
                     bool comRevertSucceeded = false;
                     if (desktopWallpaper != null && _previousWallpapers.Count > 0)
                     {
@@ -310,6 +463,10 @@ public sealed class PanicButtonService : IDisposable
                                     if (_previousWallpapers.TryGetValue(devicePath, out var saved) && File.Exists(saved))
                                     {
                                         desktopWallpaper.SetWallpaper(devicePath, saved);
+                                    }
+                                    else if (_previousWallpapers.TryGetValue(string.Empty, out var fallback) && File.Exists(fallback))
+                                    {
+                                        desktopWallpaper.SetWallpaper(devicePath, fallback);
                                     }
                                 }
                             }
@@ -330,8 +487,8 @@ public sealed class PanicButtonService : IDisposable
                         NativeMethods.SetForegroundWindow(_targetWindowHwnd);
                     }
                     _wasWindowVisibleBeforePanic = false;
-
                     _isPanicked = false;
+                    SavePersistedState();
                 }
             }
             finally
@@ -349,8 +506,6 @@ public sealed class PanicButtonService : IDisposable
             Interlocked.Exchange(ref _isTransitioning, 0);
         }
     }
-
-    private string? _fallbackPreviousWallpaper;
 
     private void ApplyFallbackSafeWallpaper()
     {
@@ -374,6 +529,11 @@ public sealed class PanicButtonService : IDisposable
             catch { }
         }
 
+        if (string.IsNullOrWhiteSpace(_fallbackPreviousWallpaper) && !string.IsNullOrWhiteSpace(_lastKnownActiveWallpaper))
+        {
+            _fallbackPreviousWallpaper = _lastKnownActiveWallpaper;
+        }
+
         if (File.Exists(_safeWallpaperPath))
         {
             Win32Helper.SystemParametersInfo(
@@ -387,12 +547,18 @@ public sealed class PanicButtonService : IDisposable
 
     private void RevertFallbackWallpaper()
     {
-        if (!string.IsNullOrWhiteSpace(_fallbackPreviousWallpaper) && File.Exists(_fallbackPreviousWallpaper))
+        string? target = _fallbackPreviousWallpaper;
+        if ((string.IsNullOrWhiteSpace(target) || !File.Exists(target)) && !string.IsNullOrWhiteSpace(_lastKnownActiveWallpaper) && File.Exists(_lastKnownActiveWallpaper))
+        {
+            target = _lastKnownActiveWallpaper;
+        }
+
+        if (!string.IsNullOrWhiteSpace(target) && File.Exists(target))
         {
             Win32Helper.SystemParametersInfo(
                 Win32Helper.SPI_SETDESKWALLPAPER,
                 0,
-                _fallbackPreviousWallpaper,
+                target,
                 Win32Helper.SPIF_UPDATEINIFILE | Win32Helper.SPIF_SENDCHANGE
             );
         }
