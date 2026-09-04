@@ -99,18 +99,17 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ComboBox}">
-                            <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
+                            <Grid x:Name="MainGrid" SnapsToDevicePixels="True" UseLayoutRounding="True">
 
                                 <!-- Single Cohesive Container (ToggleButton) -->
                                 <ToggleButton
-                                    x:Name="ToggleButton"
+                                    x:Name="toggleButton"
                                     Focusable="False"
                                     Padding="0"
                                     ClickMode="Press"
                                     IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ToggleButton.Template>
                                         <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                            <!-- Single unified container border: #161B26 bg, 1px subtle border, 7px radius -->
                                             <Border x:Name="Container"
                                                     Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"
                                                     BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}"
@@ -133,7 +132,7 @@
                                     </ToggleButton.Template>
                                 </ToggleButton>
 
-                                <!-- Unified Inner Layout: Inline Flex style (Text on left, subtle Chevron on far right, gap: 8px) -->
+                                <!-- Unified Inner Layout: Content on left, subtle Chevron on far right (14px) -->
                                 <Grid Margin="12,0,12,0" IsHitTestVisible="False">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -151,26 +150,31 @@
                                         HorizontalAlignment="Left"
                                         Margin="0,0,8,0" />
 
-                                    <!-- Right: Clean, subtle 14px ChevronDown vector icon anchored to the far right -->
+                                    <!-- Right: Clean 14px vector ChevronDown with 180-degree rotation when open -->
                                     <Path
                                         Grid.Column="1"
                                         x:Name="Chevron"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Center"
+                                        RenderTransformOrigin="0.5,0.5"
                                         Data="M 0 0 L 4 4.5 L 8 0"
                                         Stroke="#64748B"
                                         StrokeThickness="1.5"
                                         StrokeStartLineCap="Round"
                                         StrokeEndLineCap="Round"
                                         StrokeLineJoin="Round"
-                                        SnapsToDevicePixels="True" />
+                                        SnapsToDevicePixels="True">
+                                        <Path.RenderTransform>
+                                            <RotateTransform x:Name="ChevronRotate" Angle="0" />
+                                        </Path.RenderTransform>
+                                    </Path>
                                 </Grid>
 
-                                <!-- Popup dropdown menu -->
+                                <!-- Popup dropdown menu (Must be named PART_Popup for full WPF event/mouse capture wiring) -->
                                 <Popup
-                                    x:Name="Popup"
+                                    x:Name="PART_Popup"
                                     Placement="Bottom"
-                                    IsOpen="{TemplateBinding IsDropDownOpen}"
+                                    IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                     AllowsTransparency="True"
                                     Focusable="False"
                                     PopupAnimation="Slide">
@@ -189,7 +193,7 @@
                                             <Border.Effect>
                                                 <DropShadowEffect BlurRadius="18" ShadowDepth="4" Direction="270" Color="#000000" Opacity="0.55" />
                                             </Border.Effect>
-                                            <ScrollViewer SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Disabled">
+                                            <ScrollViewer x:Name="DropDownScrollViewer" SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Disabled">
                                                 <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
                                             </ScrollViewer>
                                         </Border>
@@ -197,12 +201,16 @@
                                 </Popup>
                             </Grid>
                             <ControlTemplate.Triggers>
-                                <!-- Chevron brightens on hover and active -->
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="Chevron" Property="Stroke" Value="#E2E8F0" />
                                 </Trigger>
                                 <Trigger Property="IsDropDownOpen" Value="True">
                                     <Setter TargetName="Chevron" Property="Stroke" Value="#38BDF8" />
+                                    <Setter TargetName="Chevron" Property="RenderTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="180" />
+                                        </Setter.Value>
+                                    </Setter>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
