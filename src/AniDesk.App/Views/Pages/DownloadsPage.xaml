@@ -160,109 +160,57 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Local Downloaded Items List -->
-                <ItemsControl ItemsSource="{Binding LocalWallpapers}"
-                              VirtualizingPanel.IsVirtualizing="True"
-                              VirtualizingPanel.VirtualizationMode="Recycling"
-                              VirtualizingPanel.IsContainerVirtualizable="True">
+                <!-- Local Downloaded Items Grid -->
+                <ItemsControl ItemsSource="{Binding LocalWallpapers}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <VirtualizingStackPanel />
+                            <WrapPanel Orientation="Horizontal" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border
-                                Background="#161B27"
-                                BorderBrush="#222838"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Padding="12,10"
-                                Margin="0,0,0,8">
+                            <Border Width="240" Height="135" CornerRadius="8" Background="#0F131D" BorderBrush="#222838" BorderThickness="1" Margin="0,0,8,8" ClipToBounds="True">
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
+                                    <Image converters:AsyncImageLoader.ImageUrl="{Binding FilePath}" Stretch="UniformToFill" />
 
-                                    <!-- Thumbnail -->
-                                    <Border
-                                        Grid.Column="0"
-                                        Width="84"
-                                        Height="50"
-                                        CornerRadius="6"
-                                        Background="#0F131D"
-                                        ClipToBounds="True"
-                                        Margin="0,0,14,0">
-                                        <Image converters:AsyncImageLoader.ImageUrl="{Binding FilePath}" Stretch="UniformToFill" />
+                                    <!-- Hover overlay -->
+                                    <Border x:Name="Overlay" Background="#00000000" Opacity="0">
+                                        <Grid VerticalAlignment="Bottom" Background="#990A0D14" Height="56">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Orientation="Vertical" Margin="8,6,12,6">
+                                                <TextBlock Text="{Binding FileName}" FontSize="12" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding FormattedFileSize}" FontSize="11" Foreground="#9DA6B8" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+                                                <Button Command="{Binding DataContext.SetAsWallpaperCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding FilePath}" Height="32" Width="36" Margin="6,0,0,0" Background="#0078D4" Foreground="White"><ui:SymbolIcon Symbol="Desktop24" FontSize="12"/></Button>
+                                                <Button Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding FilePath}" Height="32" Width="36" Margin="6,0,0,0" Background="#1E2536" Foreground="#E2E8F0"><ui:SymbolIcon Symbol="Open24" FontSize="12"/></Button>
+                                                <Button Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Height="32" Width="36" Margin="6,0,0,0" Background="#1E2536" Foreground="#EF4444"><ui:SymbolIcon Symbol="Delete24" FontSize="12"/></Button>
+                                            </StackPanel>
+                                        </Grid>
                                     </Border>
 
-                                    <!-- Info -->
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
-                                        <TextBlock Text="{Binding FileName}" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock FontSize="11" Foreground="#9DA6B8" Margin="0,3,0,0">
-                                            <Run Text="{Binding FormattedFileSize, Mode=OneWay}" />
-                                            <Run Text=" • " />
-                                            <Run Text="{Binding FormattedDate}" />
-                                        </TextBlock>
-                                    </StackPanel>
-
-                                    <!-- Quick Actions -->
-                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Button
-                                            Command="{Binding DataContext.SetAsWallpaperCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding FilePath}"
-                                            Height="34"
-                                            Margin="0,0,6,0"
-                                            Background="#0078D4"
-                                            Foreground="#FFFFFF"
-                                            FontSize="12"
-                                            FontWeight="SemiBold">
-                                            <StackPanel Orientation="Horizontal">
-                                                <ui:SymbolIcon Symbol="Desktop24" Margin="0,0,6,0" FontSize="13" />
-                                                <TextBlock Text="Set Wallpaper" />
-                                            </StackPanel>
-                                        </Button>
-
-                                        <Button
-                                            Command="{Binding DataContext.SetAsLockScreenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding FilePath}"
-                                            Height="34"
-                                            Margin="0,0,6,0"
-                                            Background="#1E2536"
-                                            BorderBrush="#2C374D"
-                                            Foreground="#E2E8F0"
-                                            FontSize="12"
-                                            ToolTip="Set as Lock Screen">
-                                            <ui:SymbolIcon Symbol="LockClosed24" FontSize="13" />
-                                        </Button>
-
-                                        <Button
-                                            Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding FilePath}"
-                                            Height="34"
-                                            Margin="0,0,6,0"
-                                            Background="#1E2536"
-                                            BorderBrush="#2C374D"
-                                            Foreground="#E2E8F0"
-                                            FontSize="12"
-                                            ToolTip="Open in Default Viewer">
-                                            <ui:SymbolIcon Symbol="Open24" FontSize="13" />
-                                        </Button>
-
-                                        <Button
-                                            Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            Height="34"
-                                            Background="#1E2536"
-                                            BorderBrush="#2C374D"
-                                            Foreground="#EF4444"
-                                            FontSize="12"
-                                            ToolTip="Delete File">
-                                            <ui:SymbolIcon Symbol="Delete24" FontSize="13" />
-                                        </Button>
-                                    </StackPanel>
+                                    <!-- Hover animations -->
+                                    <Border.Triggers>
+                                        <EventTrigger RoutedEvent="MouseEnter">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                        <EventTrigger RoutedEvent="MouseLeave">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.18" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Border.Triggers>
                                 </Grid>
                             </Border>
                         </DataTemplate>

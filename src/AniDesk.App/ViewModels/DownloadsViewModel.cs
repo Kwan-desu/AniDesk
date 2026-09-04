@@ -51,7 +51,7 @@ public partial class DownloadsViewModel : ObservableObject
 
         try
         {
-            string[] extensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"];
+            string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif" };
 
             // Run ALL file system operations on a thread pool thread to avoid UI lag
             var (foundFiles, primaryFolder) = await Task.Run(() =>
