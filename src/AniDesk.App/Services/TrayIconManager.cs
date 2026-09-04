@@ -16,18 +16,20 @@ public sealed class TrayIconManager : IDisposable
     private readonly Window _mainWindow;
     private readonly PanicButtonService _panicService;
     private readonly IContentSafetyService? _safetyService;
+    private readonly IDynamicWallpaperService? _dynamicWallpaperService;
     private readonly IntPtr _sinkHwnd;
     private NativeMethods.NOTIFYICONDATA _nid;
     private bool _isAdded;
     private ContextMenu? _contextMenu;
     private IntPtr _hIcon = IntPtr.Zero;
 
-    public TrayIconManager(Window mainWindow, PanicButtonService panicService, IntPtr sinkHwnd, IContentSafetyService? safetyService = null)
+    public TrayIconManager(Window mainWindow, PanicButtonService panicService, IntPtr sinkHwnd, IContentSafetyService? safetyService = null, IDynamicWallpaperService? dynamicWallpaperService = null)
     {
         _mainWindow = mainWindow;
         _panicService = panicService;
         _sinkHwnd = sinkHwnd;
         _safetyService = safetyService;
+        _dynamicWallpaperService = dynamicWallpaperService;
 
         InitializeTrayIcon();
         CreateContextMenu();
@@ -73,6 +75,15 @@ public sealed class TrayIconManager : IDisposable
         var openItem = new MenuItem { Header = "Open AniDesk", FontWeight = FontWeights.SemiBold };
         openItem.Click += (s, e) => AppSuspensionManager.RestoreForegroundMode(_mainWindow);
 
+        var nextWallpaperItem = new MenuItem { Header = "Next Wallpaper (Shuffle)" };
+        nextWallpaperItem.Click += async (s, e) =>
+        {
+            if (_dynamicWallpaperService != null)
+            {
+                await _dynamicWallpaperService.TriggerNextAsync();
+            }
+        };
+
         var panicItem = new MenuItem { Header = "Emergency Panic (Toggle)" };
         panicItem.Click += (s, e) => _panicService.ExecuteEmergencyToggle();
 
@@ -96,6 +107,7 @@ public sealed class TrayIconManager : IDisposable
         };
 
         _contextMenu.Items.Add(openItem);
+        _contextMenu.Items.Add(nextWallpaperItem);
         _contextMenu.Items.Add(panicItem);
         if (_safetyService != null)
         {

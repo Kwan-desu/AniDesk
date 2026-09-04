@@ -145,3 +145,15 @@ public class StringEqualsToBrushConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+public class BoolToSidebarWidthConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool isCompact = value is bool b && b;
+        return isCompact ? 64.0 : 220.0;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}

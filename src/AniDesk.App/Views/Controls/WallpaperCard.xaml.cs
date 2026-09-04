@@ -44,7 +44,14 @@ public partial class WallpaperCard : UserControl
         {
             if (Application.Current.MainWindow?.DataContext is MainViewModel mainVm)
             {
-                mainVm.OpenPostDetail(post);
+                if (e.ClickCount >= 2)
+                {
+                    mainVm.OpenCinematicModal(post);
+                }
+                else
+                {
+                    mainVm.OpenPostDetail(post);
+                }
             }
         }
     }

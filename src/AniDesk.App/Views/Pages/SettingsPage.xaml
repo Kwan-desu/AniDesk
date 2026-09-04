@@ -31,16 +31,64 @@
 
                     <Separator Background="#1E2536" Margin="0,0,0,12"/>
 
-                    <!-- Hotkey Information -->
-                    <DockPanel Margin="0,0,0,14" LastChildFill="False">
-                        <StackPanel DockPanel.Dock="Left">
-                            <TextBlock Text="Global Panic Shortcut" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
-                            <TextBlock Text="Active globally in Windows even when AniDesk is hidden in tray" FontSize="11" Foreground="#64748B"/>
-                        </StackPanel>
-                        <Border DockPanel.Dock="Right" Background="#1E273A" BorderBrush="#334155" BorderThickness="1" CornerRadius="6" Padding="12,6">
-                            <TextBlock Text="Win + Shift + H" FontSize="12.5" FontWeight="Bold" Foreground="#38BDF8" />
+                    <!-- Customizable Hotkey Configuration -->
+                    <TextBlock Text="Custom Global Panic Shortcut" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,2"/>
+                    <TextBlock Text="Choose any Windows modifier combo and key to instantly trigger emergency sanitization:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,10"/>
+
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Modifier Combo -->
+                        <ComboBox
+                            Grid.Column="0"
+                            ItemsSource="{Binding AvailablePanicModifiers}"
+                            SelectedItem="{Binding SelectedPanicModifier, Mode=TwoWay}"
+                            Height="38"
+                            VerticalContentAlignment="Center"
+                            FontSize="12"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+
+                        <!-- Key Combo -->
+                        <ComboBox
+                            Grid.Column="2"
+                            ItemsSource="{Binding AvailablePanicKeys}"
+                            SelectedItem="{Binding SelectedPanicKey, Mode=TwoWay}"
+                            Height="38"
+                            VerticalContentAlignment="Center"
+                            FontSize="12"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+
+                        <!-- Apply Button -->
+                        <Button
+                            Grid.Column="4"
+                            Command="{Binding ApplyCustomHotkeyCommand}"
+                            Content="Set Shortcut"
+                            Height="38"
+                            Padding="14,0"
+                            Background="#0078D4"
+                            Foreground="#FFFFFF"
+                            FontWeight="SemiBold"
+                            FontSize="12"/>
+
+                        <!-- Current Registered Display Badge -->
+                        <Border
+                            Grid.Column="5"
+                            HorizontalAlignment="Right"
+                            Background="#1E273A"
+                            BorderBrush="#334155"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="12,6">
+                            <TextBlock Text="{Binding PanicHotkeyDisplay}" FontSize="12.5" FontWeight="Bold" Foreground="#38BDF8" />
                         </Border>
-                    </DockPanel>
+                    </Grid>
 
                     <Separator Background="#1E2536" Margin="0,0,0,12"/>
 
@@ -62,6 +110,109 @@
                                  Padding="10,0" VerticalContentAlignment="Center" FontSize="12" />
                         <Button Grid.Column="2" Content="Browse..." Height="38" Padding="16,0" Click="OnBrowsePanicWallpaperClicked" />
                     </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Group: Dynamic Wallpaper Slideshow (NEW FEATURE) -->
+            <TextBlock Text="DYNAMIC WALLPAPER &amp; AUTO-SHUFFLE" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="0,0,0,8" />
+            <Border Background="#161B27" BorderBrush="#222838" BorderThickness="1" CornerRadius="8" Padding="16,14" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Automatic Desktop Wallpaper Rotator" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,2" />
+                    <TextBlock Text="Automatically cycles your desktop wallpaper periodically using your favorite or downloaded anime artworks." FontSize="11.5" Foreground="#94A3B8" Margin="0,0,0,14" TextWrapping="Wrap" />
+
+                    <!-- Master Toggle -->
+                    <DockPanel Margin="0,0,0,14" LastChildFill="False">
+                        <StackPanel DockPanel.Dock="Left">
+                            <TextBlock Text="Enable Dynamic Wallpaper Slideshow" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                            <TextBlock Text="Changes wallpaper in the background at your customized interval" FontSize="11" Foreground="#94A3B8"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch
+                            DockPanel.Dock="Right"
+                            IsChecked="{Binding EnableDynamicWallpaper, Mode=TwoWay}"
+                            Command="{Binding SaveDynamicWallpaperSettingsCommand}"/>
+                    </DockPanel>
+
+                    <Separator Background="#1E2536" Margin="0,0,0,12"/>
+
+                    <!-- Source Selection & Interval Settings -->
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Source Column -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Wallpaper Source" FontSize="12" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,4"/>
+                            <ComboBox
+                                ItemsSource="{Binding AvailableDynamicSources}"
+                                SelectedItem="{Binding SelectedDynamicSource, Mode=TwoWay}"
+                                Height="38"
+                                VerticalContentAlignment="Center"
+                                FontSize="12"
+                                ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                        </StackPanel>
+
+                        <!-- Interval Column -->
+                        <StackPanel Grid.Column="1" Grid.ColumnSpan="2">
+                            <TextBlock Text="Change Every (Minutes)" FontSize="12" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,4"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox
+                                    Text="{Binding DynamicWallpaperIntervalMinutes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Height="38"
+                                    VerticalContentAlignment="Center"
+                                    Padding="10,0"
+                                    Background="#121622"
+                                    Foreground="#FFFFFF"
+                                    BorderBrush="#252F42"
+                                    BorderThickness="1"
+                                    FontSize="12"/>
+
+                                <Button
+                                    Grid.Column="2"
+                                    Command="{Binding SaveDynamicWallpaperSettingsCommand}"
+                                    Content="Save Interval"
+                                    Height="38"
+                                    Padding="14,0"
+                                    Background="#202636"
+                                    BorderBrush="#2C374D"
+                                    Foreground="#E2E8F0"
+                                    FontSize="12"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Shuffle Action & Checkbox -->
+                    <DockPanel LastChildFill="False" Margin="0,4,0,0">
+                        <CheckBox
+                            DockPanel.Dock="Left"
+                            IsChecked="{Binding DynamicShuffle, Mode=TwoWay}"
+                            Content="Randomized Shuffle Order"
+                            Foreground="#E2E8F0"
+                            VerticalAlignment="Center"/>
+
+                        <Button
+                            DockPanel.Dock="Right"
+                            Command="{Binding ShuffleNextWallpaperCommand}"
+                            Height="34"
+                            Padding="14,0"
+                            Background="#0078D4"
+                            Foreground="#FFFFFF"
+                            FontWeight="SemiBold"
+                            FontSize="12">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowSync24" Margin="0,0,6,0" FontSize="13" />
+                                <TextBlock Text="Shuffle Next Now" />
+                            </StackPanel>
+                        </Button>
+                    </DockPanel>
                 </StackPanel>
             </Border>
 

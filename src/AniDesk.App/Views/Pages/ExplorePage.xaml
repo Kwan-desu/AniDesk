@@ -63,6 +63,7 @@
                                 PlaceholderText="Search tags (e.g. scenic, starry_sky, artist:wlop)..."
                                 Height="38"
                                 Icon="Search24"
+                                KeyboardNavigation.TabNavigation="None"
                                 PreviewKeyDown="OnSearchPreviewKeyDown"/>
 
                         <!-- Suggestions Dropdown Popup (Clicking an item searches) -->
@@ -91,6 +92,30 @@
                                     SelectedItem="{Binding SelectedTagSuggestion, Mode=TwoWay}"
                                     Background="Transparent"
                                     BorderThickness="0">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="4,2"/>
+                                            <Setter Property="Margin" Value="2,1"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="4,2">
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsSelected" Value="True">
+                                                                <Setter TargetName="Bd" Property="Background" Value="#1E3A8A"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Bd" Property="Background" Value="#1E293B"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid

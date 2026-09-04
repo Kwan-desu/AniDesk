@@ -14,6 +14,14 @@ public class AppSettings
     public string PanicWallpaperPath { get; set; } = string.Empty;
     public bool MinimizeToTrayOnClose { get; set; } = true;
     public string PanicHotkeyDisplay { get; set; } = "Win + Shift + H";
+    public uint PanicModifiers { get; set; } = 0x0008 | 0x0004 | 0x4000; // MOD_WIN | MOD_SHIFT | MOD_NOREPEAT
+    public uint PanicKey { get; set; } = 0x48; // 'H'
     public bool EnableEmergencyDesktop { get; set; } = true;
     public bool RunPanicDaemonOnStartup { get; set; } = false;
+
+    // Dynamic Wallpaper / Slideshow
+    public bool EnableDynamicWallpaper { get; set; } = false;
+    public int DynamicWallpaperIntervalMinutes { get; set; } = 5;
+    public DynamicWallpaperSource DynamicSource { get; set; } = DynamicWallpaperSource.Favorites;
+    public bool DynamicShuffle { get; set; } = true;
 }

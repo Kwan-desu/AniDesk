@@ -194,6 +194,15 @@ public sealed class PanicButtonService : IDisposable
         }
     }
 
+    public bool UpdateHotkey(uint modifiers, uint key)
+    {
+        _currentModifiers = modifiers;
+        _currentKey = key;
+        if (!_isEnabled) return true;
+        Unregister();
+        return Register(modifiers, key);
+    }
+
     public bool HandleWindowMessage(int msg, IntPtr wParam)
     {
         if (!_isEnabled) return false;

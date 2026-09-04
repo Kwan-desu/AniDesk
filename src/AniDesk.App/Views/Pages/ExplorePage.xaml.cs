@@ -58,28 +58,38 @@ public partial class ExplorePage : UserControl
             if (e.Key == Key.Down)
             {
                 e.Handled = true;
-                int i = vm.TagSuggestions.IndexOf(vm.SelectedTagSuggestion ?? vm.TagSuggestions[0]) + 1;
-                if (i < vm.TagSuggestions.Count) vm.SelectedTagSuggestion = vm.TagSuggestions[i];
+                int current = vm.SelectedTagSuggestion != null ? vm.TagSuggestions.IndexOf(vm.SelectedTagSuggestion) : -1;
+                int next = Math.Min(vm.TagSuggestions.Count - 1, current + 1);
+                vm.SelectedTagSuggestion = vm.TagSuggestions[next];
+                SuggestionsListBox.ScrollIntoView(vm.SelectedTagSuggestion);
                 return;
             }
             if (e.Key == Key.Up)
             {
                 e.Handled = true;
-                int i = vm.TagSuggestions.IndexOf(vm.SelectedTagSuggestion ?? vm.TagSuggestions[0]) - 1;
-                if (i >= 0) vm.SelectedTagSuggestion = vm.TagSuggestions[i];
+                int current = vm.SelectedTagSuggestion != null ? vm.TagSuggestions.IndexOf(vm.SelectedTagSuggestion) : 0;
+                int prev = Math.Max(0, current - 1);
+                vm.SelectedTagSuggestion = vm.TagSuggestions[prev];
+                SuggestionsListBox.ScrollIntoView(vm.SelectedTagSuggestion);
                 return;
             }
             if (e.Key == Key.Tab)
             {
                 e.Handled = true;
-                vm.ApplySuggestion(vm.SelectedTagSuggestion ?? vm.TagSuggestions[0], triggerSearch: false);
-                SearchBox.CaretIndex = SearchBox.Text.Length;
+                var target = vm.SelectedTagSuggestion ?? vm.TagSuggestions[0];
+                vm.ApplySuggestion(target, triggerSearch: false);
+                Dispatcher.InvokeAsync(() =>
+                {
+                    SearchBox.Focus();
+                    SearchBox.CaretIndex = SearchBox.Text.Length;
+                });
                 return;
             }
             if (e.Key == Key.Enter)
             {
                 e.Handled = true;
-                vm.ApplySuggestion(vm.SelectedTagSuggestion ?? vm.TagSuggestions[0], triggerSearch: true);
+                var chosen = vm.SelectedTagSuggestion ?? vm.TagSuggestions[0];
+                vm.ApplySuggestion(chosen, triggerSearch: true);
                 return;
             }
             if (e.Key == Key.Escape)

@@ -20,6 +20,7 @@
             <converters:WidthToSixteenNineHeightConverter x:Key="W169H" />
             <converters:WidthToColumnCountConverter x:Key="WToColumns" />
             <converters:AspectRatioConverter x:Key="AspectRatioConverter" />
+            <converters:BoolToSidebarWidthConverter x:Key="BoolToSidebarWidthConverter" />
             <converters:ValueEqualsToBoolConverter x:Key="ValueEqualsToBoolConverter" />
             <converters:StringEqualsToBrushConverter x:Key="StringEqualsToBrushConverter" />
             <converters:BoolToBrushConverter x:Key="BoolToBrushConverter">
@@ -92,7 +93,7 @@
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
                 <Setter Property="FontSize" Value="12.5" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
                 <Setter Property="Template">
                     <Setter.Value>
@@ -177,7 +178,7 @@
                                             <Border.Effect>
                                                 <DropShadowEffect BlurRadius="18" ShadowDepth="4" Direction="270" Color="#000000" Opacity="0.55" />
                                             </Border.Effect>
-                                            <ScrollViewer SnapsToDevicePixels="True">
+                                            <ScrollViewer SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Disabled">
                                                 <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
                                             </ScrollViewer>
                                         </Border>

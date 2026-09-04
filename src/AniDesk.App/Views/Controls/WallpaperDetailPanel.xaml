@@ -128,12 +128,13 @@
                         MinHeight="38"
                         VerticalContentAlignment="Center"
                         FontSize="12"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                         Margin="0,0,0,12">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <ui:SymbolIcon Symbol="Desktop24" FontSize="14" Foreground="#38BDF8" Margin="0,0,8,0"/>
-                                    <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" Foreground="#FFFFFF" FontSize="12"/>
+                                    <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" Foreground="#FFFFFF" FontSize="12" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>

@@ -32,6 +32,7 @@ public partial class App : Application
             services.AddSingleton<IMoebooruService, MoebooruService>();
             services.AddSingleton<IWallpaperService, WallpaperService>();
             services.AddSingleton<IDownloadService, DownloadService>();
+            services.AddSingleton<IDynamicWallpaperService, DynamicWallpaperService>();
             services.AddSingleton(sp => _panicService!);
 
             // ViewModels
@@ -95,7 +96,7 @@ public partial class App : Application
             var storage = _host.Services.GetRequiredService<ILocalStorageService>();
             var savedSettings = storage.LoadSettings();
             _panicService = new PanicButtonService(_hotkeySink.Handle, customSafePath: savedSettings.PanicWallpaperPath);
-            _panicService.Register(); // Win+Shift+H default
+            _panicService.Register(savedSettings.PanicModifiers, savedSettings.PanicKey);
 
             _hotkeySink.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
             {
@@ -124,11 +125,15 @@ public partial class App : Application
             var helper = new System.Windows.Interop.WindowInteropHelper(mainWindow);
             _panicService.SetTargetWindow(helper.EnsureHandle());
 
+            var dynamicService = _host.Services.GetRequiredService<IDynamicWallpaperService>();
+            dynamicService.Start();
+
             _trayManager = new TrayIconManager(
                 mainWindow,
                 _panicService,
                 _hotkeySink.Handle,
-                _host.Services.GetService<IContentSafetyService>()
+                _host.Services.GetService<IContentSafetyService>(),
+                dynamicService
             );
 
             if (!isDaemon)

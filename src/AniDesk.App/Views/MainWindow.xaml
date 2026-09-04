@@ -28,53 +28,29 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" /> <!-- TitleBar -->
             <RowDefinition Height="*" />    <!-- Main App Body -->
-        </Grid.RowDefinitions>
-
-        <!-- 1. Native Windows 11 TitleBar with Sidebar Toggle -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <!-- Sidebar Toggle Button (Always accessible at top-left) -->
-            <Button
-                Grid.Column="0"
-                Command="{Binding ToggleSidebarCommand}"
-                ToolTip="Toggle Sidebar (Ctrl+B)"
-                Width="42" Height="36"
-                Padding="0"
-                Background="Transparent"
-                BorderThickness="0"
-                Foreground="#94A3B8">
-                <ui:SymbolIcon Symbol="PanelLeft24" FontSize="15" />
-            </Button>
-
-            <!-- TitleBar -->
-            <ui:TitleBar
-                Grid.Column="1"
-                Title="AniDesk — Wallpaper Explorer"
-                Height="36"
-                FontSize="12" />
-        </Grid>
+        </Grid.RowDefinitions>        <!-- 1. Native Windows 11 TitleBar -->
+        <ui:TitleBar
+            Grid.Row="0"
+            Title="AniDesk — Wallpaper Explorer"
+            Height="36"
+            FontSize="12" />
 
         <!-- 2. Main App Body (Sidebar + Content + Detail Inspector + Cinematic Overlay) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" /> <!-- Left Nav Rail (Collapsible) -->
+                <ColumnDefinition Width="Auto" /> <!-- Left Nav Rail (Collapsible to compact) -->
                 <ColumnDefinition Width="*" />    <!-- Center Content Pages -->
                 <ColumnDefinition Width="Auto" /> <!-- Right Detail Drawer -->
             </Grid.ColumnDefinitions>
 
-            <!-- LEFT NAVIGATION RAIL -->
+            <!-- LEFT NAVIGATION RAIL (Modern Rail: 220px Expanded, 64px Compact) -->
             <Border
                 Grid.Column="0"
-                Width="220"
-                Visibility="{Binding IsSidebarVisible, Converter={StaticResource BoolToVis}}"
+                Width="{Binding IsSidebarCompact, Converter={StaticResource BoolToSidebarWidthConverter}}"
                 Background="{StaticResource TranslucentNavRailBackground}"
                 BorderBrush="#1F283C"
                 BorderThickness="0,0,1,0"
-                Padding="10,8,10,14">
+                Padding="6,8,6,14">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />    <!-- Nav Items -->
@@ -83,8 +59,40 @@
 
                     <!-- Nav Items Group -->
                     <StackPanel Grid.Row="0">
-                        <!-- Top Rail Header -->
-                        <TextBlock Text="NAVIGATION" FontSize="9.5" FontWeight="Bold" Foreground="#64748B" Margin="10,4,0,12"/>
+                        <!-- Top Rail Header with In-Sidebar Toggle Button -->
+                        <Grid Margin="4,2,4,12">
+                            <!-- Expanded Title -->
+                            <TextBlock
+                                Text="NAVIGATION"
+                                FontSize="9.5"
+                                FontWeight="Bold"
+                                Foreground="#64748B"
+                                VerticalAlignment="Center"
+                                Margin="6,0,0,0"
+                                Visibility="{Binding IsSidebarCompact, Converter={StaticResource InverseBoolToVis}}"/>
+
+                            <!-- Sidebar Toggle Button (Inside the sidebar rail) -->
+                            <Button
+                                Command="{Binding ToggleSidebarCommand}"
+                                ToolTip="Toggle Sidebar (Ctrl+B)"
+                                Width="34" Height="34"
+                                Padding="0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#94A3B8"
+                                HorizontalAlignment="Right">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <ui:SymbolIcon Symbol="PanelLeft24" FontSize="15" />
+                            </Button>
+                        </Grid>
 
                         <!-- Explore -->
                         <ui:Button
@@ -98,9 +106,22 @@
                             FontWeight="SemiBold"
                             Icon="Compass24"
                             Content="Explore"
+                            ToolTip="Explore Wallpapers"
                             BorderThickness="3,0,0,0"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}" />
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}">
+                            <ui:Button.Style>
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
+                                            <Setter Property="Content" Value="{x:Null}"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="0,8"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                        </ui:Button>
 
                         <!-- Popular -->
                         <ui:Button
@@ -113,9 +134,22 @@
                             FontSize="13"
                             Icon="ArrowTrending24"
                             Content="Popular"
+                            ToolTip="Popular Wallpapers"
                             BorderThickness="3,0,0,0"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}" />
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}">
+                            <ui:Button.Style>
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
+                                            <Setter Property="Content" Value="{x:Null}"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="0,8"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                        </ui:Button>
 
                         <!-- Favorites -->
                         <ui:Button
@@ -128,9 +162,22 @@
                             FontSize="13"
                             Icon="Star24"
                             Content="Favorites"
+                            ToolTip="Favorite Wallpapers"
                             BorderThickness="3,0,0,0"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}" />
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}">
+                            <ui:Button.Style>
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
+                                            <Setter Property="Content" Value="{x:Null}"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="0,8"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                        </ui:Button>
 
                         <!-- Downloads -->
                         <ui:Button
@@ -143,18 +190,47 @@
                             FontSize="13"
                             Icon="ArrowDownload24"
                             Content="Downloads"
+                            ToolTip="Downloaded Wallpapers"
                             BorderThickness="3,0,0,0"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}" />
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}">
+                            <ui:Button.Style>
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
+                                            <Setter Property="Content" Value="{x:Null}"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="0,8"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                        </ui:Button>
                     </StackPanel>
 
                     <!-- PREFERENCES & SAFETY GROUP (Bottom Rail) -->
                     <StackPanel Grid.Row="1">
                         <Separator Background="#1E2536" Margin="4,0,4,10" />
-                        <TextBlock Text="PRIVACY &amp; SHIELD" FontSize="9.5" FontWeight="Bold" Foreground="#64748B" Margin="6,0,0,8" />
 
-                        <!-- Discrete SFW Shield Status Card -->
+                        <!-- Compact SFW Shield Button -->
+                        <Button
+                            Command="{Binding ToggleSfwCommand}"
+                            Visibility="{Binding IsSidebarCompact, Converter={StaticResource BoolToVis}}"
+                            ToolTip="{Binding IsSfwShieldActive, Converter={StaticResource SfwTitleConverter}}"
+                            Width="44" Height="36"
+                            Margin="0,0,0,8"
+                            Background="{Binding IsSfwShieldActive, Converter={StaticResource SfwBgConverter}}"
+                            BorderBrush="{Binding IsSfwShieldActive, Converter={StaticResource SfwBorderConverter}}"
+                            BorderThickness="1">
+                            <ui:SymbolIcon
+                                Symbol="Shield24"
+                                Foreground="{Binding IsSfwShieldActive, Converter={StaticResource SfwColorConverter}}"
+                                FontSize="16" />
+                        </Button>
+
+                        <!-- Expanded SFW Shield Card -->
                         <Border
+                            Visibility="{Binding IsSidebarCompact, Converter={StaticResource InverseBoolToVis}}"
                             Background="{Binding IsSfwShieldActive, Converter={StaticResource SfwBgConverter}}"
                             BorderBrush="{Binding IsSfwShieldActive, Converter={StaticResource SfwBorderConverter}}"
                             BorderThickness="1"
@@ -204,9 +280,22 @@
                             FontSize="13"
                             Icon="Settings24"
                             Content="Settings"
+                            ToolTip="Settings"
                             BorderThickness="3,0,0,0"
                             BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}" />
+                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}">
+                            <ui:Button.Style>
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSidebarCompact}" Value="True">
+                                            <Setter Property="Content" Value="{x:Null}"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="0,8"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                        </ui:Button>
                     </StackPanel>
                 </Grid>
             </Border>

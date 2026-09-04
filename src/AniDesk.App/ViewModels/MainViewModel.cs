@@ -29,6 +29,9 @@ public partial class MainViewModel : ObservableObject
     private bool _isSidebarVisible = true;
 
     [ObservableProperty]
+    private bool _isSidebarCompact = false;
+
+    [ObservableProperty]
     private bool _isCinematicOpen = false;
 
     [ObservableProperty]
@@ -153,6 +156,13 @@ public partial class MainViewModel : ObservableObject
         IsCinematicOpen = false;
     }
 
+    public void OpenCinematicModal(MoebooruPost post)
+    {
+        DetailVM.SetPost(post);
+        CinematicPost = post;
+        IsCinematicOpen = true; // Opens the full pop up modal!
+    }
+
     [RelayCommand]
     public void OpenCinematicFromDetail()
     {
@@ -166,7 +176,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public void ToggleSidebar()
     {
-        IsSidebarVisible = !IsSidebarVisible;
+        IsSidebarCompact = !IsSidebarCompact;
     }
 
     [RelayCommand]
