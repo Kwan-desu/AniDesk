@@ -81,16 +81,17 @@
             <SolidColorBrush x:Key="TranslucentNavRailBackground" Color="#880F131D" />
             <SolidColorBrush x:Key="ApplicationBackgroundBrush" Color="Transparent" />
 
-            <!-- Global Dark Modern ComboBox Style (Deep Slate Surface, Zero White Flash) -->
+            <!-- Global Dark Modern ComboBox Style (Split-Pill / Docked Chevron like VS Code) -->
             <Style x:Key="AniDeskCleanComboBoxStyle" TargetType="{x:Type ComboBox}">
-                <Setter Property="MinHeight" Value="38" />
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="Height" Value="36" />
                 <Setter Property="Foreground" Value="#FFFFFF" />
-                <Setter Property="Background" Value="#161B27" />
-                <Setter Property="BorderBrush" Value="#2A354A" />
+                <Setter Property="Background" Value="#171C28" />
+                <Setter Property="BorderBrush" Value="#2D3546" />
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
-                <Setter Property="FontSize" Value="12.5" />
+                <Setter Property="FontSize" Value="12" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
@@ -100,7 +101,7 @@
                         <ControlTemplate TargetType="{x:Type ComboBox}">
                             <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
 
-                                <!-- Layer 1: Full-width ToggleButton for background & hover chrome -->
+                                <!-- Layer 1: Split-Pill ToggleButton container -->
                                 <ToggleButton
                                     x:Name="ToggleButton"
                                     Focusable="False"
@@ -109,58 +110,72 @@
                                     IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ToggleButton.Template>
                                         <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                            <Border x:Name="TgBorder"
+                                            <Border x:Name="OuterBorder"
                                                     Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"
                                                     BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}"
                                                     BorderThickness="1"
-                                                    CornerRadius="6" />
+                                                    CornerRadius="7">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="1" />
+                                                        <ColumnDefinition Width="30" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Left content segment background -->
+                                                    <Border x:Name="LeftCell" Grid.Column="0" Background="Transparent" CornerRadius="6,0,0,6" />
+
+                                                    <!-- Vertical divider line separating text from chevron (like VS Code pill) -->
+                                                    <Border x:Name="Divider" Grid.Column="1" Background="#2D3546" Margin="0,5" />
+
+                                                    <!-- Right chevron segment -->
+                                                    <Border x:Name="RightCell" Grid.Column="2" Background="Transparent" CornerRadius="0,6,6,0">
+                                                        <Path x:Name="ChevronArrow"
+                                                              HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"
+                                                              Data="M 0 0 L 4 4 L 8 0"
+                                                              Stroke="#8F9BB3"
+                                                              StrokeThickness="1.6"
+                                                              StrokeStartLineCap="Round"
+                                                              StrokeEndLineCap="Round"
+                                                              StrokeLineJoin="Round"
+                                                              SnapsToDevicePixels="True" />
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="TgBorder" Property="Background" Value="#222B3D" />
-                                                    <Setter TargetName="TgBorder" Property="BorderBrush" Value="#0078D4" />
+                                                    <Setter TargetName="OuterBorder" Property="Background" Value="#1F2535" />
+                                                    <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#0078D4" />
+                                                    <Setter TargetName="Divider" Property="Background" Value="#3B465D" />
+                                                    <Setter TargetName="RightCell" Property="Background" Value="#252D3F" />
+                                                    <Setter TargetName="ChevronArrow" Property="Stroke" Value="#FFFFFF" />
                                                 </Trigger>
                                                 <Trigger Property="IsChecked" Value="True">
-                                                    <Setter TargetName="TgBorder" Property="Background" Value="#1A2234" />
-                                                    <Setter TargetName="TgBorder" Property="BorderBrush" Value="#0078D4" />
+                                                    <Setter TargetName="OuterBorder" Property="Background" Value="#1A2234" />
+                                                    <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#0078D4" />
+                                                    <Setter TargetName="Divider" Property="Background" Value="#0078D4" />
+                                                    <Setter TargetName="RightCell" Property="Background" Value="#0078D4" />
+                                                    <Setter TargetName="ChevronArrow" Property="Stroke" Value="#FFFFFF" />
                                                 </Trigger>
                                                 <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter TargetName="TgBorder" Property="Opacity" Value="0.5" />
+                                                    <Setter TargetName="OuterBorder" Property="Opacity" Value="0.45" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </ToggleButton.Template>
                                 </ToggleButton>
 
-                                <!-- Layer 2: 2-column layout (Text in Col 0, Options Badge in Col 1). ZERO 'v' anywhere -->
-                                <Grid Margin="12,0,8,0" IsHitTestVisible="False">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- ContentPresenter strictly inside Column 0: impossible to clip or overlap indicator -->
+                                <!-- Layer 2: Selected content isolated strictly in the left zone -->
+                                <Grid Margin="1,1,32,1" IsHitTestVisible="False">
                                     <ContentPresenter
-                                        Grid.Column="0"
+                                        x:Name="ContentSite"
                                         Content="{TemplateBinding SelectionBoxItem}"
                                         ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                         ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                        Margin="10,0,8,0"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Left" />
-
-                                    <!-- Modern 3-dot options badge (•••) instead of 'v' caret -->
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="6,0,0,0"
-                                        VerticalAlignment="Center"
-                                        Background="#1E2638"
-                                        CornerRadius="4"
-                                        Padding="5,2">
-                                        <ui:SymbolIcon
-                                            x:Name="OptionsBadge"
-                                            Symbol="MoreHorizontal20"
-                                            FontSize="12"
-                                            Foreground="#64748B" />
-                                    </Border>
                                 </Grid>
 
                                 <!-- Layer 3: Popup dropdown list -->
@@ -193,17 +208,6 @@
                                     </Grid>
                                 </Popup>
                             </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsDropDownOpen" Value="True">
-                                    <Setter TargetName="OptionsBadge" Property="Foreground" Value="#38BDF8" />
-                                </Trigger>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="OptionsBadge" Property="Foreground" Value="#FFFFFF" />
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="OptionsBadge" Property="Opacity" Value="0.4" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
