@@ -1,4 +1,6 @@
 using Xunit;
+using System.IO;
+using System.Net.Http;
 using AniDesk.Core.Models;
 using AniDesk.Core.Services;
 
