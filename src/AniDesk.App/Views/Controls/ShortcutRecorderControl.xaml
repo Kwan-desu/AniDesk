@@ -5,163 +5,89 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Focusable="True">
+    mc:Ignorable="d">
 
-    <Grid>
-        <!-- State 1: Idle View (Display Badges + Edit Pencil) -->
-        <Border
-            x:Name="DisplayContainer"
-            Visibility="Visible"
-            Background="#161B26"
-            BorderBrush="#252F42"
-            BorderThickness="1"
-            CornerRadius="6"
-            Padding="8,5"
-            Cursor="Hand"
-            MouseLeftButtonDown="OnContainerClicked"
-            ToolTip="Click to change shortcut keybind">
-            <DockPanel LastChildFill="False">
-                <!-- Stack of Key Cap Badges -->
-                <ItemsControl x:Name="KeyBadgesItemsControl" DockPanel.Dock="Left" VerticalAlignment="Center">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border
-                                Background="#231F14"
-                                BorderBrush="#854D0E"
-                                BorderThickness="1"
-                                CornerRadius="4"
-                                MinWidth="26"
-                                Height="26"
-                                Padding="7,2"
-                                Margin="0,0,5,0"
-                                VerticalAlignment="Center">
-                                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <!-- Windows Icon Glyph -->
-                                    <TextBlock
-                                        Text="⊞"
-                                        FontSize="13"
-                                        FontWeight="Bold"
-                                        Foreground="#FACC15"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Visibility="{Binding IsWinKey, Converter={StaticResource BoolToVis}}" />
+    <!-- Idle View (Display Badges + Edit Pencil) -->
+    <Border
+        x:Name="DisplayContainer"
+        Background="#161B26"
+        BorderBrush="#252F42"
+        BorderThickness="1"
+        CornerRadius="6"
+        Padding="8,4"
+        Cursor="Hand"
+        MouseLeftButtonDown="OnContainerClicked"
+        ToolTip="Click to record or change shortcut keybind">
+        <DockPanel LastChildFill="False">
+            <!-- Stack of Key Cap Badges -->
+            <ItemsControl x:Name="KeyBadgesItemsControl" DockPanel.Dock="Left" VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Background="#231F14"
+                            BorderBrush="#854D0E"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            MinWidth="26"
+                            Height="26"
+                            Padding="7,2"
+                            Margin="0,0,5,0"
+                            VerticalAlignment="Center">
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <!-- Windows Icon Glyph -->
+                                <TextBlock
+                                    Text="⊞"
+                                    FontSize="13"
+                                    FontWeight="Bold"
+                                    Foreground="#FACC15"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding IsWinKey, Converter={StaticResource BoolToVis}}" />
 
-                                    <!-- Shift Icon Glyph -->
-                                    <TextBlock
-                                        Text="⇧"
-                                        FontSize="13"
-                                        FontWeight="Bold"
-                                        Foreground="#FACC15"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Visibility="{Binding IsShiftKey, Converter={StaticResource BoolToVis}}" />
+                                <!-- Shift Icon Glyph -->
+                                <TextBlock
+                                    Text="⇧"
+                                    FontSize="13"
+                                    FontWeight="Bold"
+                                    Foreground="#FACC15"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding IsShiftKey, Converter={StaticResource BoolToVis}}" />
 
-                                    <!-- General Text Label (Ctrl, Alt, Key) -->
-                                    <TextBlock
-                                        Text="{Binding Text}"
-                                        FontSize="12"
-                                        FontWeight="SemiBold"
-                                        Foreground="#FACC15"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Visibility="{Binding IsSpecialSymbol, Converter={StaticResource InverseBoolToVis}}" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                                <!-- General Text Label (Ctrl, Alt, Key) -->
+                                <TextBlock
+                                    Text="{Binding Text}"
+                                    FontSize="12"
+                                    FontWeight="SemiBold"
+                                    Foreground="#FACC15"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding IsSpecialSymbol, Converter={StaticResource InverseBoolToVis}}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-                <!-- Action Button: Edit Pencil -->
-                <Button
-                    DockPanel.Dock="Right"
-                    Width="26"
-                    Height="26"
-                    Padding="0"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Foreground="#94A3B8"
-                    ToolTip="Edit Shortcut"
-                    Click="OnEditClicked"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="Edit24" FontSize="13" />
-                </Button>
-            </DockPanel>
-        </Border>
-
-        <!-- State 2: Active Recording Mode -->
-        <Border
-            x:Name="RecordingContainer"
-            Visibility="Collapsed"
-            Background="#1C180E"
-            BorderBrush="#EAB308"
-            BorderThickness="1.5"
-            CornerRadius="6"
-            Padding="10,5">
-            <DockPanel LastChildFill="False">
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Live Recording Modifiers Preview (if any held) -->
-                    <ItemsControl x:Name="LiveBadgesItemsControl" VerticalAlignment="Center">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border
-                                    Background="#302814"
-                                    BorderBrush="#CA8A04"
-                                    BorderThickness="1"
-                                    CornerRadius="4"
-                                    MinWidth="26"
-                                    Height="24"
-                                    Padding="6,1"
-                                    Margin="0,0,4,0"
-                                    VerticalAlignment="Center">
-                                    <TextBlock
-                                        Text="{Binding Text}"
-                                        FontSize="11.5"
-                                        FontWeight="SemiBold"
-                                        Foreground="#FEF08A"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center" />
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- Recording Prompt Text -->
-                    <TextBlock
-                        x:Name="PromptText"
-                        Text="Press shortcut keys... (Esc to cancel)"
-                        FontSize="12"
-                        FontWeight="SemiBold"
-                        Foreground="#FDE047"
-                        VerticalAlignment="Center"
-                        Margin="4,0,0,0" />
-                </StackPanel>
-
-                <!-- Cancel Button -->
-                <Button
-                    DockPanel.Dock="Right"
-                    Width="24"
-                    Height="24"
-                    Padding="0"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Foreground="#EF4444"
-                    ToolTip="Cancel (Esc)"
-                    Click="OnCancelClicked"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="Dismiss24" FontSize="12" />
-                </Button>
-            </DockPanel>
-        </Border>
-    </Grid>
+            <!-- Action Button: Edit Pencil -->
+            <Button
+                DockPanel.Dock="Right"
+                Width="26"
+                Height="26"
+                Padding="0"
+                Background="Transparent"
+                BorderThickness="0"
+                Foreground="#94A3B8"
+                ToolTip="Record Shortcut"
+                Click="OnEditClicked"
+                VerticalAlignment="Center">
+                <ui:SymbolIcon Symbol="Edit24" FontSize="13" />
+            </Button>
+        </DockPanel>
+    </Border>
 </UserControl>
