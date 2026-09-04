@@ -88,18 +88,19 @@
                 <Setter Property="Background" Value="#161B27" />
                 <Setter Property="BorderBrush" Value="#2A354A" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Padding" Value="12,0,32,0" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
                 <Setter Property="FontSize" Value="12.5" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                <Setter Property="Cursor" Value="Hand" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ComboBox}">
                             <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
-                                <!-- Full-width ToggleButton for dropdown activation (no arrows, just the border) -->
+
+                                <!-- Layer 1: Full-width ToggleButton for background & hover chrome -->
                                 <ToggleButton
                                     x:Name="ToggleButton"
                                     Focusable="False"
@@ -112,27 +113,15 @@
                                                     Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"
                                                     BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}"
                                                     BorderThickness="1"
-                                                    CornerRadius="6">
-                                                <!-- Chevron arrow pinned to the right -->
-                                                <Path x:Name="Arrow"
-                                                      HorizontalAlignment="Right"
-                                                      VerticalAlignment="Center"
-                                                      Margin="0,0,11,0"
-                                                      Data="M 0 0 L 4 4 L 8 0"
-                                                      Stroke="#94A3B8"
-                                                      StrokeThickness="1.5"
-                                                      SnapsToDevicePixels="True" />
-                                            </Border>
+                                                    CornerRadius="6" />
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="TgBorder" Property="Background" Value="#222B3D" />
                                                     <Setter TargetName="TgBorder" Property="BorderBrush" Value="#0078D4" />
-                                                    <Setter TargetName="Arrow" Property="Stroke" Value="#FFFFFF" />
                                                 </Trigger>
                                                 <Trigger Property="IsChecked" Value="True">
                                                     <Setter TargetName="TgBorder" Property="Background" Value="#1A2234" />
                                                     <Setter TargetName="TgBorder" Property="BorderBrush" Value="#0078D4" />
-                                                    <Setter TargetName="Arrow" Property="Stroke" Value="#0078D4" />
                                                 </Trigger>
                                                 <Trigger Property="IsEnabled" Value="False">
                                                     <Setter TargetName="TgBorder" Property="Opacity" Value="0.5" />
@@ -142,17 +131,39 @@
                                     </ToggleButton.Template>
                                 </ToggleButton>
 
-                                <!-- Content presenter: hardcoded margin keeps text left-padded and arrow-gap on right -->
-                                <ContentPresenter
-                                    x:Name="ContentSite"
-                                    IsHitTestVisible="False"
-                                    Content="{TemplateBinding SelectionBoxItem}"
-                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                    ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                    Margin="12,0,36,0"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Left" />
+                                <!-- Layer 2: 2-column layout (Text in Col 0, Options Badge in Col 1). ZERO 'v' anywhere -->
+                                <Grid Margin="12,0,8,0" IsHitTestVisible="False">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
+                                    <!-- ContentPresenter strictly inside Column 0: impossible to clip or overlap indicator -->
+                                    <ContentPresenter
+                                        Grid.Column="0"
+                                        Content="{TemplateBinding SelectionBoxItem}"
+                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                        ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Left" />
+
+                                    <!-- Modern 3-dot options badge (•••) instead of 'v' caret -->
+                                    <Border
+                                        Grid.Column="1"
+                                        Margin="6,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Background="#1E2638"
+                                        CornerRadius="4"
+                                        Padding="5,2">
+                                        <ui:SymbolIcon
+                                            x:Name="OptionsBadge"
+                                            Symbol="MoreHorizontal20"
+                                            FontSize="12"
+                                            Foreground="#64748B" />
+                                    </Border>
+                                </Grid>
+
+                                <!-- Layer 3: Popup dropdown list -->
                                 <Popup
                                     x:Name="Popup"
                                     Placement="Bottom"
@@ -182,6 +193,17 @@
                                     </Grid>
                                 </Popup>
                             </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsDropDownOpen" Value="True">
+                                    <Setter TargetName="OptionsBadge" Property="Foreground" Value="#38BDF8" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="OptionsBadge" Property="Foreground" Value="#FFFFFF" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="OptionsBadge" Property="Opacity" Value="0.4" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>

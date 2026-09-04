@@ -58,6 +58,7 @@ public partial class SettingsPage : UserControl
             }
 
             UpdateCacheSizeText();
+            UpdateDownloadFolderInfo();
         }
         finally
         {
@@ -199,7 +200,73 @@ public partial class SettingsPage : UserControl
             settings.DownloadFolderPath = dialog.FolderName;
             _storageService.SaveSettings(settings);
             DownloadPathBox.Text = dialog.FolderName;
+            UpdateDownloadFolderInfo();
         }
+    }
+
+    private void OnOpenDownloadFolderClicked(object sender, RoutedEventArgs e)
+    {
+        string folder = DownloadPathBox.Text;
+        if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+        {
+            folder = _storageService.GetDownloadDirectory();
+        }
+
+        try
+        {
+            if (Directory.Exists(folder))
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = folder,
+                    UseShellExecute = true
+                });
+            }
+        }
+        catch { }
+    }
+
+    private void UpdateDownloadFolderInfo()
+    {
+        if (DownloadFolderInfoText == null) return;
+
+        Task.Run(() =>
+        {
+            string folder = string.Empty;
+            Dispatcher.Invoke(() => folder = DownloadPathBox.Text);
+            if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+            {
+                folder = _storageService.GetDownloadDirectory();
+            }
+
+            int count = 0;
+            long totalBytes = 0;
+            string[] extensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"];
+
+            if (Directory.Exists(folder))
+            {
+                try
+                {
+                    var dir = new DirectoryInfo(folder);
+                    foreach (var file in dir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly))
+                    {
+                        if (extensions.Contains(file.Extension.ToLowerInvariant()))
+                        {
+                            count++;
+                            totalBytes += file.Length;
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            double mb = (double)totalBytes / (1024 * 1024);
+            string text = count == 1
+                ? $"1 wallpaper saved ({mb:F1} MB)"
+                : $"{count} wallpapers saved ({mb:F1} MB)";
+
+            Dispatcher.Invoke(() => DownloadFolderInfoText.Text = text);
+        });
     }
 
     private void OnClearCacheClicked(object sender, RoutedEventArgs e)
