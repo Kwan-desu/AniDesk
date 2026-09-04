@@ -22,6 +22,13 @@ public partial class DownloadsViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasDownloadedFiles;
 
+    [ObservableProperty]
+    private string _currentDownloadFolderPath = string.Empty;
+
+    public string WallpaperCountText => LocalWallpapers.Count == 1
+        ? "1 wallpaper"
+        : $"{LocalWallpapers.Count} wallpapers";
+
     public DownloadsViewModel(IDownloadService downloadService, ILocalStorageService storageService, IWallpaperService wallpaperService)
     {
         _downloadService = downloadService;
@@ -117,6 +124,10 @@ public partial class DownloadsViewModel : ObservableObject
         }
 
         HasDownloadedFiles = LocalWallpapers.Count > 0;
+        OnPropertyChanged(nameof(WallpaperCountText));
+
+        // Update the displayed folder path
+        CurrentDownloadFolderPath = foldersToScan.FirstOrDefault() ?? string.Empty;
     }
 
     [RelayCommand]

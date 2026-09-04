@@ -79,7 +79,7 @@
                             <Button
                                 Command="{Binding ToggleSidebarCommand}"
                                 ToolTip="Toggle Sidebar (Ctrl+B)"
-                                Width="34" Height="34"
+                                Width="44" Height="40"
                                 Padding="0"
                                 Background="Transparent"
                                 BorderThickness="0"
@@ -102,23 +102,39 @@
                         <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Explore"
-                            Height="40"
                             HorizontalAlignment="Stretch"
-                            Margin="0,0,0,4"
+                            Margin="0,0,0,2"
                             Padding="0"
                             Cursor="Hand"
-                            ToolTip="Explore Wallpapers"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}"
-                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Explore'}"
-                            BorderThickness="3,0,0,0">
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="Explore Wallpapers">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="6"
-                                            SnapsToDevicePixels="True">
-                                        <Grid Margin="10,0">
+                                    <Grid Height="40" SnapsToDevicePixels="True">
+                                        <!-- Background highlight on hover/active -->
+                                        <Border x:Name="BgHighlight"
+                                                Background="Transparent"
+                                                CornerRadius="6" />
+                                        <!-- Active pill indicator (left edge) -->
+                                        <Rectangle x:Name="ActivePill"
+                                                   Width="3" Height="18"
+                                                   RadiusX="1.5" RadiusY="1.5"
+                                                   Fill="Transparent"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,0,0" />
+                                        <!-- Compact icon (centered) -->
+                                        <ui:SymbolIcon x:Name="NavIcon"
+                                                       Symbol="CompassNorthwest24" FontSize="18"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#38BDF8"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+                                        <!-- Expanded row (icon + label) -->
+                                        <Grid x:Name="ExpandedRow"
+                                              Margin="10,0"
+                                              Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="*" />
@@ -130,13 +146,16 @@
                                                        FontWeight="SemiBold"
                                                        Foreground="#FFFFFF"
                                                        VerticalAlignment="Center"
-                                                       Margin="8,0,0,0"
-                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                                       Margin="8,0,0,0" />
                                         </Grid>
-                                    </Border>
+                                    </Grid>
                                     <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.CurrentNavView, RelativeSource={RelativeSource AncestorType=Window}}" Value="Explore">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1E38BDF8" />
+                                            <Setter TargetName="ActivePill" Property="Fill" Value="#38BDF8" />
+                                        </DataTrigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity" Value="0.85" />
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#12FFFFFF" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -147,23 +166,34 @@
                         <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Popular"
-                            Height="40"
                             HorizontalAlignment="Stretch"
-                            Margin="0,0,0,4"
+                            Margin="0,0,0,2"
                             Padding="0"
                             Cursor="Hand"
-                            ToolTip="Popular Wallpapers"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}"
-                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Popular'}"
-                            BorderThickness="3,0,0,0">
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="Popular Wallpapers">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="6"
-                                            SnapsToDevicePixels="True">
-                                        <Grid Margin="10,0">
+                                    <Grid Height="40" SnapsToDevicePixels="True">
+                                        <Border x:Name="BgHighlight"
+                                                Background="Transparent"
+                                                CornerRadius="6" />
+                                        <Rectangle x:Name="ActivePill"
+                                                   Width="3" Height="18"
+                                                   RadiusX="1.5" RadiusY="1.5"
+                                                   Fill="Transparent"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ui:SymbolIcon x:Name="NavIcon"
+                                                       Symbol="ArrowTrending24" FontSize="18"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#F59E0B"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+                                        <Grid x:Name="ExpandedRow"
+                                              Margin="10,0"
+                                              Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="*" />
@@ -175,13 +205,16 @@
                                                        FontWeight="SemiBold"
                                                        Foreground="#FFFFFF"
                                                        VerticalAlignment="Center"
-                                                       Margin="8,0,0,0"
-                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                                       Margin="8,0,0,0" />
                                         </Grid>
-                                    </Border>
+                                    </Grid>
                                     <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.CurrentNavView, RelativeSource={RelativeSource AncestorType=Window}}" Value="Popular">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1EF59E0B" />
+                                            <Setter TargetName="ActivePill" Property="Fill" Value="#F59E0B" />
+                                        </DataTrigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity" Value="0.85" />
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#12FFFFFF" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -192,23 +225,34 @@
                         <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Favorites"
-                            Height="40"
                             HorizontalAlignment="Stretch"
-                            Margin="0,0,0,4"
+                            Margin="0,0,0,2"
                             Padding="0"
                             Cursor="Hand"
-                            ToolTip="Favorite Wallpapers"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}"
-                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Favorites'}"
-                            BorderThickness="3,0,0,0">
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="Favorite Wallpapers">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="6"
-                                            SnapsToDevicePixels="True">
-                                        <Grid Margin="10,0">
+                                    <Grid Height="40" SnapsToDevicePixels="True">
+                                        <Border x:Name="BgHighlight"
+                                                Background="Transparent"
+                                                CornerRadius="6" />
+                                        <Rectangle x:Name="ActivePill"
+                                                   Width="3" Height="18"
+                                                   RadiusX="1.5" RadiusY="1.5"
+                                                   Fill="Transparent"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ui:SymbolIcon x:Name="NavIcon"
+                                                       Symbol="Star24" FontSize="18"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#EC4899"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+                                        <Grid x:Name="ExpandedRow"
+                                              Margin="10,0"
+                                              Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="*" />
@@ -220,13 +264,16 @@
                                                        FontWeight="SemiBold"
                                                        Foreground="#FFFFFF"
                                                        VerticalAlignment="Center"
-                                                       Margin="8,0,0,0"
-                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                                       Margin="8,0,0,0" />
                                         </Grid>
-                                    </Border>
+                                    </Grid>
                                     <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.CurrentNavView, RelativeSource={RelativeSource AncestorType=Window}}" Value="Favorites">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1EEC4899" />
+                                            <Setter TargetName="ActivePill" Property="Fill" Value="#EC4899" />
+                                        </DataTrigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity" Value="0.85" />
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#12FFFFFF" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -237,23 +284,34 @@
                         <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Downloads"
-                            Height="40"
                             HorizontalAlignment="Stretch"
-                            Margin="0,0,0,4"
+                            Margin="0,0,0,2"
                             Padding="0"
                             Cursor="Hand"
-                            ToolTip="Downloaded Wallpapers"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}"
-                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Downloads'}"
-                            BorderThickness="3,0,0,0">
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="Downloaded Wallpapers">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="6"
-                                            SnapsToDevicePixels="True">
-                                        <Grid Margin="10,0">
+                                    <Grid Height="40" SnapsToDevicePixels="True">
+                                        <Border x:Name="BgHighlight"
+                                                Background="Transparent"
+                                                CornerRadius="6" />
+                                        <Rectangle x:Name="ActivePill"
+                                                   Width="3" Height="18"
+                                                   RadiusX="1.5" RadiusY="1.5"
+                                                   Fill="Transparent"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ui:SymbolIcon x:Name="NavIcon"
+                                                       Symbol="ArrowDownload24" FontSize="18"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#10B981"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+                                        <Grid x:Name="ExpandedRow"
+                                              Margin="10,0"
+                                              Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="*" />
@@ -265,13 +323,16 @@
                                                        FontWeight="SemiBold"
                                                        Foreground="#FFFFFF"
                                                        VerticalAlignment="Center"
-                                                       Margin="8,0,0,0"
-                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                                       Margin="8,0,0,0" />
                                         </Grid>
-                                    </Border>
+                                    </Grid>
                                     <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.CurrentNavView, RelativeSource={RelativeSource AncestorType=Window}}" Value="Downloads">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1E10B981" />
+                                            <Setter TargetName="ActivePill" Property="Fill" Value="#10B981" />
+                                        </DataTrigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity" Value="0.85" />
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#12FFFFFF" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -288,7 +349,8 @@
                             Command="{Binding ToggleSfwCommand}"
                             Visibility="{Binding IsSidebarCompact, Converter={StaticResource BoolToVis}}"
                             ToolTip="{Binding IsSfwShieldActive, Converter={StaticResource SfwTitleConverter}}"
-                            Width="44" Height="36"
+                            HorizontalAlignment="Center"
+                            Width="44" Height="40"
                             Margin="0,0,0,8"
                             Background="{Binding IsSfwShieldActive, Converter={StaticResource SfwBgConverter}}"
                             BorderBrush="{Binding IsSfwShieldActive, Converter={StaticResource SfwBorderConverter}}"
@@ -345,22 +407,33 @@
                         <Button
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Settings"
-                            Height="40"
                             HorizontalAlignment="Stretch"
                             Padding="0"
                             Cursor="Hand"
-                            ToolTip="Settings"
-                            Background="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}"
-                            BorderBrush="{Binding CurrentNavView, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter='Settings'}"
-                            BorderThickness="3,0,0,0">
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="Settings">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="6"
-                                            SnapsToDevicePixels="True">
-                                        <Grid Margin="10,0">
+                                    <Grid Height="40" SnapsToDevicePixels="True">
+                                        <Border x:Name="BgHighlight"
+                                                Background="Transparent"
+                                                CornerRadius="6" />
+                                        <Rectangle x:Name="ActivePill"
+                                                   Width="3" Height="18"
+                                                   RadiusX="1.5" RadiusY="1.5"
+                                                   Fill="Transparent"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ui:SymbolIcon x:Name="NavIcon"
+                                                       Symbol="Settings24" FontSize="18"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="#94A3B8"
+                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+                                        <Grid x:Name="ExpandedRow"
+                                              Margin="10,0"
+                                              Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="*" />
@@ -372,13 +445,16 @@
                                                        FontWeight="SemiBold"
                                                        Foreground="#FFFFFF"
                                                        VerticalAlignment="Center"
-                                                       Margin="8,0,0,0"
-                                                       Visibility="{Binding DataContext.IsSidebarCompact, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InverseBoolToVis}}" />
+                                                       Margin="8,0,0,0" />
                                         </Grid>
-                                    </Border>
+                                    </Grid>
                                     <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.CurrentNavView, RelativeSource={RelativeSource AncestorType=Window}}" Value="Settings">
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#1E94A3B8" />
+                                            <Setter TargetName="ActivePill" Property="Fill" Value="#94A3B8" />
+                                        </DataTrigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity" Value="0.85" />
+                                            <Setter TargetName="BgHighlight" Property="Background" Value="#12FFFFFF" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
