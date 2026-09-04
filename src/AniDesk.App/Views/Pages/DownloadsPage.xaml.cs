@@ -9,19 +9,13 @@ public partial class DownloadsPage : UserControl
     {
         InitializeComponent();
 
-        Loaded += (s, e) =>
-        {
-            if (DataContext is DownloadsViewModel vm)
-            {
-                vm.RefreshDownloads();
-            }
-        };
-
-        IsVisibleChanged += (s, e) =>
+        // Refresh downloads whenever this page becomes visible (user navigates to Downloads)
+        // The ViewModel already does an initial scan in its constructor.
+        IsVisibleChanged += async (s, e) =>
         {
             if (IsVisible && DataContext is DownloadsViewModel vm)
             {
-                vm.RefreshDownloads();
+                await vm.RefreshDownloads();
             }
         };
     }

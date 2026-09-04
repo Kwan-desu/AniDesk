@@ -98,11 +98,12 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ComboBox}">
-                            <Grid SnapsToDevicePixels="True">
-                                <!-- Inlined dark ToggleButton for the dropdown chrome -->
+                            <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
+                                <!-- Full-width ToggleButton for dropdown activation (no arrows, just the border) -->
                                 <ToggleButton
                                     x:Name="ToggleButton"
                                     Focusable="False"
+                                    Padding="0"
                                     ClickMode="Press"
                                     IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ToggleButton.Template>
@@ -112,20 +113,15 @@
                                                     BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}"
                                                     BorderThickness="1"
                                                     CornerRadius="6">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="30" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Path x:Name="Arrow"
-                                                          Grid.Column="1"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Data="M 0 0 L 4 4 L 8 0"
-                                                          Stroke="#94A3B8"
-                                                          StrokeThickness="1.5"
-                                                          SnapsToDevicePixels="True" />
-                                                </Grid>
+                                                <!-- Chevron arrow pinned to the right -->
+                                                <Path x:Name="Arrow"
+                                                      HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,11,0"
+                                                      Data="M 0 0 L 4 4 L 8 0"
+                                                      Stroke="#94A3B8"
+                                                      StrokeThickness="1.5"
+                                                      SnapsToDevicePixels="True" />
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
@@ -146,15 +142,16 @@
                                     </ToggleButton.Template>
                                 </ToggleButton>
 
+                                <!-- Content presenter: hardcoded margin keeps text left-padded and arrow-gap on right -->
                                 <ContentPresenter
                                     x:Name="ContentSite"
                                     IsHitTestVisible="False"
                                     Content="{TemplateBinding SelectionBoxItem}"
                                     ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                     ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                    Margin="{TemplateBinding Padding}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                                    Margin="12,0,36,0"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Left" />
 
                                 <Popup
                                     x:Name="Popup"

@@ -161,7 +161,15 @@
                 </Border>
 
                 <!-- Local Downloaded Items List -->
-                <ItemsControl ItemsSource="{Binding LocalWallpapers}">
+                <ItemsControl ItemsSource="{Binding LocalWallpapers}"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              VirtualizingPanel.IsContainerVirtualizable="True">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border
