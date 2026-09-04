@@ -1,6 +1,6 @@
-; Script generated for AniDesk v1.1.0
+; Script generated for AniDesk v1.2.0
 #define MyAppName "AniDesk"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Kwan"
 #define MyAppURL "https://github.com/Kwan-desu/AniDesk"
 #define MyAppExeName "AniDesk.exe"
