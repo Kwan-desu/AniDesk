@@ -1,4 +1,4 @@
-namespace AniDesk.Core.Models;
+﻿namespace AniDesk.Core.Models;
 
 public class AppSettings
 {

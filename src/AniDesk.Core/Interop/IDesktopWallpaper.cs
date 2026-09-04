@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace AniDesk.Core.Interop;
 
@@ -18,33 +18,33 @@ public enum DesktopWallpaperPosition
 public interface IDesktopWallpaper
 {
     void SetWallpaper([MarshalAs(UnmanagedType.LPWStr)] string? monitorID, [MarshalAs(UnmanagedType.LPWStr)] string wallpaper);
-    
+
     [return: MarshalAs(UnmanagedType.LPWStr)]
     string GetWallpaper([MarshalAs(UnmanagedType.LPWStr)] string? monitorID);
-    
+
     [return: MarshalAs(UnmanagedType.LPWStr)]
     string GetMonitorDevicePathAt(uint monitorIndex);
-    
+
     uint GetMonitorDevicePathCount();
-    
+
     [PreserveSig]
     int GetMonitorRECT([MarshalAs(UnmanagedType.LPWStr)] string? monitorID, out RECT displayRect);
-    
+
     void SetBackgroundColor(uint color);
     uint GetBackgroundColor();
-    
+
     void SetPosition(DesktopWallpaperPosition position);
     DesktopWallpaperPosition GetPosition();
-    
+
     void SetSlideshow(IntPtr items);
     IntPtr GetSlideshow();
-    
+
     void SetSlideshowOptions(uint options, uint slideshowTick);
     void GetSlideshowOptions(out uint options, out uint slideshowTick);
-    
+
     void AdvanceSlideshow([MarshalAs(UnmanagedType.LPWStr)] string? monitorID, uint direction);
     uint GetStatus();
-    
+
     void Enable([MarshalAs(UnmanagedType.Bool)] bool enable);
 }
 

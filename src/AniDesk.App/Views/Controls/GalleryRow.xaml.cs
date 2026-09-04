@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using AniDesk.App.ViewModels;
 using AniDesk.Core.Models;

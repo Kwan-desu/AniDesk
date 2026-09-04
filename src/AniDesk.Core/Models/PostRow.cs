@@ -1,4 +1,4 @@
-namespace AniDesk.Core.Models;
+﻿namespace AniDesk.Core.Models;
 
 /// <summary>
 /// A row of N posts for the virtualized gallery grid.
