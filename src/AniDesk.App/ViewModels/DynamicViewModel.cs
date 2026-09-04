@@ -112,48 +112,74 @@ public partial class DynamicViewModel : ObservableObject
     public void RefreshDownloads()
     {
         var settings = _storageService.LoadSettings();
-        string downloadDir = _storageService.GetDownloadDirectory();
         var selectedSet = new HashSet<string>(settings.DynamicSelectedDownloadFiles ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+        string[] validExtensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp"];
+
+        // Collect all unique directories to scan (same logic as DownloadsViewModel)
+        var foldersToScan = new List<string>();
+        var seenFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        void TryAddFolder(string? path)
+        {
+            if (!string.IsNullOrWhiteSpace(path) && Directory.Exists(path) && seenFolders.Add(path))
+                foldersToScan.Add(path);
+        }
+
+        TryAddFolder(_storageService.GetDownloadDirectory());
+        TryAddFolder(settings.DownloadFolderPath);
+        TryAddFolder(Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "AniDesk", "Downloads"));
 
         DownloadedWallpapers.Clear();
 
-        if (Directory.Exists(downloadDir))
+        var seenFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var allFiles = new List<FileInfo>();
+
+        foreach (var folder in foldersToScan)
         {
-            string[] validExtensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp"];
             try
             {
-                var files = Directory.GetFiles(downloadDir)
-                    .Where(f => validExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
-                    .OrderByDescending(File.GetLastWriteTimeUtc)
-                    .ToList();
-
-                TotalDownloadsCount = files.Count;
-                HasDownloadedFiles = files.Count > 0;
-
-                foreach (var file in files)
+                foreach (var file in Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories))
                 {
-                    var fi = new FileInfo(file);
-                    string ext = fi.Extension.TrimStart('.').ToUpperInvariant();
-                    string size = FormatFileSize(fi.Length);
-                    bool selected = selectedSet.Contains(file) || selectedSet.Contains(fi.Name);
-
-                    DownloadedWallpapers.Add(new CarouselDownloadItem
-                    {
-                        FilePath = file,
-                        FileName = fi.Name,
-                        FileSizeText = size,
-                        ExtensionBadge = ext,
-                        IsSelectedInCarousel = selected,
-                        IsCurrentlyActive = string.Equals(file, CurrentWallpaper, StringComparison.OrdinalIgnoreCase)
-                    });
+                    if (validExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()) && seenFiles.Add(file))
+                        allFiles.Add(new FileInfo(file));
                 }
             }
-            catch { }
+            catch
+            {
+                try
+                {
+                    foreach (var file in Directory.EnumerateFiles(folder))
+                    {
+                        if (validExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()) && seenFiles.Add(file))
+                            allFiles.Add(new FileInfo(file));
+                    }
+                }
+                catch { }
+            }
         }
-        else
+
+        allFiles.Sort((a, b) => b.LastWriteTimeUtc.CompareTo(a.LastWriteTimeUtc));
+
+        TotalDownloadsCount = allFiles.Count;
+        HasDownloadedFiles = allFiles.Count > 0;
+
+        foreach (var fi in allFiles)
         {
-            TotalDownloadsCount = 0;
-            HasDownloadedFiles = false;
+            string ext = fi.Extension.TrimStart('.').ToUpperInvariant();
+            string size = FormatFileSize(fi.Length);
+            bool selected = selectedSet.Contains(fi.FullName) || selectedSet.Contains(fi.Name);
+
+            DownloadedWallpapers.Add(new CarouselDownloadItem
+            {
+                FilePath = fi.FullName,
+                FileName = fi.Name,
+                FileSizeText = size,
+                ExtensionBadge = ext,
+                IsSelectedInCarousel = selected,
+                IsCurrentlyActive = string.Equals(fi.FullName, CurrentWallpaper, StringComparison.OrdinalIgnoreCase)
+            });
         }
 
         UpdateSelectionCounts();

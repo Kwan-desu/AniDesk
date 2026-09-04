@@ -281,7 +281,7 @@
                                     <Setter Property="Foreground" Value="#FFFFFF" />
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="ItemBorder" Property="Background" Value="#0078D4" />
+                                    <Setter TargetName="ItemBorder" Property="Background" Value="#1C1C1C" />
                                     <Setter Property="Foreground" Value="#FFFFFF" />
                                 </Trigger>
                                 <MultiTrigger>
@@ -289,7 +289,7 @@
                                         <Condition Property="IsSelected" Value="True" />
                                         <Condition Property="IsHighlighted" Value="True" />
                                     </MultiTrigger.Conditions>
-                                    <Setter TargetName="ItemBorder" Property="Background" Value="#1A85E0" />
+                                    <Setter TargetName="ItemBorder" Property="Background" Value="#2A2A2A" />
                                     <Setter Property="Foreground" Value="#FFFFFF" />
                                 </MultiTrigger>
                                 <Trigger Property="IsEnabled" Value="False">

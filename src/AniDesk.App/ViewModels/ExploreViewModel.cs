@@ -87,11 +87,56 @@ public partial class ExploreViewModel : ObservableObject
         _selectedSource = s.DefaultSource;
         _selectedAspectRatio = s.SelectedAspectRatio ?? "All";
         _selectedMinQuality = s.SelectedMinQuality ?? "All";
+        _searchTags = s.LastTags ?? string.Empty;
 
         _safetyService.SafetyStateChanged += (_, __) => _ = SearchAsync();
     }
 
-    partial void OnSearchTagsChanged(string value) => _ = DebouncedSuggestAsync(value);
+    partial void OnSearchTagsChanged(string value)
+    {
+        _ = DebouncedSuggestAsync(value);
+        // Persist last used tags
+        try
+        {
+            var s = _storageService.LoadSettings();
+            s.LastTags = value;
+            _storageService.SaveSettings(s);
+        }
+        catch { }
+    }
+
+    partial void OnSelectedSourceChanged(BooruSource value)
+    {
+        try
+        {
+            var s = _storageService.LoadSettings();
+            s.DefaultSource = value;
+            _storageService.SaveSettings(s);
+        }
+        catch { }
+    }
+
+    partial void OnSelectedAspectRatioChanged(string value)
+    {
+        try
+        {
+            var s = _storageService.LoadSettings();
+            s.SelectedAspectRatio = value;
+            _storageService.SaveSettings(s);
+        }
+        catch { }
+    }
+
+    partial void OnSelectedMinQualityChanged(string value)
+    {
+        try
+        {
+            var s = _storageService.LoadSettings();
+            s.SelectedMinQuality = value;
+            _storageService.SaveSettings(s);
+        }
+        catch { }
+    }
 
     partial void OnColumnCountChanged(int value)
     {
