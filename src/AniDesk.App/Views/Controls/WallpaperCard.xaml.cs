@@ -63,7 +63,7 @@ public partial class WallpaperCard : UserControl
         {
             if (Application.Current.MainWindow?.DataContext is MainViewModel mainVm)
             {
-                mainVm.ExploreVM.ToggleFavoriteCommand.Execute(post);
+                mainVm.ToggleFavoriteGlobal(post);
             }
         }
     }
@@ -114,7 +114,7 @@ public partial class WallpaperCard : UserControl
         {
             if (Application.Current.MainWindow?.DataContext is MainViewModel mainVm)
             {
-                mainVm.ExploreVM.ToggleFavoriteCommand.Execute(post);
+                mainVm.ToggleFavoriteGlobal(post);
             }
         }
     }

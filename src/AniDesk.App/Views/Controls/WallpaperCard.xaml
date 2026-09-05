@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="AniDesk.App.Views.Controls.WallpaperCard"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -85,7 +85,7 @@
                     </LinearGradientBrush>
                 </Grid.Background>
 
-                <!-- Bookmark Button (Top Right) -->
+                <!-- Favorite Button (Top Right) -->
                 <Button
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
@@ -108,9 +108,9 @@
                         </ControlTemplate>
                     </Button.Template>
                     <ui:SymbolIcon
-                        Symbol="Heart24"
+                        Symbol="Star24"
                         Filled="{Binding IsFavorite}"
-                        Foreground="#E05070"
+                        Foreground="{Binding IsFavorite, Converter={StaticResource BoolToBrushConverter}}"
                         FontSize="14"/>
                 </Button>
 

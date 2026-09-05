@@ -174,6 +174,31 @@ public partial class MainViewModel : ObservableObject
         IsCinematicOpen = true; // Opens the full pop up modal!
     }
 
+    /// <summary>
+    /// Toggles favorite for a post from any page/card.
+    /// Updates the in-memory flag, persists to storage,
+    /// and refreshes the Favorites list if it is currently active.
+    /// </summary>
+    public void ToggleFavoriteGlobal(MoebooruPost post)
+    {
+        if (post.IsFavorite)
+        {
+            _storageService.RemoveFavorite(post.Id);
+            post.IsFavorite = false;
+            // If Favorites page is open, remove this card from the live list
+            if (CurrentViewModel == FavoritesVM)
+            {
+                FavoritesVM.Favorites.Remove(post);
+                FavoritesVM.LoadFavorites(); // re-render rows
+            }
+        }
+        else
+        {
+            _storageService.AddFavorite(post);
+            post.IsFavorite = true;
+        }
+    }
+
     [RelayCommand]
     public void OpenCinematicFromDetail()
     {
